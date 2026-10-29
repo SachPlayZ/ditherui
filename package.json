@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm registry:build && next build",
+    "build": "pnpm registry:build && node scripts/og.ts && next build",
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",
@@ -12,7 +12,9 @@
     "test": "vitest run --passWithNoTests",
     "test:visual": "scripts/visual.sh",
     "test:install": "scripts/e2e-install.sh",
-    "size": "node scripts/check-size.ts"
+    "size": "node scripts/check-size.ts",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "cn": "^0.5.0",
@@ -25,6 +27,7 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.14",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/react": "^16.3.3",
@@ -40,7 +43,8 @@
     "shadcn": "^4.23.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.155.0"
   },
   "packageManager": "pnpm@10.12.1",
   "type": "module"
