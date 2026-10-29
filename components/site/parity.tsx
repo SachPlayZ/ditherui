@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { draw } from "@/lib/ditherui/context";
-import { render } from "@/lib/ditherui/cpu";
-import { paletteColors } from "@/lib/ditherui/palettes";
-import { DEFAULT_TOKENS } from "@/lib/ditherui/provider";
-import type { FieldName, Frame, PaletteName, Pattern } from "@/lib/ditherui/types";
+import { draw } from "@/lib/dithercn/context";
+import { render } from "@/lib/dithercn/cpu";
+import { paletteColors } from "@/lib/dithercn/palettes";
+import { DEFAULT_TOKENS } from "@/lib/dithercn/provider";
+import type { FieldName, Frame, PaletteName, Pattern } from "@/lib/dithercn/types";
 
 const PATTERNS: Pattern[] = ["bayer2", "bayer4", "bayer8", "blueNoise"];
 const PALETTES: PaletteName[] = ["ink", "gameboy", "cga"];

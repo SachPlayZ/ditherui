@@ -1,83 +1,83 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "ditherui",
-  "homepage": "https://ditherui.com",
+  "name": "dithercn",
+  "homepage": "https://dithercn.com",
   "items": [
     {
       "name": "engine",
       "type": "registry:lib",
       "title": "Engine",
-      "description": "The shared WebGL2 render engine every ditherui component uses.",
+      "description": "The shared WebGL2 render engine every dithercn component uses.",
       "files": [
         {
           "path": "registry/engine/context.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/context.ts"
+          "target": "lib/dithercn/context.ts"
         },
         {
           "path": "registry/engine/cpu.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/cpu.ts"
+          "target": "lib/dithercn/cpu.ts"
         },
         {
           "path": "registry/engine/fields.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/fields.ts"
+          "target": "lib/dithercn/fields.ts"
         },
         {
           "path": "registry/engine/glyphs.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/glyphs.ts"
+          "target": "lib/dithercn/glyphs.ts"
         },
         {
           "path": "registry/engine/images.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/images.ts"
+          "target": "lib/dithercn/images.ts"
         },
         {
           "path": "registry/engine/index.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/index.ts"
+          "target": "lib/dithercn/index.ts"
         },
         {
           "path": "registry/engine/palettes.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/palettes.ts"
+          "target": "lib/dithercn/palettes.ts"
         },
         {
           "path": "registry/engine/patterns.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/patterns.ts"
+          "target": "lib/dithercn/patterns.ts"
         },
         {
           "path": "registry/engine/pointer.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/pointer.ts"
+          "target": "lib/dithercn/pointer.ts"
         },
         {
           "path": "registry/engine/programs.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/programs.ts"
+          "target": "lib/dithercn/programs.ts"
         },
         {
           "path": "registry/engine/provider.tsx",
           "type": "registry:lib",
-          "target": "lib/ditherui/provider.tsx"
+          "target": "lib/dithercn/provider.tsx"
         },
         {
           "path": "registry/engine/quantize.tsx",
           "type": "registry:lib",
-          "target": "lib/ditherui/quantize.tsx"
+          "target": "lib/dithercn/quantize.tsx"
         },
         {
           "path": "registry/engine/scheduler.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/scheduler.ts"
+          "target": "lib/dithercn/scheduler.ts"
         },
         {
           "path": "registry/engine/types.ts",
           "type": "registry:lib",
-          "target": "lib/ditherui/types.ts"
+          "target": "lib/dithercn/types.ts"
         }
       ]
     },
@@ -90,7 +90,7 @@
         "background"
       ],
       "registryDependencies": [
-        "https://ditherui.com/r/engine.json"
+        "https://dithercn.com/r/engine.json"
       ],
       "dependencies": [],
       "files": [
@@ -115,7 +115,7 @@
         "media"
       ],
       "registryDependencies": [
-        "https://ditherui.com/r/engine.json"
+        "https://dithercn.com/r/engine.json"
       ],
       "dependencies": [],
       "files": [

@@ -37,7 +37,7 @@ import { DitherField } from "@/components/ui/dither-field";
 export default function Page() {
   return (
     <DitherField style={{ height: 320 }}>
-      <h1>ditherui</h1>
+      <h1>dithercn</h1>
     </DitherField>
   );
 }
@@ -46,5 +46,5 @@ EOF
 pnpm build
 
 ENGINES=$(find . -name quantize.tsx -not -path "./node_modules/*" | wc -l | tr -d " ")
-[ "$ENGINES" = 1 ] && [ -f lib/ditherui/quantize.tsx ] || { echo "engine installed $ENGINES times"; exit 1; }
+[ "$ENGINES" = 1 ] && [ -f lib/dithercn/quantize.tsx ] || { echo "engine installed $ENGINES times"; exit 1; }
 echo "e2e install OK: $ITEMS"

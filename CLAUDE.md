@@ -1,14 +1,14 @@
-# ditherui — project guide for Claude Code
+# dithercn — project guide for Claude Code
 
-ditherui is a React component library where every visual is rendered as **dither** (pixels on/off) or **ASCII** (glyphs). It is distributed as a **shadcn registry** (`npx shadcn@latest add @ditherui/<name>`), not as an npm package. This repo is both the docs site and the registry.
+dithercn is a React component library where every visual is rendered as **dither** (pixels on/off) or **ASCII** (glyphs). It is distributed as a **shadcn registry** (`npx shadcn@latest add @dithercn/<name>`), not as an npm package. This repo is both the docs site and the registry.
 
-The full product brief is `docs/ditherui-brief.md`. Specs and tickets live in GitHub Issues, generated from that brief with `/to-spec` and `/to-tickets`. Work only on the ticket you're given, and don't start work from later phases unless asked. If a decision isn't in the ticket, check the brief before asking.
+The full product brief is `docs/dithercn-brief.md`. Specs and tickets live in GitHub Issues, generated from that brief with `/to-spec` and `/to-tickets`. Work only on the ticket you're given, and don't start work from later phases unless asked. If a decision isn't in the ticket, check the brief before asking.
 
 ## Non-negotiable decisions
 
 - **No runtime dependencies in shipped components.** The render engine is raw WebGL2 written in this repo. Do not add three.js, OGL, regl, pixi or any other graphics library. Do not add animation libraries (no Motion/Framer) to registry components; the engine's scheduler handles animation.
 - **One engine, thin components.** Every component renders through `<Quantize>` from `registry/engine`. Components never create their own WebGL context.
-- **Free vs paid.** This repo is MIT and public. It contains only free components. Paid ("Pro") components will live in a separate private repo and registry (`@ditherui-pro`). Never add Pro code, tokens or license keys here.
+- **Free vs paid.** This repo is MIT and public. It contains only free components. Paid ("Pro") components will live in a separate private repo and registry (`@dithercn-pro`). Never add Pro code, tokens or license keys here.
 - **Accessibility first.** Real text is real DOM text. Canvases are `aria-hidden="true"`. Effects never replace content.
 - **Reduced motion.** `prefers-reduced-motion: reduce` freezes animation but still renders a static frame.
 
@@ -24,13 +24,13 @@ The full product brief is `docs/ditherui-brief.md`. Specs and tickets live in Gi
 ## Repo layout
 
 ```
-ditherui/
+dithercn/
   app/                        # Next.js docs site (routes, layouts)
   components/site/            # site-only UI (nav, preview frame, knobs panel, code tabs)
   content/docs/               # MDX docs pages
     components/<name>.mdx
   registry/
-    engine/                   # registry item: @ditherui/engine (registry:lib)
+    engine/                   # registry item: @dithercn/engine (registry:lib)
       context.ts              # shared WebGL2 context manager
       scheduler.ts            # single rAF loop, visibility + reduced motion
       programs.ts             # shader sources as TS strings, program cache
@@ -64,8 +64,8 @@ Run `pnpm typecheck && pnpm test && pnpm registry:build` before calling any task
 
 ## Registry conventions
 
-- Every component is one registry item, type `registry:ui`, with `"registryDependencies": ["@ditherui/engine"]`.
-- `@ditherui/engine` is type `registry:lib`. Its files install to the user's `lib/ditherui/` folder.
+- Every component is one registry item, type `registry:ui`, with `"registryDependencies": ["@dithercn/engine"]`.
+- `@dithercn/engine` is type `registry:lib`. Its files install to the user's `lib/dithercn/` folder.
 - `dependencies` in registry items should be empty. If a component truly needs an npm package, stop and ask.
 - Fill `title`, `description` (one plain sentence; it feeds search, llms.txt and the copy prompt), `categories`, and `meta: { "modes": ["dither" | "ascii"] }`.
 - File names are kebab-case (`dither-image.tsx`); exports are PascalCase (`DitherImage`).

@@ -1,6 +1,6 @@
 "use client";
 
-import { DitherProvider } from "@/lib/ditherui/provider";
+import { DitherProvider } from "@/lib/dithercn/provider";
 import { DitherField } from "@/registry/ui/dither-field";
 
 export default function DitherFieldProviderDemo() {

@@ -82,7 +82,7 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string): WebG
   const shader = gl.createShader(type)!;
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(`ditherui: ${gl.getShaderInfoLog(shader)}`);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(`dithercn: ${gl.getShaderInfoLog(shader)}`);
   return shader;
 }
 
@@ -96,7 +96,7 @@ export function getProgram(gl: WebGL2RenderingContext, fragment: string, uniform
     gl.attachShader(program, compile(gl, gl.VERTEX_SHADER, VERTEX));
     gl.attachShader(program, compile(gl, gl.FRAGMENT_SHADER, fragment));
     gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(`ditherui: ${gl.getProgramInfoLog(program)}`);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(`dithercn: ${gl.getProgramInfoLog(program)}`);
     p = { program, uniforms: Object.fromEntries(uniforms.map((u) => [u, gl.getUniformLocation(program, u)])) };
     programs.set(fragment, p);
   }

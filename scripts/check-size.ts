@@ -12,7 +12,7 @@ async function size(entry: string, external: string[]): Promise<number> {
 
 const rows: Array<[string, number, number]> = [["engine", await size("registry/engine/index.ts", []), BUDGETS.engine]];
 for (const c of components) {
-  for (const file of c.files) rows.push([c.name, await size(file, ["@/lib/ditherui/*"]), BUDGETS.component]);
+  for (const file of c.files) rows.push([c.name, await size(file, ["@/lib/dithercn/*"]), BUDGETS.component]);
 }
 
 let failed = false;
