@@ -7,7 +7,7 @@ import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
 import { imageValues, videoValues, watchImage } from "./images";
-import { scrambled, textValues } from "./text";
+import { revealAmount, revealed, scrambled, textValues } from "./text";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
@@ -104,6 +104,7 @@ export function Quantize({
         const { source, tokens, ease } = latest.current;
         if (source.kind === "video" && !source.element.paused && !source.element.ended) return true;
         if (source.kind === "text" && source.scramble && tokens.speed > 0) return true;
+        if (source.kind === "text" && source.reveal && performance.now() < source.reveal.start + source.reveal.duration) return true;
         if (source.kind !== "field") return !!pointer.current?.settling();
         // Only noise changes with time; other fields redraw on change, pointer movement or easing.
         return (
@@ -136,6 +137,7 @@ export function Quantize({
           if (typeof result === "string") return;
           // ~12 new scrambles a second at speed 1.
           values = source.kind === "text" && source.scramble ? scrambled(result, source.scramble, Math.floor(seconds * tokens.speed * 12)) : result;
+          if (source.kind === "text" && source.reveal) values = revealed(values, revealAmount(source.reveal, seconds * 1000, still));
           // Error diffusion is for still images; video falls back to an ordered pattern.
           if (source.kind === "image" && tokens.mode === "dither" && isDiffusion(tokens.pattern)) {
             const { pattern, contrast, threshold, palette } = tokens;
