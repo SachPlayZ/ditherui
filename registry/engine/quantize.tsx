@@ -4,7 +4,7 @@ import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } 
 import { draw } from "./context";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { useColorScheme, useDitherTokens } from "./provider";
-import { subscribe } from "./scheduler";
+import { getScheduler, type ViewHandle } from "./scheduler";
 import type { DitherTokens, Source } from "./types";
 
 export type QuantizeProps = Partial<DitherTokens> & {
@@ -29,26 +29,27 @@ export function Quantize({ source, label, className, style, ref, ...overrides }:
       ? `light-dark(${INK_PALETTES.light[0]}, ${INK_PALETTES.dark[0]})`
       : colors[0];
   const latest = useRef({ source, tokens });
+  const view = useRef<ViewHandle>(null);
   useImperativeHandle(ref, () => canvas.current!, []);
   useEffect(() => {
     latest.current = { source, tokens };
+    view.current?.invalidate();
   });
 
   useEffect(() => {
-    const el = canvas.current!;
-    let size = { width: 0, height: 0 };
-    const observer = new ResizeObserver(([entry]) => (size = entry.contentRect));
-    observer.observe(el);
-    const unsubscribe = subscribe((seconds) => {
-      const { source, tokens } = latest.current;
-      const width = Math.round(size.width / tokens.cell);
-      const height = Math.round(size.height / tokens.cell);
-      if (width > 0 && height > 0) draw(el, { source, tokens, width, height, time: seconds * tokens.speed });
+    const element = canvas.current!;
+    const handle = getScheduler().add({
+      element,
+      animated: () => latest.current.tokens.speed > 0,
+      render({ seconds, width, height }) {
+        const { source, tokens } = latest.current;
+        const w = Math.round(width / tokens.cell);
+        const h = Math.round(height / tokens.cell);
+        if (w > 0 && h > 0) draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed });
+      },
     });
-    return () => {
-      observer.disconnect();
-      unsubscribe();
-    };
+    view.current = handle;
+    return handle.remove;
   }, []);
 
   return (
