@@ -5,6 +5,7 @@ description: Converts any image to dither or ASCII live, with the real image kep
 
 import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
 import { Playground } from '@/components/site/playground';
+import DitherImagePatternsDemo from '@/registry/examples/dither-image-patterns-demo';
 
 <ComponentHeader name="dither-image" />
 
@@ -23,6 +24,16 @@ import { DitherImage } from "@/components/ui/dither-image";
 ```
 
 `width` and `height` reserve the aspect ratio, so the page doesn't shift while the image loads. Changing tokens re-renders without reloading the image.
+
+## Patterns
+
+Images also take the error-diffusion patterns `atkinson` and `floyd` (Floyd–Steinberg), which keep more photo detail than ordered dither. They run on the CPU; images over 512×512 marks are diffused in a Web Worker, off the main thread.
+
+<DitherImagePatternsDemo />
+
+```tsx
+<DitherImage src="/photo.jpg" alt="…" width={1200} height={800} pattern="atkinson" />
+```
 
 ## Accessibility
 

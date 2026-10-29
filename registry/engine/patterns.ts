@@ -96,9 +96,14 @@ export interface ThresholdMap {
 }
 
 const cache = new Map<string, ThresholdMap>();
+let warnedDiffusion = false;
 
-/** Threshold map for an ordered pattern, built on first use; diffusion patterns use bayer4 here. */
+/** Threshold map for an ordered pattern, built on first use; diffusion patterns fall back to bayer4 here. */
 export function thresholdMap(pattern: Pattern): ThresholdMap {
+  if ((pattern === "atkinson" || pattern === "floyd") && !warnedDiffusion && process.env.NODE_ENV !== "production") {
+    warnedDiffusion = true;
+    console.warn(`dotgrain: pattern "${pattern}" only applies to still images; using "bayer4" instead.`);
+  }
   const key = pattern === "bayer2" || pattern === "bayer8" || pattern === "blueNoise" ? pattern : "bayer4";
   let map = cache.get(key);
   if (!map) {
