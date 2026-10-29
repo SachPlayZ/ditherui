@@ -33,16 +33,23 @@ for item in $ITEMS; do "$SHADCN" add "http://localhost:$PORT/r/$item.json" --yes
 
 cat > app/page.tsx <<'EOF'
 import { DitherField } from "@/components/ui/dither-field";
+import { DitherImage } from "@/components/ui/dither-image";
+import { DitherProgress } from "@/components/ui/dither-progress";
 
 export default function Page() {
   return (
-    <DitherField style={{ height: 320 }}>
-      <h1>dotgrain</h1>
-    </DitherField>
+    <>
+      <DitherField style={{ height: 320 }}>
+        <h1>dotgrain</h1>
+      </DitherField>
+      <DitherImage src="/next.svg" alt="Next.js logo" width={394} height={80} mode="ascii" />
+      <DitherProgress value={40} label="Loading" />
+    </>
   );
 }
 EOF
 
+pnpm exec tsc --noEmit
 pnpm build
 
 ENGINES=$(find . -name quantize.tsx -not -path "./node_modules/*" | wc -l | tr -d " ")
