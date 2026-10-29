@@ -15,9 +15,10 @@ import { AsciiVideo } from "@/registry/ui/ascii-video";
 import { DitherField } from "@/registry/ui/dither-field";
 import { DitherImage } from "@/registry/ui/dither-image";
 import { DitherProgress } from "@/registry/ui/dither-progress";
+import { ScrambleText } from "@/registry/ui/scramble-text";
 
 // Each preview gets its meta example props plus knob values, so props are only known at runtime.
-const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress, "ascii-video": AsciiVideo } as unknown as Record<
+const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress, "ascii-video": AsciiVideo, "scramble-text": ScrambleText } as unknown as Record<
   string,
   ComponentType<Record<string, unknown> & { children?: ReactNode }>
 >;
@@ -45,7 +46,9 @@ const TOKENS: (keyof DitherTokens)[] = ["mode", "pattern", "palette", "glyphs", 
 function useEffective(meta: ComponentMeta, values: KnobValues): KnobValues {
   // Single-mode components force their mode, so mode-dependent defaults (cell, glyph knobs) follow it.
   const site = useDitherTokens(meta.modes.length === 1 ? { mode: meta.modes[0] } : {});
-  return { ...Object.fromEntries(TOKENS.map((k) => [k, site[k] as string | number])), ...values };
+  // What renders: provider tokens, then the example's own props, then knobs.
+  const example = Object.fromEntries(Object.entries(meta.example.props).filter(([, v]) => typeof v !== "object"));
+  return { ...Object.fromEntries(TOKENS.map((k) => [k, site[k] as string | number])), ...(example as KnobValues), ...values };
 }
 
 const metaOf = (name: string): ComponentMeta => {

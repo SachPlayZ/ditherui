@@ -25,7 +25,7 @@ export type Source =
   /** Keep the element rendered (e.g. visually hidden), not `display: none`: browsers may not decode a hidden paused video's frames. */
   | { kind: "video"; element: HTMLVideoElement }
   /** The element's text as laid out in the DOM; the canvas should cover the element's box exactly. */
-  | { kind: "text"; element: HTMLElement };
+  | { kind: "text"; element: HTMLElement; /** 0–1: re-randomise lit marks every tick, for a scramble. */ scramble?: number };
 
 /** One render request: quantized size in marks, time in seconds. */
 export interface Frame {

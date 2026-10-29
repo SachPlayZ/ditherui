@@ -14,7 +14,7 @@ const ASCII_UNIFORMS = [...SHARED, "uCell", "uAspect", "uGlyphs", "uAtlas"];
 let gl: WebGL2RenderingContext | null | undefined;
 let glCanvas: HTMLCanvasElement;
 let textures = new WeakMap<object, WebGLTexture>();
-const VIDEO = {};
+const LIVE = {};
 
 // One WebGL2 context per page, shared by every view (browsers cap live contexts at ~16).
 function getGL(): WebGL2RenderingContext | null {
@@ -95,9 +95,10 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
     const upload = () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values);
     g.uniform1i(u.uField, -1);
     g.activeTexture(g.TEXTURE1);
-    // Image and text values are cached per size; video frames change every draw, so they share one texture re-uploaded each time.
-    g.bindTexture(g.TEXTURE_2D, texture(g, source.kind === "video" ? VIDEO : values, upload));
-    if (source.kind === "video") upload();
+    // Image and text values are cached per size; video frames and scrambles change every draw, so they share one texture re-uploaded each time.
+    const live = source.kind === "video" || (source.kind === "text" && !!source.scramble);
+    g.bindTexture(g.TEXTURE_2D, texture(g, live ? LIVE : values, upload));
+    if (live) upload();
   }
   g.uniform1i(u.uValues, 1);
   g.uniform4fv(u.uCursor, frame.cursor ?? [0, 0, 0, 0]);

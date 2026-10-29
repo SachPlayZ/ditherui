@@ -194,6 +194,30 @@
           "ascii"
         ]
       }
+    },
+    {
+      "name": "scramble-text",
+      "type": "registry:ui",
+      "title": "Scramble Text",
+      "description": "Text that scrambles through ASCII glyphs before settling, with the real string in the DOM from the first frame.",
+      "categories": [
+        "text"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/scramble-text.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "ascii"
+        ]
+      }
     }
   ]
 }
