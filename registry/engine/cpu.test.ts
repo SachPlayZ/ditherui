@@ -71,6 +71,16 @@ describe("render", () => {
     expect([...levels].every((v) => [0, 0x55, 0xaa, 0xff].includes(v))).toBe(true);
   });
 
+  it("contrast pushes values toward the extremes", () => {
+    // Bayer thresholds sit in (0, 1), so heavy contrast saturates nearly every mark to 0 or 1
+    // and the pattern stops depending on the threshold map: fewer isolated dither dots.
+    const flips = (contrast: number) => {
+      const m = marks(render(frame({ width: 32, height: 32 }, { contrast })));
+      return m.filter((v, i) => i % 32 > 0 && v !== m[i - 1]).length;
+    };
+    expect(flips(8)).toBeLessThan(flips(1));
+  });
+
   it("threshold shifts how many marks are lit", () => {
     const lit = (threshold: number) => marks(render(frame({}, { threshold }))).reduce((a, b) => a + b, 0);
     expect(lit(0.2)).toBeGreaterThan(lit(0.5));

@@ -7,5 +7,6 @@ export default defineConfig({
   },
   test: {
     include: ['registry/**/*.test.{ts,tsx}', 'lib/**/*.test.{ts,tsx}'],
+    setupFiles: ['test/setup.ts'],
   },
 });
