@@ -7,7 +7,7 @@ import { ASCII, DITHER, getProgram } from "./programs";
 import { getScheduler } from "./scheduler";
 import type { Frame } from "./types";
 
-const SHARED = ["uSize", "uTime", "uField", "uParams", "uCursor", "uContrast", "uThreshold", "uPalette", "uLevels"];
+const SHARED = ["uSize", "uTime", "uField", "uParams", "uValues", "uCursor", "uContrast", "uThreshold", "uPalette", "uLevels"];
 const DITHER_UNIFORMS = [...SHARED, "uPattern"];
 const ASCII_UNIFORMS = [...SHARED, "uCell", "uAspect", "uGlyphs", "uAtlas"];
 
@@ -58,7 +58,8 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const g = getGL();
-  if (!g || source.kind !== "field") {
+  if (source.kind === "video" || (source.kind === "image" && !frame.values)) return;
+  if (!g) {
     // shortcut: the CPU display path only draws dither so far; ASCII without WebGL2 lands with #9.
     if (!ascii) ctx.putImageData(new ImageData(render(frame), cols, rows), 0, 0);
     return;
@@ -72,8 +73,16 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   g.viewport(0, 0, w, h);
   g.uniform2f(u.uSize, cols, rows);
   g.uniform1f(u.uTime, frame.time);
-  g.uniform1i(u.uField, FIELD_IDS[source.field]);
-  g.uniform4fv(u.uParams, fieldParams(source.field, source.params));
+  if (source.kind === "field") {
+    g.uniform1i(u.uField, FIELD_IDS[source.field]);
+    g.uniform4fv(u.uParams, fieldParams(source.field, source.params));
+  } else {
+    const values = frame.values!;
+    g.uniform1i(u.uField, -1);
+    g.activeTexture(g.TEXTURE1);
+    g.bindTexture(g.TEXTURE_2D, texture(g, values, () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values)));
+  }
+  g.uniform1i(u.uValues, 1);
   g.uniform4fv(u.uCursor, frame.cursor ?? [0, 0, 0, 0]);
   g.uniform1f(u.uContrast, tokens.contrast);
   g.uniform1f(u.uThreshold, tokens.threshold);

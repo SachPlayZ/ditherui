@@ -8,7 +8,7 @@ void main() {
 }`;
 
 // Mirrors cpu.ts: px is the top-left-origin mark coordinate, so the CPU and GPU
-// index the threshold map identically.
+// index the threshold map identically. uField < 0 reads per-mark image luminance from uValues.
 export const DITHER = `#version 300 es
 precision highp float;
 precision highp int;
@@ -16,6 +16,7 @@ uniform vec2 uSize;
 uniform float uTime;
 uniform int uField;
 uniform vec4 uParams;
+uniform highp sampler2D uValues;
 uniform vec4 uCursor;
 uniform float uContrast;
 uniform float uThreshold;
@@ -28,7 +29,7 @@ void main() {
   vec2 px = vec2(gl_FragCoord.x, uSize.y - gl_FragCoord.y);
   vec2 uv = px / uSize;
   float aspect = uSize.x / uSize.y;
-  float v = field(uField, uv, aspect, uTime, uParams) + cursorBump(uv, aspect, uCursor);
+  float v = (uField < 0 ? texelFetch(uValues, ivec2(px), 0).r : field(uField, uv, aspect, uTime, uParams)) + cursorBump(uv, aspect, uCursor);
   float t = texelFetch(uPattern, ivec2(px) % textureSize(uPattern, 0), 0).r;
   float s = clamp((v - 0.5) * uContrast + 1.0 - uThreshold, 0.0, 1.0) * float(uLevels - 1);
   float b = floor(s);
@@ -47,6 +48,7 @@ uniform float uAspect;
 uniform float uTime;
 uniform int uField;
 uniform vec4 uParams;
+uniform highp sampler2D uValues;
 uniform vec4 uCursor;
 uniform float uContrast;
 uniform float uThreshold;
@@ -60,7 +62,7 @@ void main() {
   vec2 px = vec2(gl_FragCoord.x, uSize.y * uCell.y - gl_FragCoord.y);
   vec2 cell = floor(px / uCell);
   vec2 uv = (cell + 0.5) / uSize;
-  float v = field(uField, uv, uAspect, uTime, uParams) + cursorBump(uv, uAspect, uCursor);
+  float v = (uField < 0 ? texelFetch(uValues, ivec2(cell), 0).r : field(uField, uv, uAspect, uTime, uParams)) + cursorBump(uv, uAspect, uCursor);
   float s = clamp((v - 0.5) * uContrast + 1.0 - uThreshold, 0.0, 1.0);
   int glyph = min(uGlyphs - 1, int(floor(s * float(uGlyphs))));
   int band = min(uLevels - 1, 1 + int(floor(s * float(uLevels - 1))));
