@@ -8,6 +8,7 @@ import DitherFieldPatternsDemo from "./dither-field-patterns-demo";
 import DitherImageDemo from "./dither-image-demo";
 import DitherImagePatternsDemo from "./dither-image-patterns-demo";
 import DitherProgressDemo from "./dither-progress-demo";
+import ScrambleTextDemo from "./scramble-text-demo";
 import DitherFieldProviderDemo from "./dither-field-provider-demo";
 
 /** Every docs example by name; visual regression screenshots each one. */
@@ -22,4 +23,5 @@ export const examples: Record<string, ComponentType> = {
   "dither-progress-demo": DitherProgressDemo,
   "ascii-video-demo": AsciiVideoDemo,
   "ascii-video-webcam-demo": AsciiVideoWebcamDemo,
+  "scramble-text-demo": ScrambleTextDemo,
 };

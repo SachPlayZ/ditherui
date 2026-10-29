@@ -66,3 +66,16 @@ export function textValues(element: HTMLElement, cols: number, rows: number): Fl
   cache.set(element, { key, values });
   return values;
 }
+
+/** Stateless hash of (mark, tick) to [0, 1). */
+function hash(i: number, tick: number): number {
+  let h = Math.imul(i ^ Math.imul(tick + 1, 0x9e3779b1), 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/** Scramble a mask's lit marks: each gets a fresh random level per tick, `amount` 0 (as is) to 1 (fully random). Empty marks stay empty. */
+export function scrambled(mask: Float32Array, amount: number, tick: number): Float32Array {
+  return mask.map((v, i) => (v > 0.02 ? v * (1 - amount * hash(i, tick)) : v));
+}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type Ref } from "react";
-import { useDitherTokens } from "@/lib/dotgrain/provider";
+import { useEffect, useRef, useState, type CSSProperties, type Ref } from "react";
+import { useDitherTokens, useReducedMotion } from "@/lib/dotgrain/provider";
 import { Quantize } from "@/lib/dotgrain/quantize";
 import type { DitherTokens } from "@/lib/dotgrain/types";
 
@@ -30,8 +30,6 @@ const overlay: CSSProperties = { position: "absolute", bottom: 8, left: 8, displ
 const control: CSSProperties = { font: "inherit", color: "#fff", background: "rgb(0 0 0 / 0.7)", border: "1px solid rgb(255 255 255 / 0.5)", borderRadius: 4, padding: "2px 8px", cursor: "pointer" };
 const message: CSSProperties = { ...control, cursor: undefined };
 
-const motion = () => matchMedia("(prefers-reduced-motion: reduce)");
-const subscribe = (cb: () => void) => (motion().addEventListener("change", cb), () => motion().removeEventListener("change", cb));
 
 export function AsciiVideo({ src, label, webcam, width, height, crossOrigin, className, style, ref, ...tokens }: AsciiVideoProps) {
   // State re-renders once the element mounts (Quantize needs it); playback is driven through the ref.
@@ -41,7 +39,7 @@ export function AsciiVideo({ src, label, webcam, width, height, crossOrigin, cla
   // The viewer's play/pause choice; until they make one, play unless motion is reduced or speed is 0.
   const [choice, setChoice] = useState<boolean | null>(null);
   const [camera, setCamera] = useState<Camera>("off");
-  const reduced = useSyncExternalStore(subscribe, () => motion().matches, () => false);
+  const reduced = useReducedMotion();
   // `speed` sets the playback rate.
   const { speed } = useDitherTokens({ ...tokens, mode: "ascii" });
   const playing = choice ?? !(reduced || speed <= 0);

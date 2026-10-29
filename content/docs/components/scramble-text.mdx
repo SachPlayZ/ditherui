@@ -1,0 +1,42 @@
+---
+title: Scramble Text
+description: Text that scrambles through ASCII glyphs before settling, with the real string in the DOM from the first frame.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="scramble-text" />
+
+<Playground name="scramble-text" />
+
+## Installation
+
+<Install name="scramble-text" />
+
+## Usage
+
+```tsx
+import { ScrambleText } from "@/components/ui/scramble-text";
+
+<ScrambleText as="h1" cell={4}>Signal acquired</ScrambleText>
+```
+
+While it scrambles, the text's own letter shapes fill with glyphs that change about twelve times a second (scaled by `speed`), then the text fades back in. Pick when it happens with `trigger`:
+
+```tsx
+<ScrambleText trigger="hover">Hover me</ScrambleText>
+<ScrambleText trigger="inView" as="h2">Scrambles once, when scrolled into view</ScrambleText>
+```
+
+Keep `cell` well below the text size (around a tenth of it, e.g. `cell={4}` for 40–60px headings) so the glyphs read as its letter shapes. Set the scramble colours with `palette`; its background colour shows behind the glyphs while scrambling.
+
+## Accessibility and performance
+
+- The real string is in the DOM from the first frame, so screen readers, search engines and copy-paste always get the final text. While scrambling it is only made transparent; the glyph overlay is an `aria-hidden` canvas.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, it never scrambles.
+- The overlay exists only while scrambling. The text's layout is measured once per size and font, and each tick only re-randomises the glyphs.
+
+## Props
+
+<PropsTable name="scramble-text" />
