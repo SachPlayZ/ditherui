@@ -3,4 +3,25 @@ title: Introduction
 description: React components rendered as dither and ASCII.
 ---
 
-dotgrain is a React component library where every visual is rendered as dither (pixels on/off) or ASCII (glyphs). Components install into your codebase with the shadcn CLI.
+import DitherFieldDemo from '@/registry/examples/dither-field-demo';
+
+dotgrain is a React component library where every visual is rendered as **dither** (pixels on or off) or **ASCII** (glyphs). Components install into your codebase with the shadcn CLI, so you own the code.
+
+<Preview>
+  <DitherFieldDemo />
+</Preview>
+
+Change the **Style** panel in the sidebar: every preview on the site follows it.
+
+## Principles
+
+- **Real content stays real.** Text is DOM text and images keep their `<img alt>`. The canvas is decoration, hidden from assistive tech.
+- **One small engine.** Every component renders through `<Quantize>` on a single shared WebGL2 context, with a Canvas2D fallback. No runtime dependencies.
+- **Tokens, not one-offs.** Mode, pattern, palette, cell size and glyphs are shared tokens, set once with `DitherProvider` and overridden per component.
+- **Calm by default.** Animation pauses offscreen and in hidden tabs, and freezes to a still frame under `prefers-reduced-motion`.
+
+## Next
+
+- [Installation](/docs/installation): add components with the shadcn CLI.
+- [Theming and tokens](/docs/theming): palettes, patterns, glyph ramps and the provider.
+- Components: [Dither Field](/docs/components/dither-field), [Dither Image](/docs/components/dither-image), [Dither Progress](/docs/components/dither-progress).

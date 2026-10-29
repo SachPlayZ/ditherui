@@ -22,7 +22,7 @@ pnpm exec wrangler dev --port "$PORT" >"$LOG" 2>&1 &
 DEV=$!
 for _ in $(seq 1 60); do curl -s -o /dev/null "localhost:$PORT" && break; sleep 2; done
 
-paths=(/ /docs /llms.txt /og/docs/image.png)
+paths=(/ /docs /docs/installation /docs/theming /llms.txt /og/docs/image.png)
 for item in $(node -e 'import("./registry/meta/index.ts").then(m => console.log(m.components.map(c => c.name).join(" ")))'); do
   paths+=("/docs/components/$item" "/r/$item.json")
 done

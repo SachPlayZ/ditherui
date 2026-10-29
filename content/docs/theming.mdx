@@ -1,0 +1,64 @@
+---
+title: Theming and tokens
+description: Palettes, patterns, glyph ramps and the DitherProvider.
+---
+
+import DitherFieldProviderDemo from '@/registry/examples/dither-field-provider-demo';
+
+Every component reads the same **tokens**. Set them once with `DitherProvider`; any component prop overrides them for that component. Precedence: defaults, then the nearest providers (nested ones inherit and override), then props.
+
+```tsx
+import { DitherProvider } from "@/lib/dotgrain/provider";
+
+<DitherProvider palette="gameboy" pattern="bayer8" cell={4}>
+  <App />
+</DitherProvider>
+```
+
+<Preview>
+  <DitherFieldProviderDemo />
+</Preview>
+
+## Tokens
+
+| Token | Default | Values |
+| --- | --- | --- |
+| `mode` | `"dither"` | `"dither"` (pixels) or `"ascii"` (glyphs) |
+| `pattern` | `"bayer4"` | `bayer2`, `bayer4`, `bayer8`, `blueNoise`; images also take `atkinson` and `floyd` |
+| `cell` | `3` (`10` in ASCII) | Mark size in CSS pixels; in ASCII, the glyph height |
+| `palette` | `"ink"` | A palette name, or 2–4 colours ordered background → foreground |
+| `glyphs` | `"standard"` | A ramp name, or your own string ordered sparse → dense |
+| `speed` | `1` | Animation speed; `0` freezes |
+| `contrast` | `1` | Spreads values away from the midpoint |
+| `threshold` | `0.5` | Higher means fewer lit marks |
+
+## Palettes
+
+| Name | Colours (background → foreground) |
+| --- | --- |
+| `ink` | `#0a0a0a` `#f2f0e9`, flipped in light mode |
+| `gameboy` | `#0f380f` `#306230` `#8bac0f` `#9bbc0f` |
+| `amber` | `#140b00` `#ffb000` |
+| `phosphor` | `#001408` `#33ff66` |
+| `cga` | `#000000` `#55ffff` `#ff55ff` `#ffffff` |
+| `riso` | `#f2efe6` `#ff48b0` `#0078bf` `#1a1a1a` |
+
+Custom palettes are arrays: `palette={["#111", "#e4572e", "#f3a712"]}`. With 3–4 colours, dither picks between neighbouring colours and ASCII tints glyphs by brightness band.
+
+`ink` follows the colour scheme: `colorScheme="system"` (default) reads `<html class="dark">` or `data-theme`, then the OS setting. Force it with `colorScheme="light"` or `"dark"` on the provider.
+
+## Glyph ramps
+
+| Name | Glyphs |
+| --- | --- |
+| `standard` | ` .:-=+*#%@` |
+| `blocks` | ` ░▒▓█` |
+| `binary` | `01` |
+| `katakana` | 32 half-width katakana |
+
+## Provider props
+
+| Prop | Description |
+| --- | --- |
+| `colorScheme` | `"system"`, `"light"` or `"dark"`: which variant `ink` uses |
+| `font` | Font family for ASCII glyphs; the atlas redraws when web fonts finish loading |

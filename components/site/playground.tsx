@@ -1,11 +1,14 @@
 "use client";
 
 import { Code } from "./code";
+import { Preview } from "./preview";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { buttonVariants } from "fumadocs-ui/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "fumadocs-ui/components/ui/popover";
 import { type ComponentType, type ReactNode, useState, useSyncExternalStore } from "react";
 import { defaultOf, isVisible, type KnobValues, knobsFor, openIn, prompt, snippet } from "@/lib/component-doc";
+import { useDitherTokens } from "@/lib/dotgrain/provider";
+import type { DitherTokens } from "@/lib/dotgrain/types";
 import { components } from "@/registry/meta";
 import type { ComponentMeta, KnobMeta } from "@/registry/meta/types";
 import { DitherField } from "@/registry/ui/dither-field";
@@ -33,6 +36,14 @@ function useKnobs(name: string): [KnobValues, (values: KnobValues) => void] {
       listeners.forEach((cb) => cb());
     },
   ];
+}
+
+const TOKENS: (keyof DitherTokens)[] = ["mode", "pattern", "palette", "glyphs", "cell", "speed", "contrast", "threshold"];
+
+/** Knob values on top of the style bar's tokens: what the preview renders, so knobs and code show it. */
+function useEffective(values: KnobValues): KnobValues {
+  const site = useDitherTokens({});
+  return { ...Object.fromEntries(TOKENS.map((k) => [k, site[k] as string | number])), ...values };
 }
 
 const metaOf = (name: string): ComponentMeta => {
@@ -78,17 +89,20 @@ function Knob({ knob, values, set }: { knob: KnobMeta; values: KnobValues; set: 
 export function Playground({ name }: { name: string }) {
   const meta = metaOf(name);
   const [values, setValues] = useKnobs(name);
+  const effective = useEffective(values);
   const Component = COMPONENTS[name];
-  const visible = knobsFor(meta).filter((k) => isVisible(k, values));
+  const visible = knobsFor(meta).filter((k) => isVisible(k, effective));
   return (
     <Tabs items={["Preview", "Code"]} className="not-prose">
       <Tab value="Preview" className="p-0">
-        <Component {...meta.example.props} {...values}>
-          {meta.example.children}
-        </Component>
-        <div className="grid gap-x-6 gap-y-2 border-t p-4 text-sm sm:grid-cols-2">
+        <Preview>
+          <Component {...meta.example.props} {...values}>
+            {meta.example.children}
+          </Component>
+        </Preview>
+        <div className="grid gap-x-6 gap-y-2 p-4 text-sm sm:grid-cols-2">
           {visible.map((knob) => (
-            <Knob key={knob.name} knob={knob} values={values} set={(v) => setValues({ ...values, [knob.name]: v })} />
+            <Knob key={knob.name} knob={knob} values={effective} set={(v) => setValues({ ...values, [knob.name]: v })} />
           ))}
           <button type="button" className={buttonVariants({ color: "secondary", size: "sm", className: "justify-self-start" })} onClick={() => setValues(EMPTY)}>
             Reset
@@ -96,7 +110,7 @@ export function Playground({ name }: { name: string }) {
         </div>
       </Tab>
       <Tab value="Code" className="p-0">
-        <Code lang="tsx" code={snippet(meta, values)} />
+        <Code lang="tsx" code={snippet(meta, effective)} />
       </Tab>
     </Tabs>
   );
@@ -106,8 +120,9 @@ export function Playground({ name }: { name: string }) {
 export function CopyPrompt({ name }: { name: string }) {
   const meta = metaOf(name);
   const [values] = useKnobs(name);
+  const effective = useEffective(values);
   const [copied, setCopied] = useState(false);
-  const text = prompt(meta, values);
+  const text = prompt(meta, effective);
   return (
     <div className="flex">
       <button

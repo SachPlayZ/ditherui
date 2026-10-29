@@ -29,15 +29,19 @@ import { DitherImage } from "@/components/ui/dither-image";
 
 Images also take the error-diffusion patterns `atkinson` and `floyd` (Floyd–Steinberg), which keep more photo detail than ordered dither. They run on the CPU; images over 512×512 marks are diffused in a Web Worker, off the main thread.
 
-<DitherImagePatternsDemo />
+<Preview>
+  <DitherImagePatternsDemo />
+</Preview>
 
 ```tsx
 <DitherImage src="/photo.jpg" alt="…" width={1200} height={800} pattern="atkinson" />
 ```
 
-## Accessibility
+## Accessibility and performance
 
-The real `<img alt>` stays in the DOM, visually hidden, for screen readers and search engines; the canvas is decorative. If the image's pixels can't be read (a cross-origin image without CORS headers), the plain image is shown instead.
+- The real `<img alt>` stays in the DOM, visually hidden, for screen readers and search engines; the canvas is decorative. If the image's pixels can't be read (a cross-origin image without CORS headers), the plain image is shown instead.
+- The image loads once and is sampled once per size; changing tokens re-quantizes without reloading.
+- Images don't animate, so they draw only when they load, resize or their tokens change. Error diffusion runs on the CPU, in a Web Worker for images over 512×512 marks.
 
 ## Props
 
