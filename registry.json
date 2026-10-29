@@ -2,5 +2,93 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "ditherui",
   "homepage": "https://ditherui.com",
-  "items": []
+  "items": [
+    {
+      "name": "engine",
+      "type": "registry:lib",
+      "title": "Engine",
+      "description": "The shared WebGL2 render engine every ditherui component uses.",
+      "files": [
+        {
+          "path": "registry/engine/context.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/context.ts"
+        },
+        {
+          "path": "registry/engine/cpu.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/cpu.ts"
+        },
+        {
+          "path": "registry/engine/fields.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/fields.ts"
+        },
+        {
+          "path": "registry/engine/index.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/index.ts"
+        },
+        {
+          "path": "registry/engine/palettes.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/palettes.ts"
+        },
+        {
+          "path": "registry/engine/patterns.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/patterns.ts"
+        },
+        {
+          "path": "registry/engine/programs.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/programs.ts"
+        },
+        {
+          "path": "registry/engine/provider.tsx",
+          "type": "registry:lib",
+          "target": "lib/ditherui/provider.tsx"
+        },
+        {
+          "path": "registry/engine/quantize.tsx",
+          "type": "registry:lib",
+          "target": "lib/ditherui/quantize.tsx"
+        },
+        {
+          "path": "registry/engine/scheduler.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/scheduler.ts"
+        },
+        {
+          "path": "registry/engine/types.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/types.ts"
+        }
+      ]
+    },
+    {
+      "name": "dither-field",
+      "type": "registry:ui",
+      "title": "Dither Field",
+      "description": "An animated dithered background field with real DOM content on top.",
+      "categories": [
+        "background"
+      ],
+      "registryDependencies": [
+        "https://ditherui.com/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/dither-field.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither"
+        ]
+      }
+    }
+  ]
 }
