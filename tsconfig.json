@@ -19,7 +19,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/lib/dithercn/*": [
+      "@/lib/dotgrain/*": [
         "./registry/engine/*"
       ],
       "@/*": [

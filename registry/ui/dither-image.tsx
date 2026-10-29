@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type CSSProperties, type Ref } from "react";
-import { Quantize } from "@/lib/dithercn/quantize";
-import type { DitherTokens } from "@/lib/dithercn/types";
+import { Quantize } from "@/lib/dotgrain/quantize";
+import type { DitherTokens } from "@/lib/dotgrain/types";
 
 export type DitherImageProps = Partial<DitherTokens> & {
   src: string;

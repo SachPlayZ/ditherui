@@ -4,24 +4,24 @@ import { readdirSync, writeFileSync } from "node:fs";
 import { components } from "../registry/meta/index.ts";
 
 const out = process.argv[2] ?? "registry.json";
-// shortcut: engine is referenced by URL because `@dithercn/engine` only resolves once the namespace
+// shortcut: engine is referenced by URL because `@dotgrain/engine` only resolves once the namespace
 // is configured by the user or listed in the shadcn index; switch after the index listing (phase 2).
-const base = process.env.REGISTRY_URL ?? "https://dithercn.com/r";
+const base = process.env.REGISTRY_URL ?? "https://dotgrain.com/r";
 const engineFiles = readdirSync("registry/engine")
   .filter((f) => /\.tsx?$/.test(f) && !f.includes(".test."))
   .sort();
 
 const registry = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
-  name: "dithercn",
-  homepage: "https://dithercn.com",
+  name: "dotgrain",
+  homepage: "https://dotgrain.com",
   items: [
     {
       name: "engine",
       type: "registry:lib",
       title: "Engine",
-      description: "The shared WebGL2 render engine every dithercn component uses.",
-      files: engineFiles.map((f) => ({ path: `registry/engine/${f}`, type: "registry:lib", target: `lib/dithercn/${f}` })),
+      description: "The shared WebGL2 render engine every dotgrain component uses.",
+      files: engineFiles.map((f) => ({ path: `registry/engine/${f}`, type: "registry:lib", target: `lib/dotgrain/${f}` })),
     },
     ...components.map((c) => ({
       name: c.name,

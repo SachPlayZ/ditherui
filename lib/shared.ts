@@ -1,13 +1,13 @@
 import { createGetUrl } from 'fumadocs-core/source';
 
-export const appName = 'dithercn';
+export const appName = 'dotgrain';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
 export const gitConfig = {
   user: 'SachPlayZ',
-  repo: 'dithercn',
+  repo: 'dotgrain',
   branch: 'main',
 };
 

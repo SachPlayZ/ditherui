@@ -1,83 +1,83 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "dithercn",
-  "homepage": "https://dithercn.com",
+  "name": "dotgrain",
+  "homepage": "https://dotgrain.com",
   "items": [
     {
       "name": "engine",
       "type": "registry:lib",
       "title": "Engine",
-      "description": "The shared WebGL2 render engine every dithercn component uses.",
+      "description": "The shared WebGL2 render engine every dotgrain component uses.",
       "files": [
         {
           "path": "registry/engine/context.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/context.ts"
+          "target": "lib/dotgrain/context.ts"
         },
         {
           "path": "registry/engine/cpu.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/cpu.ts"
+          "target": "lib/dotgrain/cpu.ts"
         },
         {
           "path": "registry/engine/fields.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/fields.ts"
+          "target": "lib/dotgrain/fields.ts"
         },
         {
           "path": "registry/engine/glyphs.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/glyphs.ts"
+          "target": "lib/dotgrain/glyphs.ts"
         },
         {
           "path": "registry/engine/images.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/images.ts"
+          "target": "lib/dotgrain/images.ts"
         },
         {
           "path": "registry/engine/index.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/index.ts"
+          "target": "lib/dotgrain/index.ts"
         },
         {
           "path": "registry/engine/palettes.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/palettes.ts"
+          "target": "lib/dotgrain/palettes.ts"
         },
         {
           "path": "registry/engine/patterns.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/patterns.ts"
+          "target": "lib/dotgrain/patterns.ts"
         },
         {
           "path": "registry/engine/pointer.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/pointer.ts"
+          "target": "lib/dotgrain/pointer.ts"
         },
         {
           "path": "registry/engine/programs.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/programs.ts"
+          "target": "lib/dotgrain/programs.ts"
         },
         {
           "path": "registry/engine/provider.tsx",
           "type": "registry:lib",
-          "target": "lib/dithercn/provider.tsx"
+          "target": "lib/dotgrain/provider.tsx"
         },
         {
           "path": "registry/engine/quantize.tsx",
           "type": "registry:lib",
-          "target": "lib/dithercn/quantize.tsx"
+          "target": "lib/dotgrain/quantize.tsx"
         },
         {
           "path": "registry/engine/scheduler.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/scheduler.ts"
+          "target": "lib/dotgrain/scheduler.ts"
         },
         {
           "path": "registry/engine/types.ts",
           "type": "registry:lib",
-          "target": "lib/dithercn/types.ts"
+          "target": "lib/dotgrain/types.ts"
         }
       ]
     },
@@ -90,7 +90,7 @@
         "background"
       ],
       "registryDependencies": [
-        "https://dithercn.com/r/engine.json"
+        "https://dotgrain.com/r/engine.json"
       ],
       "dependencies": [],
       "files": [
@@ -115,7 +115,7 @@
         "media"
       ],
       "registryDependencies": [
-        "https://dithercn.com/r/engine.json"
+        "https://dotgrain.com/r/engine.json"
       ],
       "dependencies": [],
       "files": [
