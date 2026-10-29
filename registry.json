@@ -247,6 +247,30 @@
           "dither"
         ]
       }
+    },
+    {
+      "name": "ascii-rain",
+      "type": "registry:ui",
+      "title": "ASCII Rain",
+      "description": "A background of falling ASCII glyph columns with real DOM content on top.",
+      "categories": [
+        "background"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/ascii-rain.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "ascii"
+        ]
+      }
     }
   ]
 }

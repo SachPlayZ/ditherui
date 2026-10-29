@@ -9,7 +9,7 @@ const at = (name: FieldName, u: number, v: number, params: Record<string, number
 
 describe("fields", () => {
   it("every field stays within 0–1", () => {
-    for (const name of ["noise", "radial", "linear", "progress"] as FieldName[]) {
+    for (const name of ["noise", "radial", "linear", "progress", "rain"] as FieldName[]) {
       for (let i = 0; i <= 20; i++) {
         const v = at(name, i / 20, (i * 7 % 21) / 20, {}, 1.7);
         expect(v, name).toBeGreaterThanOrEqual(0);
@@ -40,6 +40,19 @@ describe("fields", () => {
     expect(at("progress", 0.6, 0.5, { value: 0.6 })).toBe(0.5);
     expect(at("progress", 0.62, 0.5, { value: 0.6, softness: 0.1 })).toBeGreaterThan(0);
     expect(at("progress", 0.61, 0.5, { value: 0.6, softness: 0 })).toBe(0);
+  });
+
+  it("rain falls over time and leaves some columns dry", () => {
+    const params = fieldParams("rain", { columns: 10, density: 0.5 });
+    const column = (c: number, t: number) => Array.from({ length: 40 }, (_, i) => field("rain", (c + 0.5) / 10, i / 40, 1, t, params));
+    const dry = Array.from({ length: 10 }, (_, c) => column(c, 0).every((v) => v === 0));
+    expect(dry.some(Boolean)).toBe(true);
+    expect(dry.every(Boolean)).toBe(false);
+    const wet = dry.indexOf(false);
+    // The brightest mark (the head) moves down as time advances.
+    const head = (t: number) => { const col = column(wet, t); return col.indexOf(Math.max(...col)); };
+    expect(head(0.1)).not.toBe(head(0));
+    expect(fieldParams("rain", {})).toEqual([0.7, 0.4, 1024, 0]);
   });
 
   it("packs params into vec4 slots with defaults", () => {
