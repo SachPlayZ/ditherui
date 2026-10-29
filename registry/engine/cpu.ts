@@ -7,8 +7,7 @@ import type { Frame } from "./types";
 /** Calls back with the source value (0–1 plus cursor) at every mark's centre. */
 function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number, v: number) => void): void {
   const { source, width, height, time, cursor = [0, 0, 0, 0], values } = frame;
-  if (source.kind === "video") throw new Error('dotgrain: "video" sources are not supported yet');
-  if (source.kind === "image" && !values) throw new Error("dotgrain: image frames need `values`");
+  if (source.kind !== "field" && !values) throw new Error(`dotgrain: ${source.kind} frames need \`values\``);
   const params = source.kind === "field" ? fieldParams(source.field, source.params) : [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {

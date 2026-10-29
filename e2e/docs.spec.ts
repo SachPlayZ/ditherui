@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 import { addCommand } from "../lib/install";
 import { components } from "../registry/meta";
 
+// First dev-server compile of a docs page can take most of the default 30 s under a parallel run.
+test.describe.configure({ timeout: 60_000 });
+
 for (const meta of components) {
   test(`docs page · ${meta.name}`, async ({ page }) => {
     // Capture what Copy prompt writes; clipboard permissions vary across headless runs.

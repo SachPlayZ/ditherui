@@ -1,6 +1,7 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { render } from "./cpu";
-import { luminance } from "./images";
+import { luminance, videoValues } from "./images";
 import { DEFAULT_TOKENS } from "./provider";
 
 describe("luminance", () => {
@@ -19,5 +20,26 @@ describe("image frames", () => {
 
   it("require values", () => {
     expect(() => render({ source: { kind: "image", src: "x" }, tokens: DEFAULT_TOKENS, width: 1, height: 1, time: 0 })).toThrow(/values/);
+  });
+});
+
+describe("video frames", () => {
+  const video = () => document.createElement("video");
+
+  it("quantize like image frames with the same values", () => {
+    const values = new Float32Array([0, 0.3, 0.6, 1]);
+    const base = { tokens: DEFAULT_TOKENS, width: 4, height: 1, time: 0, values };
+    expect(render({ ...base, source: { kind: "video", element: video() } })).toEqual(render({ ...base, source: { kind: "image", src: "x" } }));
+  });
+
+  it("require values", () => {
+    expect(() => render({ source: { kind: "video", element: video() }, tokens: DEFAULT_TOKENS, width: 1, height: 1, time: 0 })).toThrow(/values/);
+  });
+
+  it("report loading until a frame is available, and errors", () => {
+    const v = video();
+    expect(videoValues(v, 4, 4, 1)).toBe("loading");
+    Object.defineProperty(v, "error", { value: { code: 4 } });
+    expect(videoValues(v, 4, 4, 1)).toBe("error");
   });
 });

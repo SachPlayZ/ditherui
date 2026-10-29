@@ -6,7 +6,7 @@ import { diffused, isDiffusion } from "./diffusion";
 import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
-import { imageValues, watchImage } from "./images";
+import { imageValues, videoValues, watchImage } from "./images";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
@@ -22,7 +22,7 @@ export type QuantizeProps = Partial<DitherTokens> & {
   cursorRadius?: number;
   /** Ease changes to the field's numeric params (e.g. a progress value) instead of jumping; snaps under reduced motion. */
   ease?: boolean;
-  /** Called when an image source can't be loaded or read (e.g. a cross-origin image without CORS). */
+  /** Called when an image or video source can't be loaded or read (e.g. cross-origin media without CORS). */
   onError?: () => void;
   className?: string;
   style?: CSSProperties;
@@ -68,6 +68,16 @@ export function Quantize({
     if (image) return watchImage(image.src, image.crossOrigin, () => view.current?.invalidate());
   }, [image?.src, image?.crossOrigin]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const video = source.kind === "video" ? source.element : undefined;
+  useEffect(() => {
+    if (!video) return;
+    // Paused videos draw on demand: a new frame, seek, play (restarts the loop) or pause.
+    const events = ["loadeddata", "seeked", "play", "pause", "error"];
+    const wake = () => view.current?.invalidate();
+    events.forEach((e) => video.addEventListener(e, wake));
+    return () => events.forEach((e) => video.removeEventListener(e, wake));
+  }, [video]);
+
   useEffect(() => {
     if (!interactive) return;
     const tracker = (pointer.current = trackPointer(canvas.current!, () => view.current?.invalidate()));
@@ -83,6 +93,7 @@ export function Quantize({
       element,
       animated: () => {
         const { source, tokens, ease } = latest.current;
+        if (source.kind === "video" && !source.element.paused && !source.element.ended) return true;
         if (source.kind !== "field") return !!pointer.current?.settling();
         // Only noise changes with time; other fields redraw on change, pointer movement or easing.
         return (
@@ -104,12 +115,16 @@ export function Quantize({
         if (w <= 0 || h <= 0) return;
         let values: Float32Array | undefined;
         let indices: Uint8Array | undefined;
-        if (source.kind === "image") {
-          const result = imageValues(source.src, source.crossOrigin, w, h, width / height);
+        if (source.kind !== "field") {
+          const result =
+            source.kind === "image"
+              ? imageValues(source.src, source.crossOrigin, w, h, width / height)
+              : videoValues(source.element, w, h, width / height);
           if (result === "error") onError?.();
           if (typeof result === "string") return;
           values = result;
-          if (tokens.mode === "dither" && isDiffusion(tokens.pattern)) {
+          // Error diffusion is for still images; video falls back to an ordered pattern.
+          if (source.kind === "image" && tokens.mode === "dither" && isDiffusion(tokens.pattern)) {
             const { pattern, contrast, threshold, palette } = tokens;
             indices = diffused(values, w, h, pattern, contrast, threshold, palette.length, () => view.current?.invalidate());
             if (!indices) return;

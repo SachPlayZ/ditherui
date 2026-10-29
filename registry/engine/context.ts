@@ -14,6 +14,7 @@ const ASCII_UNIFORMS = [...SHARED, "uCell", "uAspect", "uGlyphs", "uAtlas"];
 let gl: WebGL2RenderingContext | null | undefined;
 let glCanvas: HTMLCanvasElement;
 let textures = new WeakMap<object, WebGLTexture>();
+const VIDEO = {};
 
 // One WebGL2 context per page, shared by every view (browsers cap live contexts at ~16).
 function getGL(): WebGL2RenderingContext | null {
@@ -70,7 +71,7 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const g = getGL();
-  if (source.kind === "video" || (source.kind === "image" && !frame.values)) return;
+  if (source.kind !== "field" && !frame.values) return;
   // Diffused frames are already quantized on the CPU, so they skip the GPU.
   if (!g || g.isContextLost() || frame.indices) {
     if (ascii) drawGlyphs(ctx, frame, cellW, cellH);
@@ -91,9 +92,12 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
     g.uniform4fv(u.uParams, fieldParams(source.field, source.params));
   } else {
     const values = frame.values!;
+    const upload = () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values);
     g.uniform1i(u.uField, -1);
     g.activeTexture(g.TEXTURE1);
-    g.bindTexture(g.TEXTURE_2D, texture(g, values, () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values)));
+    // Image values are cached per size; video frames change every draw, so they share one texture re-uploaded each time.
+    g.bindTexture(g.TEXTURE_2D, texture(g, source.kind === "video" ? VIDEO : values, upload));
+    if (source.kind === "video") upload();
   }
   g.uniform1i(u.uValues, 1);
   g.uniform4fv(u.uCursor, frame.cursor ?? [0, 0, 0, 0]);
