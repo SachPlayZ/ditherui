@@ -7,8 +7,8 @@ import type { Frame } from "./types";
 /** Calls back with the source value (0–1 plus cursor) at every mark's centre. */
 function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number, v: number) => void): void {
   const { source, width, height, time, cursor = [0, 0, 0, 0], values } = frame;
-  if (source.kind === "video") throw new Error('ditherui: "video" sources are not supported yet');
-  if (source.kind === "image" && !values) throw new Error("ditherui: image frames need `values`");
+  if (source.kind === "video") throw new Error('dithercn: "video" sources are not supported yet');
+  if (source.kind === "image" && !values) throw new Error("dithercn: image frames need `values`");
   const params = source.kind === "field" ? fieldParams(source.field, source.params) : [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {

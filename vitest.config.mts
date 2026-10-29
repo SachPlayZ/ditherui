@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
-    alias: { '@/lib/ditherui': fileURLToPath(new URL('./registry/engine', import.meta.url)) },
+    alias: { '@/lib/dithercn': fileURLToPath(new URL('./registry/engine', import.meta.url)) },
   },
   test: {
     include: ['registry/**/*.test.{ts,tsx}', 'lib/**/*.test.{ts,tsx}'],

@@ -19,7 +19,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/lib/ditherui/*": [
+      "@/lib/dithercn/*": [
         "./registry/engine/*"
       ],
       "@/*": [

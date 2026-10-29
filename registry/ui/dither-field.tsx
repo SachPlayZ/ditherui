@@ -1,8 +1,8 @@
 "use client";
 
 import type { CSSProperties, ReactNode, Ref } from "react";
-import { Quantize } from "@/lib/ditherui/quantize";
-import type { DitherTokens, FieldName } from "@/lib/ditherui/types";
+import { Quantize } from "@/lib/dithercn/quantize";
+import type { DitherTokens, FieldName } from "@/lib/dithercn/types";
 
 export type DitherFieldProps = Partial<DitherTokens> & {
   field?: Exclude<FieldName, "progress">;

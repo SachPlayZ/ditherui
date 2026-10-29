@@ -43,14 +43,14 @@ function parseColor(color: string): RGB | null {
 export function paletteColors(palette: PaletteName | string[], scheme: Scheme = "dark"): string[] {
   if (palette === "ink") return INK_PALETTES[scheme];
   if (typeof palette === "string") {
-    if (!(palette in PALETTES)) throw new Error(`ditherui: unknown palette "${palette}"`);
+    if (!(palette in PALETTES)) throw new Error(`dithercn: unknown palette "${palette}"`);
     return PALETTES[palette];
   }
   if (palette.length < 2 || palette.length > 4) {
-    throw new Error(`ditherui: palettes need 2–4 colours, got ${palette.length}`);
+    throw new Error(`dithercn: palettes need 2–4 colours, got ${palette.length}`);
   }
   const bad = palette.find((c) => !parseColor(c));
-  if (bad !== undefined) throw new Error(`ditherui: can't parse palette colour "${bad}"; use hex or rgb()`);
+  if (bad !== undefined) throw new Error(`dithercn: can't parse palette colour "${bad}"; use hex or rgb()`);
   return palette;
 }
 

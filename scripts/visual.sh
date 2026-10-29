@@ -4,6 +4,6 @@
 set -euo pipefail
 VERSION=$(node -p "require('@playwright/test/package.json').version")
 exec docker run --rm --platform linux/amd64 --ipc=host \
-  -v "$PWD":/work -v ditherui-node-modules:/work/node_modules -v /work/.next -w /work -e CI=1 \
+  -v "$PWD":/work -v dithercn-node-modules:/work/node_modules -v /work/.next -w /work -e CI=1 \
   "mcr.microsoft.com/playwright:v$VERSION-noble" \
   bash -c "corepack enable && pnpm install --frozen-lockfile && pnpm exec playwright test $*"
