@@ -1,0 +1,78 @@
+import { markdownTable } from "../mdx-plugins/stringifier.js";
+import { s as walk } from "../utils-DV8PBZiI.js";
+import { t as buildRegexFromQuery } from "../highlight-D_pTHg81.js";
+import { remark } from "remark";
+// src/search/index.ts
+/**
+* A table row as structured data: a Markdown table of the row, after the header row of its table.
+*/
+function tableRowToStructuredData({ table, heading, row, header }) {
+	return {
+		heading,
+		content: markdownTable(header ? [header, row] : [row]),
+		table
+	};
+}
+/**
+* @deprecated search results are no longer highlighted, highlight the rendered results with `useHighlightQuery()` instead.
+*/
+function createContentHighlighter(query) {
+	const processor = remark();
+	const regex = typeof query === "string" ? buildRegexFromQuery(query) : query;
+	return {
+		/**
+		* @deprecated use `highlightMarkdown()` instead.
+		*/
+		highlight(content) {
+			if (!regex) return [{
+				type: "text",
+				content
+			}];
+			const out = [];
+			let i = 0;
+			for (const match of content.matchAll(regex)) {
+				if (i < match.index) out.push({
+					type: "text",
+					content: content.substring(i, match.index)
+				});
+				out.push({
+					type: "text",
+					content: match[0],
+					styles: { highlight: true }
+				});
+				i = match.index + match[0].length;
+			}
+			if (i < content.length) out.push({
+				type: "text",
+				content: content.substring(i)
+			});
+			return out;
+		},
+		/**
+		* @param content - Markdown, it assumes the content is already sanitized & safe, no escape is performed.
+		*/
+		highlightMarkdown(content) {
+			if (!regex) return content;
+			const tree = processor.parse(content);
+			highlightInTree(tree, regex);
+			return processor.stringify(tree).trim();
+		}
+	};
+}
+function highlightInTree(tree, regex) {
+	walk(tree, (node) => {
+		if (node.type !== "text") return;
+		let out = "";
+		const content = node.value;
+		let i = 0;
+		for (const match of content.matchAll(regex)) {
+			if (i < match.index) out += content.substring(i, match.index);
+			out += `<mark>${match[0]}</mark>`;
+			i = match.index + match[0].length;
+		}
+		if (i < content.length) out += content.substring(i);
+		node.type = "html";
+		node.value = out;
+	});
+}
+export { createContentHighlighter, tableRowToStructuredData };

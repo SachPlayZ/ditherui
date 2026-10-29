@@ -1,0 +1,283 @@
+import { t as Awaitable } from "./types-Dvkw0Kd0.js";
+import { r as SortedResult } from "./index-CE1OSGGq.js";
+import { t as BaseIndex } from "./algolia-DnAe2syq.js";
+import "./mixedbread-DWeuz1Xb.js";
+import { DependencyList } from "react";
+import { AnyZBSearch, SearchParams } from "zbsearch";
+import { Root } from "hast";
+import { LiteClient, SearchResponse } from "algoliasearch/lite";
+import { OramaCloud, OramaCloudSearchParams } from "@orama/core";
+import { Meilisearch } from "meilisearch";
+import { ClientSearchParams, OramaClient } from "@oramacloud/client";
+import Mixedbread from "@mixedbread/sdk";
+interface UseSearchOptions {
+  /**
+   * The debounced delay for performing a search (in ms).
+   *
+   * @defaultValue 100
+   */
+  delayMs?: number;
+  /**
+   * still perform search even if query is empty.
+   *
+   * @defaultValue false
+   */
+  allowEmpty?: boolean;
+}
+interface SearchResultRecord extends SortedResult {
+  /** `content` parsed */
+  hastContent: Root;
+}
+interface SearchResultTable {
+  type: 'table';
+  /** the id of its first row */
+  id: string;
+  columns: number;
+  /** tables like the props of type tables have no header */
+  header?: Root;
+  rows: SearchResultRecord[];
+}
+type SearchResultItem = SearchResultRecord | SearchResultTable;
+interface SearchResult {
+  /** the query searched for */
+  query: string;
+  items: SearchResultItem[];
+}
+interface UseSearchReturn {
+  search: string;
+  onSearchChange: (search: string) => void;
+  /** a search for `search` is pending */
+  isLoading: boolean;
+  /** the last successful search, `undefined` when nothing is searched */
+  data?: SearchResult;
+  /** the last search failed, `data` stays from the search before */
+  error?: Error;
+}
+/**
+ * The base of search hooks, for search engines without one.
+ *
+ * @param run - memoized search function, search again when changed
+ */
+declare function useSearch(run: (query: string) => Awaitable<SortedResult[]>, { delayMs, allowEmpty }?: UseSearchOptions): UseSearchReturn;
+/**
+ * Highlight matches of `query` in the text of an element with the CSS Custom Highlight API, style them with `::highlight(fd-search)`.
+ *
+ * Text in elements with `data-highlight-ignore` is skipped. The highlights stay when the element is moved, but not when its text changes, give it a new `key` in that case.
+ *
+ * @returns a ref callback for the element
+ */
+declare function useHighlightQuery(query: string): (element: Element | null) => () => void;
+interface FetchOptions {
+  /**
+   * API route for search endpoint, support absolute URLs.
+   *
+   * @defaultValue '/api/search'
+   */
+  api?: string;
+  /**
+   * Filter results with specific tag(s).
+   */
+  tag?: string | string[];
+  /**
+   * Filter by locale
+   */
+  locale?: string;
+  cache?: Map<string, SortedResult[]>;
+}
+declare function fetchClient(options?: FetchOptions): SearchClient;
+/**
+ * Search with the search server, or an API of the same format.
+ */
+declare function useFetchSearch({ api, locale, tag, ...rest }?: FetchOptions & UseSearchOptions): UseSearchReturn;
+interface StaticOptions {
+  /**
+   * Where to download exported search indexes (URL)
+   *
+   * @defaultValue '/api/search'
+   */
+  from?: string;
+  /**
+   * Customize how the search database is initialized (advanced).
+   *
+   * For legacy per-locale exports, it is called once per locale.
+   */
+  initDB?: (locale?: string) => AnyZBSearch | Promise<AnyZBSearch>;
+  /**
+   * @deprecated Renamed to `initDB`, note that the search engine is now ZBSearch.
+   */
+  initOrama?: (locale?: string) => AnyZBSearch | Promise<AnyZBSearch>;
+  /**
+   * Filter results with specific tag(s).
+   */
+  tag?: string | string[];
+  /**
+   * Filter by locale (for i18n)
+   */
+  locale?: string;
+  /**
+   * extra options for search
+   */
+  search?: Partial<SearchParams<AnyZBSearch>>;
+}
+declare function staticClient(options?: StaticOptions): SearchClient;
+/**
+ * Search the indexes exported by the search server, in the browser.
+ */
+declare function useStaticSearch({ from, locale, tag, ...rest }?: StaticOptions & UseSearchOptions): UseSearchReturn;
+/**
+ * @deprecated Renamed to `staticClient`, note that the search engine is now ZBSearch.
+ */
+declare const oramaStaticClient: typeof staticClient;
+interface AlgoliaOptions {
+  indexName: string;
+  client: LiteClient;
+  /**
+   * Filter results with specific tag.
+   */
+  tag?: string;
+  locale?: string;
+  onSearch?: (query: string, tag?: string, locale?: string) => Promise<{
+    results: SearchResponse<BaseIndex>[];
+  }>;
+}
+declare function algoliaClient(options: AlgoliaOptions): SearchClient;
+declare function useAlgoliaSearch({ indexName, client, locale, tag, ...rest }: AlgoliaOptions & UseSearchOptions): UseSearchReturn;
+interface OramaCloudOptions {
+  client: OramaCloud;
+  /**
+   * The type of your index.
+   *
+   * You can set it to `crawler` if you use crawler instead of the JSON index with schema provided by Fumadocs
+   */
+  index?: 'default' | 'crawler';
+  /**
+   * Note: not included in dependency list.
+   */
+  params?: Partial<OramaCloudSearchParams>;
+  /**
+   * Filter results with specific tag.
+   */
+  tag?: string;
+  /**
+   * Filter by locale (unsupported at the moment)
+   */
+  locale?: string;
+}
+declare function oramaCloudClient(options: OramaCloudOptions): SearchClient;
+declare function useOramaCloudSearch({ client, index, tag, ...rest }: OramaCloudOptions & UseSearchOptions): UseSearchReturn;
+interface MeilisearchOptions {
+  /**
+   * Meilisearch client with a search API key
+   */
+  client: Meilisearch;
+  indexName: string;
+  /**
+   * Filter results with specific tag(s).
+   */
+  tag?: string | string[];
+  /**
+   * Filter results by locale.
+   */
+  locale?: string;
+}
+declare function meilisearchClient(options: MeilisearchOptions): SearchClient;
+declare function useMeilisearch({ client, indexName, locale, tag, ...rest }: MeilisearchOptions & UseSearchOptions): UseSearchReturn;
+interface OramaCloudLegacyOptions {
+  client: OramaClient;
+  /**
+   * The type of your index.
+   *
+   * You can set it to `crawler` if you use crawler instead of the JSON index with schema provided by Fumadocs.
+   */
+  index?: 'default' | 'crawler';
+  /**
+   * Note: not included into dependency list.
+   */
+  params?: ClientSearchParams;
+  /**
+   * Filter results with specific tag.
+   */
+  tag?: string;
+  /**
+   * Filter by locale (unsupported at the moment)
+   */
+  locale?: string;
+}
+declare function oramaCloudLegacyClient(options: OramaCloudLegacyOptions): SearchClient;
+declare function useOramaCloudLegacySearch({ client, index, tag, ...rest }: OramaCloudLegacyOptions & UseSearchOptions): UseSearchReturn;
+interface MixedbreadOptions {
+  /**
+   * The identifier of the store to search in
+   */
+  storeIdentifier: string;
+  /**
+   * The Mixedbread SDK client instance
+   */
+  client: Mixedbread;
+  /**
+   * Filter results with specific tag.
+   */
+  tag?: string;
+  /**
+   * Filter by locale (unsupported at the moment)
+   */
+  locale?: string;
+}
+/**
+ * @deprecated Use `createMixedbreadSearchAPI` from `fumadocs-core/search/mixedbread` instead.
+ * This client-side approach exposes your API key in the browser.
+ * The server-side approach keeps the key secure and uses `useFetchSearch()` on the client.
+ */
+declare function mixedbreadClient(options: MixedbreadOptions): SearchClient;
+interface FlexsearchStaticOptions {
+  /**
+   * @defaultValue `/api/search`
+   */
+  from?: string;
+  locale?: string;
+  tag?: string | string[];
+}
+declare function flexsearchStaticClient(options?: FlexsearchStaticOptions): SearchClient;
+declare function useFlexsearchStatic({ from, locale, tag, ...rest }?: FlexsearchStaticOptions & UseSearchOptions): UseSearchReturn;
+interface SearchClient {
+  search: (query: string) => Awaitable<SortedResult[]>;
+  deps?: DependencyList;
+}
+type ClientPreset = ({
+  type: 'fetch';
+} & FetchOptions) | ({
+  type: 'static';
+} & StaticOptions) | ({
+  type: 'algolia';
+} & AlgoliaOptions) | ({
+  type: 'orama-cloud';
+} & OramaCloudOptions) | ({
+  type: 'orama-cloud-legacy';
+} & OramaCloudLegacyOptions) | ({
+  type: 'flexsearch-static';
+} & FlexsearchStaticOptions) | ({
+  type: 'mixedbread';
+} & MixedbreadOptions) | {
+  client: SearchClient;
+};
+/**
+ * Provide a hook to query different official search clients.
+ *
+ * Note: it will re-query when its parameters changed, make sure to define `deps` array if you encounter rendering issues.
+ *
+ * @deprecated Use the search hook of your provider instead, like `useFetchSearch()`, or `experimental_useSearch()` for other clients.
+ */
+declare function useDocsSearch({ delayMs, allowEmpty, ...options }: ClientPreset & UseSearchOptions, customDeps?: DependencyList): {
+  search: string;
+  onSearchChange: (search: string) => void;
+  isLoading: boolean;
+  data?: SearchResult;
+  error?: Error;
+  setSearch: (search: string) => void;
+  query: {
+    isLoading: boolean;
+    data: "empty" | SearchResultRecord[];
+    error: Error | undefined;
+  };
+};
+export { SearchResultRecord as A, staticClient as C, useFetchSearch as D, fetchClient as E, useSearch as F, UseSearchOptions as M, UseSearchReturn as N, SearchResult as O, useHighlightQuery as P, oramaStaticClient as S, FetchOptions as T, useOramaCloudSearch as _, flexsearchStaticClient as a, useAlgoliaSearch as b, mixedbreadClient as c, useOramaCloudLegacySearch as d, MeilisearchOptions as f, oramaCloudClient as g, OramaCloudOptions as h, FlexsearchStaticOptions as i, SearchResultTable as j, SearchResultItem as k, OramaCloudLegacyOptions as l, useMeilisearch as m, SearchClient as n, useFlexsearchStatic as o, meilisearchClient as p, useDocsSearch as r, MixedbreadOptions as s, ClientPreset as t, oramaCloudLegacyClient as u, AlgoliaOptions as v, useStaticSearch as w, StaticOptions as x, algoliaClient as y };

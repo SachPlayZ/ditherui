@@ -1,0 +1,112 @@
+// src/highlight/utils.ts
+async function loadMissingTheme(highlighter, themes) {
+	const bundled = highlighter.getBundledThemes();
+	const loaded = highlighter.getLoadedThemes();
+	const missingThemes = themes.filter((theme) => {
+		if (typeof theme === "string") return theme in bundled && !loaded.includes(theme);
+		return theme.name === void 0 || !loaded.includes(theme.name);
+	});
+	if (missingThemes.length > 0) await highlighter.loadTheme(...missingThemes);
+}
+async function loadMissingLanguage(highlighter, langs) {
+	const bundled = highlighter.getBundledLanguages();
+	const loaded = highlighter.getLoadedLanguages();
+	const missingLangs = langs.filter((lang) => {
+		if (typeof lang === "string") return lang in bundled && !loaded.includes(lang);
+		return !loaded.includes(lang.name);
+	});
+	if (missingLangs.length > 0) await highlighter.loadLanguage(...missingLangs);
+}
+function getRequiredThemes(options) {
+	if ("theme" in options) return [options.theme];
+	else return Object.values(options.themes).filter((v) => v !== void 0);
+}
+function applyDefaultThemes(options, defaultValue = defaultThemes) {
+	if (!("theme" in options) && !("themes" in options)) return {
+		...defaultValue,
+		...options
+	};
+	else return options;
+}
+const defaultThemes = {
+	themes: {
+		light: "github-light",
+		dark: "github-dark"
+	},
+	defaultColor: false
+};
+// src/highlight/shiki/index.ts
+function createShikiFactory(config) {
+	let instance;
+	return {
+		init(options) {
+			const created = config.init(options);
+			if (created instanceof Promise) created.catch(() => {
+				if (instance === created) instance = void 0;
+			});
+			return instance = created;
+		},
+		getOrInit() {
+			return instance ?? this.init();
+		}
+	};
+}
+/**
+* Use Shiki as a highlighter, `options` apply to every code block.
+*/
+function createShikiHighlighter(shiki, shikiOptions) {
+	const { fallbackLanguage = "text", ...options } = shikiOptions;
+	let instance = typeof shiki === "function" ? void 0 : shiki;
+	const fallbacks = /* @__PURE__ */ new Set();
+	function getCodeOptions({ lang, structure = options.structure, meta }) {
+		return {
+			...options,
+			lang: fallbacks.has(lang) ? fallbackLanguage : lang,
+			structure,
+			meta: options.meta ? {
+				...options.meta,
+				...meta
+			} : meta
+		};
+	}
+	function getInstance() {
+		if (!instance) throw new Error("[Fumadocs] load the language before highlighting");
+		return instance;
+	}
+	const loading = /* @__PURE__ */ new Map();
+	async function load(lang) {
+		const [highlighter, { isSpecialLang }] = await Promise.all([typeof shiki === "function" ? shiki() : shiki, import("shiki/core")]);
+		await Promise.all([loadMissingTheme(highlighter, getRequiredThemes(options)), loadMissingLanguage(highlighter, [lang, fallbackLanguage])]);
+		if (!isSpecialLang(lang) && !highlighter.getLoadedLanguages().includes(lang)) fallbacks.add(lang);
+		instance = highlighter;
+	}
+	return {
+		async loadLanguage(...langs) {
+			const tasks = [];
+			for (const lang of langs) {
+				let task = loading.get(lang);
+				if (!task) {
+					loading.set(lang, task = load(lang));
+					task.catch(() => loading.delete(lang));
+				}
+				tasks.push(task);
+			}
+			await Promise.all(tasks);
+		},
+		codeToHast(code, codeOptions) {
+			return getInstance().codeToHast(code, getCodeOptions(codeOptions));
+		},
+		override(overrides) {
+			return createShikiHighlighter(instance ?? shiki, {
+				...shikiOptions,
+				...overrides
+			});
+		}
+	};
+}
+async function highlightHast(highlighter, code, options) {
+	const instance = createShikiHighlighter(highlighter, options);
+	await instance.loadLanguage(options.lang);
+	return instance.codeToHast(code, options);
+}
+export { defaultThemes as a, applyDefaultThemes as i, createShikiHighlighter as n, loadMissingLanguage as o, highlightHast as r, loadMissingTheme as s, createShikiFactory as t };

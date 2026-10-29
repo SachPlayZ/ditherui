@@ -1,0 +1,30 @@
+import { replaceSource } from "./stringifier.js";
+import { s as walk } from "../utils-DV8PBZiI.js";
+// src/mdx-plugins/remark-mdx-mermaid.ts
+function toMDX(code) {
+	return {
+		type: "mdxJsxFlowElement",
+		name: "Mermaid",
+		attributes: [{
+			type: "mdxJsxAttribute",
+			name: "chart",
+			value: code.trim()
+		}],
+		children: []
+	};
+}
+/**
+* Convert `mermaid` codeblocks into `<Mermaid />` MDX component
+*/
+function remarkMdxMermaid(options = {}) {
+	const { lang = "mermaid" } = options;
+	return (tree, file) => {
+		walk(tree, (node, idx, parent) => {
+			if (node.type !== "code") return;
+			if (node.lang !== lang || !node.value || typeof idx !== "number" || !parent) return;
+			replaceSource(file, node, (s) => s.stringify(node));
+			parent.children[idx] = toMDX(node.value);
+		});
+	};
+}
+export { remarkMdxMermaid };

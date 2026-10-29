@@ -1,0 +1,12 @@
+import { n as RehypeCodeOptionsCommon } from "./rehype-code.core-D1aZ5yla.js";
+type RehypeCodeOptions = RehypeCodeOptionsCommon & {
+  /**
+   * The regex engine to use.
+   *
+   * @defaultValue 'js'
+   */
+  engine?: 'js' | 'oniguruma';
+};
+declare const rehypeCodeDefaultOptions: RehypeCodeOptions;
+declare const rehypeCode: (this: import("unified").Processor, _options?: Partial<RehypeCodeOptions> | undefined) => import("unified").Transformer<import("hast").Root, import("hast").Root>;
+export { rehypeCode as n, rehypeCodeDefaultOptions as r, RehypeCodeOptions as t };

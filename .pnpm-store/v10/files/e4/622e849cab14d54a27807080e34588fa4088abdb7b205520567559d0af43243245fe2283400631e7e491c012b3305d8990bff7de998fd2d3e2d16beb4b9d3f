@@ -1,0 +1,82 @@
+import { t as Awaitable } from "../types-Dvkw0Kd0.js";
+import { n as StructuredData } from "../remark-structure-50nmY6sX.js";
+import "../index-C0yDf9A2.js";
+import { S as LoaderOutput, b as LoaderConfig } from "../index-DAbFAfHX.js";
+import { OramaCloud } from "@orama/core";
+export interface SyncOptions {
+  /**
+   * Index name to sync
+   */
+  index: string;
+  documents: OramaDocument[];
+  /**
+   * Deploy changes
+   *
+   * @defaultValue true
+   */
+  autoDeploy?: boolean;
+}
+export interface I18nSyncOptions extends Omit<SyncOptions, 'index' | 'documents'> {
+  /**
+   * Indexes to sync.
+   *
+   * Pairs of `locale`-`index`.
+   **/
+  indexes: Record<string, string>;
+  documents: {
+    locale: string;
+    items: OramaDocument[];
+  }[];
+}
+export interface OramaDocument {
+  /**
+   * The ID of document, must be unique
+   */
+  id: string;
+  title: string;
+  description?: string;
+  /**
+   * URL to the page
+   */
+  url: string;
+  structured: StructuredData;
+  /**
+   * Tag to filter results
+   */
+  tag?: string;
+  /**
+   * Data to be added to each section index
+   */
+  extra_data?: object;
+  breadcrumbs?: string[];
+}
+export interface OramaIndex {
+  id: string;
+  title: string;
+  url: string;
+  tag?: string;
+  /**
+   * The id of page, used for `group by`
+   */
+  page_id: string;
+  /**
+   * Heading content
+   */
+  section?: string;
+  breadcrumbs?: string[];
+  /**
+   * Heading (anchor) id
+   */
+  section_id?: string;
+  content: string;
+  table?: string;
+}
+/**
+ * Build the search indexes of every page in a source.
+ */
+export declare function toDocuments<C extends LoaderConfig>(source: LoaderOutput<C> | (() => Awaitable<LoaderOutput<C>>), options?: {
+  /** Tag to filter results by. */
+  tag?: (page: C['page']) => string;
+}): Promise<OramaDocument[]>;
+export declare function sync(orama: OramaCloud, options: SyncOptions): Promise<void>;
+export declare function syncI18n(orama: OramaCloud, options: I18nSyncOptions): Promise<void>;

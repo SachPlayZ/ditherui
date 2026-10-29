@@ -1,0 +1,100 @@
+"use client";
+import { cn } from "../../utils/cn.js";
+import { useI18n } from "../../contexts/i18n.js";
+import { LanguageSelect, LanguageSelectText } from "./slots/language-select.js";
+import { FullSearchTrigger, SearchTrigger } from "./slots/search-trigger.js";
+import { ThemeSwitch } from "./slots/theme-switch.js";
+import { isLinkItemActive } from "./index.js";
+import Link from "fumadocs-core/link";
+import { usePathname } from "fumadocs-core/framework";
+import { jsx } from "react/jsx-runtime";
+import { useState } from "react";
+// src/layouts/shared/client.tsx
+function LinkItem({ ref, item, ...props }) {
+	const pathname = usePathname();
+	const active = isLinkItemActive(item, pathname);
+	return /* @__PURE__ */ jsx(Link, {
+		ref,
+		href: item.url,
+		external: item.external,
+		...props,
+		"data-active": active,
+		children: props.children
+	});
+}
+/**
+* The place of AI chat, docked by the layout on wide viewports, and floating on smaller ones.
+*/
+function AIChatPanel({ open, className, children }) {
+	const [mounted, setMounted] = useState(open);
+	if (open && !mounted) setMounted(true);
+	return /* @__PURE__ */ jsx("aside", {
+		className: cn("z-40 overflow-clip bg-fd-card text-fd-card-foreground layout:[--fd-ai-chat-width:min(--spacing(100),100vw---spacing(4))] transition-[width,margin,translate] duration-300 ease-in-out motion-reduce:transition-none max-xl:fixed max-xl:inset-y-2 max-xl:end-2 max-xl:w-(--fd-ai-chat-width) max-xl:rounded-2xl max-xl:border max-xl:shadow-xl", open ? "w-(--fd-ai-chat-width)" : "invisible w-0 transition-[width,margin,translate,visibility] max-xl:translate-x-[calc(100%+--spacing(2))] rtl:max-xl:-translate-x-[calc(100%+--spacing(2))]", className),
+		children: /* @__PURE__ */ jsx("div", {
+			className: "flex flex-col size-full xl:w-(--fd-ai-chat-width)",
+			children: mounted && children
+		})
+	});
+}
+function baseSlots({ useProps }) {
+	function InlineThemeSwitch(props) {
+		const { themeSwitch } = useProps();
+		if (themeSwitch.component) return themeSwitch.component;
+		return /* @__PURE__ */ jsx(ThemeSwitch, {
+			...props,
+			...themeSwitch
+		});
+	}
+	function InlineSearchTrigger(props) {
+		const { searchToggle } = useProps();
+		if (searchToggle.components?.sm) return searchToggle.components.sm;
+		return /* @__PURE__ */ jsx(SearchTrigger, {
+			...props,
+			...searchToggle.sm
+		});
+	}
+	function InlineSearchTriggerFull(props) {
+		const { searchToggle } = useProps();
+		if (searchToggle.components?.lg) return searchToggle.components.lg;
+		return /* @__PURE__ */ jsx(FullSearchTrigger, {
+			...props,
+			...searchToggle.full
+		});
+	}
+	function InlineNavTitle({ href: defaultUrl = "/", ...props }) {
+		const { url = defaultUrl, title } = useProps().nav ?? {};
+		if (typeof title === "function") return title({
+			href: url,
+			...props
+		});
+		return /* @__PURE__ */ jsx(Link, {
+			href: url,
+			...props,
+			children: title
+		});
+	}
+	return { useBaseSlots(options) {
+		const { locales = [] } = useI18n();
+		const { nav, slots = {}, i18n = locales.length > 1, searchToggle: { enabled: searchToggleEnabled = true, ...searchToggle } = {}, themeSwitch: { enabled: themeSwitchEnabled = true, ...themeSwitch } = {} } = options;
+		return {
+			baseSlots: {
+				navTitle: slots.navTitle ?? InlineNavTitle,
+				themeSwitch: themeSwitchEnabled && (slots.themeSwitch ?? InlineThemeSwitch),
+				languageSelect: i18n ? slots.languageSelect ?? {
+					root: LanguageSelect,
+					text: LanguageSelectText
+				} : false,
+				searchTrigger: searchToggleEnabled && (slots.searchTrigger ?? {
+					sm: InlineSearchTrigger,
+					full: InlineSearchTriggerFull
+				})
+			},
+			baseProps: {
+				nav,
+				searchToggle,
+				themeSwitch
+			}
+		};
+	} };
+}
+export { AIChatPanel, LinkItem, baseSlots };

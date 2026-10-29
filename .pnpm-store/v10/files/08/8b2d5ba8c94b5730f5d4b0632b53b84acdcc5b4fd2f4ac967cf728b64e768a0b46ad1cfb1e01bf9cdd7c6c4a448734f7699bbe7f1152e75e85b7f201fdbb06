@@ -1,0 +1,43 @@
+import { TOCItemsProps } from "../../../../components/toc/default.js";
+import { TOCItemsProps as TOCItemsProps$1 } from "../../../../components/toc/block.js";
+import { TOCItemsProps as TOCItemsProps$2 } from "../../../../components/toc/clerk.js";
+import { TOCProviderProps as TOCProviderProps$1 } from "../../../../components/toc/index.js";
+import { ComponentProps, ReactNode } from "react";
+export type TOCProviderProps = TOCProviderProps$1;
+export declare function TOCProvider(props: TOCProviderProps): import("react").JSX.Element;
+type TOCStyle = {
+  style?: 'block';
+  list?: TOCItemsProps$1;
+} | {
+  style: 'normal';
+  list?: TOCItemsProps;
+} | {
+  style: 'clerk';
+  list?: TOCItemsProps$2;
+};
+type TOCContent = {
+  /**
+   * Custom content in TOC container, before the main TOC
+   */
+  header?: ReactNode;
+  /**
+   * Custom content in TOC container, after the main TOC
+   */
+  footer?: ReactNode;
+} & TOCStyle;
+export type TOCProps = TOCContent & {
+  container?: ComponentProps<'div'>;
+};
+export declare function TOC({ container, header, footer, ...props }: TOCProps): import("react").JSX.Element | undefined;
+export type TOCDropdownProps = TOCContent & {
+  trigger?: ComponentProps<'button'>;
+  content?: ComponentProps<'div'>;
+};
+export type TOCPopoverProps = TOCDropdownProps & {
+  container?: ComponentProps<'div'>;
+};
+/** the TOC bar for mobile */
+export declare function TOCPopover({ container, trigger, content, header, footer, ...props }: TOCPopoverProps): import("react").JSX.Element;
+/** the TOC dropdown for page header */
+export declare function TOCDropdown({ trigger, content, header, footer, ...props }: TOCDropdownProps): import("react").JSX.Element;
+export {};

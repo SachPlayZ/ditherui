@@ -1,0 +1,23 @@
+import { defaultShikiFactory, wasmShikiFactory } from "../highlight/shiki/full.js";
+import { i as transformerTab, n as rehypeCodeDefaultOptions$1, t as createRehypeCode } from "../rehype-code.core-Dq2jmvan.js";
+import { transformerIcon } from "./transformer-icon.js";
+// src/mdx-plugins/rehype-code.ts
+const rehypeCodeDefaultOptions = {
+	engine: "js",
+	...rehypeCodeDefaultOptions$1()
+};
+const rehypeCode = createRehypeCode(async (_options) => {
+	const options = {
+		...rehypeCodeDefaultOptions,
+		..._options
+	};
+	const factory = options.engine === "oniguruma" ? wasmShikiFactory : defaultShikiFactory;
+	let highlighter;
+	if (options.langAlias) highlighter = await factory.init({ langAlias: options.langAlias });
+	else highlighter = await factory.getOrInit();
+	return {
+		highlighter,
+		options
+	};
+});
+export { rehypeCode, rehypeCodeDefaultOptions, transformerIcon, transformerTab };

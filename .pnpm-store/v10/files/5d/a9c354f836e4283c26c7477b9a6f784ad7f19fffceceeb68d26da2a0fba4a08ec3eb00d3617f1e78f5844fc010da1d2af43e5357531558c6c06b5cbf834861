@@ -1,0 +1,209 @@
+import { embedSource, replaceSource } from "./stringifier.js";
+import { s as walk, t as flattenNode } from "../utils-DV8PBZiI.js";
+import { t as headingIdRegex } from "../heading-id-BXARvmRb.js";
+import { frontmatter } from "../content/md/frontmatter.js";
+import Slugger from "github-slugger";
+import * as path$1 from "node:path";
+import * as fs from "node:fs/promises";
+// src/mdx-plugins/remark-include.ts
+const elementLikeTypes = /* @__PURE__ */ new Set([
+	"mdxJsxFlowElement",
+	"mdxJsxTextElement",
+	"containerDirective",
+	"leafDirective",
+	"textDirective"
+]);
+function isElementLike(node) {
+	return elementLikeTypes.has(node.type);
+}
+/**
+* Embed other files with `<include>./file.mdx</include>` or the `include` directives, Markdown & MDX files as
+* content, other files as code blocks.
+*/
+function remarkInclude({ getProcessor = () => this } = {}) {
+	/** replace the includes in `tree`, relative paths are resolved from `dir` */
+	async function update(tree, dir, file, stack) {
+		const queue = [];
+		walk(tree, (node, _, parent) => {
+			if (!isElementLike(node) || node.name !== "include") return;
+			const specifier = flattenNode(node).trim();
+			if (!specifier) return "skip";
+			const attributes = parseElementAttributes(node);
+			const idx = specifier.lastIndexOf("#");
+			const targetPath = path$1.resolve("cwd" in attributes ? file.cwd : dir, idx === -1 ? specifier : specifier.slice(0, idx));
+			const section = idx === -1 ? void 0 : specifier.slice(idx + 1);
+			const host = parent;
+			const target = host?.type === "paragraph" ? host : node;
+			queue.push(embed(target, targetPath, section, attributes, file, stack).then((replace) => {
+				const { position } = target;
+				for (const key in target) delete target[key];
+				Object.assign(target, replace, { position });
+			}));
+			return "skip";
+		});
+		await Promise.all(queue);
+	}
+	async function embed(target, targetPath, section, attributes, file, stack) {
+		if (stack.includes(targetPath)) throw new Error(`Circular include detected: ${[...stack, targetPath].join(" -> ")}`);
+		file.data._compiler?.addDependency(targetPath);
+		let content;
+		try {
+			content = await fs.readFile(targetPath, "utf-8");
+		} catch (e) {
+			throw new Error(`failed to read file ${targetPath}\n${e instanceof Error ? e.message : String(e)}`, { cause: e });
+		}
+		const ext = path$1.extname(targetPath);
+		if (attributes.lang || ext !== ".md" && ext !== ".mdx") {
+			const lang = attributes.lang ?? ext.slice(1);
+			const value = section ? extractCodeRegion(content, section) : content.replace(/\r?\n$/, "");
+			if (value === void 0) throw new Error(`Region "${section}" not found in ${targetPath}`);
+			let fence = "```";
+			while (value.includes(fence)) fence += "`";
+			replaceSource(file, target, `${fence}${lang}${attributes.meta ? ` ${attributes.meta}` : ""}\n${value}\n${fence}`);
+			return {
+				type: "code",
+				lang,
+				meta: attributes.meta,
+				value
+			};
+		}
+		const source = frontmatter(content).content;
+		const tree = getProcessor(ext === ".mdx" ? "mdx" : "md").parse(source);
+		unravel(tree);
+		if (section) {
+			const children = extractSection(tree, section);
+			if (!children) throw new Error(`Cannot find section ${section} in ${targetPath}, make sure you have encapsulated the section in a <section id="${section}"> tag, or a :::section directive with remark-directive configured.`);
+			tree.children = children;
+		}
+		embedSource(file, target, source, tree.children);
+		await update(tree, path$1.dirname(targetPath), file, [...stack, targetPath]);
+		return tree;
+	}
+	return (tree, file) => update(tree, file.dirname ?? file.cwd, file, []);
+}
+function parseElementAttributes(element) {
+	if (!Array.isArray(element.attributes)) return element.attributes ?? {};
+	const attributes = {};
+	for (const attr of element.attributes) if (attr.type === "mdxJsxAttribute" && (typeof attr.value === "string" || attr.value === null)) attributes[attr.name] = attr.value;
+	return attributes;
+}
+/**
+* MDX.js unravels paragraphs of only JSX & expressions into flow content before other plugins run, included
+* content needs the same.
+*/
+function unravel(tree) {
+	walk(tree, (node, index, parent) => {
+		if (node.type !== "paragraph") return;
+		let flow = false;
+		for (const child of node.children) if (child.type === "mdxJsxTextElement" || child.type === "mdxTextExpression") flow = true;
+		else if (child.type !== "text" || child.value.trim()) return "skip";
+		if (!flow || !parent) return "skip";
+		const children = [];
+		for (const child of node.children) {
+			if (child.type === "text" && /^[\t\r\n ]+$/.test(child.value)) continue;
+			if (child.type === "mdxJsxTextElement") child.type = "mdxJsxFlowElement";
+			else if (child.type === "mdxTextExpression") child.type = "mdxFlowExpression";
+			children.push(child);
+		}
+		parent.children.splice(index, 1, ...children);
+		return "skip";
+	});
+}
+/** the content in a `<section id>` element, or under a heading by its ID */
+function extractSection(tree, section) {
+	const slugger = new Slugger();
+	let nodes;
+	let capturing = false;
+	walk(tree, (node) => {
+		if (nodes && !capturing) return "skip";
+		if (node.type === "heading") {
+			if (capturing) capturing = false;
+			else if (headingId(node, slugger) === section) {
+				nodes = [node];
+				capturing = true;
+			}
+			return "skip";
+		}
+		if (capturing) {
+			nodes.push(node);
+			return "skip";
+		}
+		if (isElementLike(node) && node.name === "section" && parseElementAttributes(node).id === section) {
+			nodes = node.children;
+			return "skip";
+		}
+	});
+	return nodes;
+}
+/** the ID `remark-heading` gives a heading */
+function headingId(heading, slugger) {
+	const last = heading.children.at(-1);
+	return (last?.type === "text" ? headingIdRegex.exec(last.value)?.[1] : void 0) ?? slugger.slug(flattenNode(heading));
+}
+const regionMarkers = [
+	{
+		start: /^\s*\/\/\s*#?region\b\s*(.*?)\s*$/,
+		end: /^\s*\/\/\s*#?endregion\b\s*(.*?)\s*$/
+	},
+	{
+		start: /^\s*<!--\s*#?region\b\s*(.*?)\s*-->/,
+		end: /^\s*<!--\s*#?endregion\b\s*(.*?)\s*-->/
+	},
+	{
+		start: /^\s*\/\*\s*#region\b\s*(.*?)\s*\*\//,
+		end: /^\s*\/\*\s*#endregion\b\s*(.*?)\s*\*\//
+	},
+	{
+		start: /^\s*#[rR]egion\b\s*(.*?)\s*$/,
+		end: /^\s*#[eE]nd ?[rR]egion\b\s*(.*?)\s*$/
+	},
+	{
+		start: /^\s*#\s*#?region\b\s*(.*?)\s*$/,
+		end: /^\s*#\s*#?endregion\b\s*(.*?)\s*$/
+	},
+	{
+		start: /^\s*(?:--|::|@?REM)\s*#region\b\s*(.*?)\s*$/,
+		end: /^\s*(?:--|::|@?REM)\s*#endregion\b\s*(.*?)\s*$/
+	},
+	{
+		start: /^\s*#pragma\s+region\b\s*(.*?)\s*$/,
+		end: /^\s*#pragma\s+endregion\b\s*(.*?)\s*$/
+	},
+	{
+		start: /^\s*\(\*\s*#region\b\s*(.*?)\s*\*\)/,
+		end: /^\s*\(\*\s*#endregion\b\s*(.*?)\s*\*\)/
+	}
+];
+/** the dedented lines of a VS Code-style region (e.g. `// #region name`) in code */
+function extractCodeRegion(content, region) {
+	const lines = content.split("\n");
+	for (let i = 0; i < lines.length; i++) for (const marker of regionMarkers) {
+		if (marker.start.exec(lines[i])?.[1] !== region) continue;
+		let depth = 1;
+		const extracted = [];
+		for (let j = i + 1; j < lines.length; j++) {
+			if (marker.start.test(lines[j])) {
+				depth++;
+				continue;
+			}
+			const end = marker.end.exec(lines[j]);
+			if (!end) {
+				extracted.push(lines[j]);
+				continue;
+			}
+			if (end[1] === region) depth = 0;
+			else if (end[1] === "") depth--;
+			if (depth === 0) return dedent(extracted);
+		}
+	}
+}
+function dedent(lines) {
+	let indent = Infinity;
+	for (const line of lines) {
+		const start = line.search(/\S/);
+		if (start !== -1) indent = Math.min(indent, start);
+	}
+	if (indent !== Infinity) for (let i = 0; i < lines.length; i++) lines[i] = lines[i].slice(indent);
+	return lines.join("\n");
+}
+export { extractCodeRegion, remarkInclude };

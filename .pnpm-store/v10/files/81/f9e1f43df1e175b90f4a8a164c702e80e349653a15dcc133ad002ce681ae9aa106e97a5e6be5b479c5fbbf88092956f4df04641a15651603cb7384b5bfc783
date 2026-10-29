@@ -1,0 +1,3 @@
+import { ControlledProps } from "./controlled.js";
+import React from "react";
+export type UncontrolledProps = Omit<ControlledProps, 'isZoomed'>;

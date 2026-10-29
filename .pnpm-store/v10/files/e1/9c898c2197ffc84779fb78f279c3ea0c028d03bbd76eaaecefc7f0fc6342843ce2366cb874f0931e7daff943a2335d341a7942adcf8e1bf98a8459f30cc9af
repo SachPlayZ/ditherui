@@ -1,0 +1,35 @@
+"use client";
+import { RootProvider as RootProvider$1 } from "./base.js";
+import { jsx } from "react/jsx-runtime";
+import { useEffect, useEffectEvent } from "react";
+import { AstroProvider } from "fumadocs-core/framework/astro";
+// src/provider/astro.tsx
+function RootProvider({ components, pathname, params, navigate, ...props }) {
+	const onBeforeSwap = useEffectEvent((next) => {
+		const { enabled, attribute = "class" } = props.theme ?? {};
+		if (enabled === false) return;
+		const current = document.documentElement;
+		for (const name of Array.isArray(attribute) ? attribute : [attribute]) {
+			const value = current.getAttribute(name);
+			if (value !== null) next.setAttribute(name, value);
+		}
+		next.style.colorScheme = current.style.colorScheme;
+	});
+	useEffect(() => {
+		const listener = (event) => onBeforeSwap(event.newDocument.documentElement);
+		document.addEventListener("astro:before-swap", listener);
+		return () => document.removeEventListener("astro:before-swap", listener);
+	}, []);
+	return /* @__PURE__ */ jsx(AstroProvider, {
+		pathname,
+		params,
+		navigate,
+		Link: components?.Link,
+		Image: components?.Image,
+		children: /* @__PURE__ */ jsx(RootProvider$1, {
+			...props,
+			children: props.children
+		})
+	});
+}
+export { RootProvider };

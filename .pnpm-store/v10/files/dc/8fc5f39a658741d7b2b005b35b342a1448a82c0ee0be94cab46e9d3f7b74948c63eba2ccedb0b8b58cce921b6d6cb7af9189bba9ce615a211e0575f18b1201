@@ -1,0 +1,146 @@
+import { t as createEndpoint } from "../endpoint-H7rb4eeq.js";
+import { toDocuments } from "./meilisearch.js";
+// src/search/mixedbread.ts
+function defaultTransform(results) {
+	const groups = /* @__PURE__ */ new Map();
+	for (const item of results) {
+		const page = item.metadata;
+		let group = groups.get(item.file_id);
+		if (!group) {
+			group = [{
+				id: item.file_id,
+				type: "page",
+				content: page.title,
+				breadcrumbs: page.breadcrumbs,
+				url: page.url
+			}];
+			groups.set(item.file_id, group);
+		}
+		const { kind, heading, table } = item.generated_metadata;
+		if (kind === "page") continue;
+		group.push({
+			id: `${item.file_id}-${item.chunk_index}`,
+			type: kind,
+			content: item.text ?? "",
+			url: heading ? `${page.url}#${heading}` : page.url,
+			table
+		});
+	}
+	return [...groups.values()].flat();
+}
+function createMixedbreadSearchAPI(options) {
+	const { client, storeIdentifier, topK = 10, rerank, rewriteQuery, scoreThreshold, transform } = options;
+	return createEndpoint({
+		async search(query, searchOptions = {}) {
+			if (!query.trim()) return [];
+			const { tag, locale, limit } = searchOptions;
+			const filters = [];
+			if (locale) filters.push({
+				key: "locale",
+				operator: "eq",
+				value: locale
+			});
+			for (const item of typeof tag === "string" ? [tag] : tag ?? []) filters.push({
+				key: "tags",
+				operator: "contains",
+				value: item
+			});
+			const results = (await client.stores.search({
+				query,
+				store_identifiers: [storeIdentifier],
+				top_k: Math.min(limit ?? topK, topK),
+				filters: filters.length > 0 ? { all: filters } : void 0,
+				search_options: {
+					return_metadata: true,
+					rerank,
+					rewrite_query: rewriteQuery,
+					score_threshold: scoreThreshold
+				}
+			})).data;
+			if (transform) return transform(results, query);
+			return defaultTransform(results);
+		},
+		async export() {
+			throw new Error("Mixedbread search does not support exporting indexes. Use the Mixedbread dashboard to manage your store.");
+		}
+	});
+}
+/**
+* Upload a file for each page, whose chunks are the title, headings and paragraphs of the page. Unchanged pages are skipped, files of removed pages are deleted.
+*
+* @param client - Mixedbread client with an API key that can write to the store
+*/
+async function sync(client, options) {
+	const { storeIdentifier, documents } = options;
+	const files = /* @__PURE__ */ new Map();
+	let after = null;
+	do {
+		const res = await client.stores.files.list(storeIdentifier, {
+			limit: 100,
+			after
+		});
+		for (const file of res.data) {
+			const metadata = file.metadata;
+			if (file.external_id) files.set(file.external_id, {
+				id: file.id,
+				hash: metadata?.hash
+			});
+		}
+		after = res.pagination.has_more ? res.pagination.last_cursor : null;
+	} while (after);
+	const tasks = [];
+	for (const document of documents) {
+		const { title, url, breadcrumbs, tag, locale } = document;
+		const id = locale ? `${locale}:${url}` : url;
+		const metadata = {
+			title,
+			url,
+			breadcrumbs,
+			tags: typeof tag === "string" ? [tag] : tag ?? [],
+			locale
+		};
+		const content = JSON.stringify(toChunks(document));
+		const hash = await digest(content + JSON.stringify(metadata));
+		const previous = files.get(id);
+		files.delete(id);
+		if (previous?.hash === hash) continue;
+		tasks.push(async () => {
+			const file = new File([content], `${title}.mxjson`, { type: "application/vnd-mxbai.chunks-json" });
+			await client.stores.files.upload(storeIdentifier, file, {
+				external_id: id,
+				metadata: {
+					...metadata,
+					hash
+				}
+			});
+			if (previous) await client.files.delete(previous.id);
+		});
+	}
+	for (const { id } of files.values()) tasks.push(() => client.files.delete(id));
+	for (let i = 0; i < tasks.length; i += 10) await Promise.all(tasks.slice(i, i + 10).map((task) => task()));
+}
+function toChunks({ title, description, structured }) {
+	const chunks = [];
+	const add = (text, generated_metadata) => chunks.push({
+		type: "text",
+		text,
+		generated_metadata
+	});
+	add(title, { kind: "page" });
+	if (description && !structured.contents.some((item) => item.content === description)) add(description, { kind: "text" });
+	for (const heading of structured.headings) add(heading.content, {
+		kind: "heading",
+		heading: heading.id
+	});
+	for (const { content, heading, table } of structured.contents) add(content, {
+		kind: "text",
+		heading,
+		table
+	});
+	return chunks;
+}
+async function digest(content) {
+	const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(content));
+	return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+export { createMixedbreadSearchAPI, sync, toDocuments };

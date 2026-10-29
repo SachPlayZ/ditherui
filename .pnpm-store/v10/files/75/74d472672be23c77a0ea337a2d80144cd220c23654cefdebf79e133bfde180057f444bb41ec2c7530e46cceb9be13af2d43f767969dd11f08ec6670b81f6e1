@@ -1,0 +1,2 @@
+import { n as remarkHeading, t as RemarkHeadingOptions } from "../remark-heading-Dr13q5Om.js";
+export { RemarkHeadingOptions, remarkHeading };

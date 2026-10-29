@@ -1,0 +1,2 @@
+import { C as staticClient, S as oramaStaticClient, w as useStaticSearch, x as StaticOptions } from "../../client-DnKr8e39.js";
+export { StaticOptions, oramaStaticClient, staticClient, useStaticSearch };

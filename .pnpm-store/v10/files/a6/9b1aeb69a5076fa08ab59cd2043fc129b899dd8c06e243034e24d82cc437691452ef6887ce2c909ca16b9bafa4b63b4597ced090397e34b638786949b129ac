@@ -1,0 +1,2 @@
+import { _ as dynamicLoader, g as DynamicLoaderConfig, h as DynamicLoader } from "../index-DAbFAfHX.js";
+export { DynamicLoader, DynamicLoaderConfig, dynamicLoader };

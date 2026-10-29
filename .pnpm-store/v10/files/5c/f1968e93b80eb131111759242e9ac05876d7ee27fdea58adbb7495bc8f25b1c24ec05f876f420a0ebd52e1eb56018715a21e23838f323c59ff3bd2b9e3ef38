@@ -1,0 +1,2 @@
+import { n as SearchClient, r as useDocsSearch, t as ClientPreset } from "../../client-DnKr8e39.js";
+export { ClientPreset, SearchClient, useDocsSearch };

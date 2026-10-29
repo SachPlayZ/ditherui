@@ -1,0 +1,7 @@
+import { t as Awaitable } from "../types-Dvkw0Kd0.js";
+export interface PlaceholderData {
+  name: string | null;
+  attributes: Record<string, unknown>;
+  children: string;
+}
+export declare function renderPlaceholder(text: string, renderers: Record<string, (data: PlaceholderData) => Awaitable<string>>): Promise<string>;

@@ -1,0 +1,28 @@
+import { Processor, Transformer } from "unified";
+import { Root } from "mdast";
+interface RemarkIncludeOptions {
+  /**
+   * The processor to parse an included Markdown or MDX file with.
+   *
+   * @defaultValue the current processor
+   */
+  getProcessor?: (format: 'md' | 'mdx') => Pick<Processor, 'parse'>;
+}
+declare module 'vfile' {
+  interface DataMap {
+    /**
+     * [Fumadocs: remark-include] the host compiler, included files are added as its dependencies.
+     */
+    _compiler?: {
+      addDependency: (file: string) => void;
+    };
+  }
+}
+/**
+ * Embed other files with `<include>./file.mdx</include>` or the `include` directives, Markdown & MDX files as
+ * content, other files as code blocks.
+ */
+declare function remarkInclude(this: Processor, { getProcessor }?: RemarkIncludeOptions): Transformer<Root, Root>;
+/** the dedented lines of a VS Code-style region (e.g. `// #region name`) in code */
+declare function extractCodeRegion(content: string, region: string): string | undefined;
+export { extractCodeRegion as n, remarkInclude as r, RemarkIncludeOptions as t };

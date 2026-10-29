@@ -1,0 +1,58 @@
+import { valueToEstree } from "estree-util-value-to-estree";
+// src/mdx-plugins/utils.ts
+function isJsxElement(node) {
+	return node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement";
+}
+/**
+* Visit a tree in document order, returning `skip` skips the children of a node. Unlike `unist-util-visit`, it doesn't
+* look up the index of each node in its parent, which is quadratic on wide trees.
+*/
+function walk(node, visitor, index, parent) {
+	if (visitor(node, index, parent) === "skip" || !node.children) return;
+	for (let i = 0; i < node.children.length; i++) walk(node.children[i], visitor, i, node);
+}
+function flattenNode(node) {
+	if ("children" in node) return node.children.map(flattenNode).join("");
+	if ("value" in node && typeof node.value === "string") return node.value;
+	return "";
+}
+function flattenNodeHast(node) {
+	if ("children" in node) return node.children.map(flattenNodeHast).join("");
+	return "value" in node && typeof node.value === "string" ? node.value : "";
+}
+function toMdxExport(name, value) {
+	return toMdxExportRaw(name, valueToEstree(value));
+}
+function toMdxExportRaw(name, expression) {
+	return {
+		type: "mdxjsEsm",
+		value: "",
+		data: { estree: {
+			type: "Program",
+			sourceType: "module",
+			body: [{
+				type: "ExportNamedDeclaration",
+				attributes: [],
+				specifiers: [],
+				declaration: {
+					type: "VariableDeclaration",
+					kind: "let",
+					declarations: [{
+						type: "VariableDeclarator",
+						id: {
+							type: "Identifier",
+							name
+						},
+						init: expression
+					}]
+				}
+			}]
+		} }
+	};
+}
+function handleTag(value, tag) {
+	const idx = value.indexOf(tag);
+	if (idx !== -1) return value.slice(0, idx).trimEnd() + value.slice(idx + tag.length);
+	return false;
+}
+export { toMdxExport as a, isJsxElement as i, flattenNodeHast as n, toMdxExportRaw as o, handleTag as r, walk as s, flattenNode as t };
