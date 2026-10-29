@@ -79,3 +79,23 @@ function hash(i: number, tick: number): number {
 export function scrambled(mask: Float32Array, amount: number, tick: number): Float32Array {
   return mask.map((v, i) => (v > 0.02 ? v * (1 - amount * hash(i, tick)) : v));
 }
+
+export interface Reveal {
+  /** `performance.now()` when the reveal started. */
+  start: number;
+  duration: number;
+  /** Dither out (shown → gone) instead of in. */
+  out?: boolean;
+}
+
+/** Share of the mask shown at `now` (ms): eased 0 → 1 over the run, or 1 → 0 when `out`. `still` jumps to the end. */
+export function revealAmount({ start, duration, out }: Reveal, now: number, still: boolean): number {
+  const t = still ? 1 : Math.min(1, Math.max(0, (now - start) / duration));
+  const eased = t * t * (3 - 2 * t);
+  return out ? 1 - eased : eased;
+}
+
+/** Scale a mask so ordered dither lights only part of each glyph: the dithered fade. */
+export function revealed(mask: Float32Array, amount: number): Float32Array {
+  return amount >= 1 ? mask : mask.map((v) => v * amount);
+}

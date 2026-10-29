@@ -7,6 +7,7 @@ import DitherFieldFieldsDemo from "./dither-field-fields-demo";
 import DitherFieldPatternsDemo from "./dither-field-patterns-demo";
 import DitherImageDemo from "./dither-image-demo";
 import DitherImagePatternsDemo from "./dither-image-patterns-demo";
+import DitherRevealDemo from "./dither-reveal-demo";
 import DitherProgressDemo from "./dither-progress-demo";
 import ScrambleTextDemo from "./scramble-text-demo";
 import DitherFieldProviderDemo from "./dither-field-provider-demo";
@@ -24,4 +25,5 @@ export const examples: Record<string, ComponentType> = {
   "ascii-video-demo": AsciiVideoDemo,
   "ascii-video-webcam-demo": AsciiVideoWebcamDemo,
   "scramble-text-demo": ScrambleTextDemo,
+  "dither-reveal-demo": DitherRevealDemo,
 };

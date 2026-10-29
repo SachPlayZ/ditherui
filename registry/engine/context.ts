@@ -95,8 +95,8 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
     const upload = () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values);
     g.uniform1i(u.uField, -1);
     g.activeTexture(g.TEXTURE1);
-    // Image and text values are cached per size; video frames and scrambles change every draw, so they share one texture re-uploaded each time.
-    const live = source.kind === "video" || (source.kind === "text" && !!source.scramble);
+    // Image and text values are cached per size; video frames, scrambles and reveals change every draw, so they share one texture re-uploaded each time.
+    const live = source.kind === "video" || (source.kind === "text" && !!(source.scramble || source.reveal));
     g.bindTexture(g.TEXTURE_2D, texture(g, live ? LIVE : values, upload));
     if (live) upload();
   }

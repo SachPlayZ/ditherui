@@ -1,0 +1,41 @@
+---
+title: Dither Reveal
+description: Text that dithers in or out when it scrolls into view, mounts or is hovered, with the real text always in the DOM.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="dither-reveal" />
+
+<Playground name="dither-reveal" />
+
+## Installation
+
+<Install name="dither-reveal" />
+
+## Usage
+
+```tsx
+import { DitherReveal } from "@/components/ui/dither-reveal";
+
+<DitherReveal as="h2" cell={2}>Out of the noise</DitherReveal>
+```
+
+The text's own letter shapes fade in through the ordered dither pattern, one threshold level at a time, then the crisp text takes over. By default it runs the first time the text scrolls into view; `trigger="mount"` runs on mount, and `trigger="hover"` re-runs on every hover while leaving the text visible otherwise.
+
+```tsx
+<DitherReveal trigger="mount" direction="out" duration={800}>Goodbye</DitherReveal>
+```
+
+`direction="out"` dithers the text away and leaves it hidden (but still in the DOM). Keep `cell` small (2–3) so the dither reads as the letters; `pattern`, `palette`, `contrast` and `threshold` style it like any other component, and the palette's background shows behind the text while it runs.
+
+## Accessibility and performance
+
+- The real text is always in the DOM and selectable; during a run it is only made transparent, under an `aria-hidden` canvas. The server never hides it, so it is readable without JavaScript.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, nothing runs and the text is simply shown.
+- The overlay exists only during a run. The text's layout is measured once per size and font; each frame only rescales the mask.
+
+## Props
+
+<PropsTable name="dither-reveal" />

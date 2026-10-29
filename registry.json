@@ -90,6 +90,11 @@
           "target": "lib/dotgrain/text.ts"
         },
         {
+          "path": "registry/engine/trigger.ts",
+          "type": "registry:lib",
+          "target": "lib/dotgrain/trigger.ts"
+        },
+        {
           "path": "registry/engine/types.ts",
           "type": "registry:lib",
           "target": "lib/dotgrain/types.ts"
@@ -216,6 +221,30 @@
       "meta": {
         "modes": [
           "ascii"
+        ]
+      }
+    },
+    {
+      "name": "dither-reveal",
+      "type": "registry:ui",
+      "title": "Dither Reveal",
+      "description": "Text that dithers in or out when it scrolls into view, mounts or is hovered, with the real text always in the DOM.",
+      "categories": [
+        "text"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/dither-reveal.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither"
         ]
       }
     }
