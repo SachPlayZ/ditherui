@@ -70,6 +70,16 @@ export function Parity() {
         }
       }
     }
+    // Video frames arrive as per-mark luminance, re-uploaded every draw; a smooth ramp stands in for one.
+    const element = document.createElement("video");
+    for (const mode of ["dither", "ascii"] as const) {
+      for (const time of [0, 1]) {
+        const [width, height] = mode === "ascii" ? [40, 20] : [97, 61];
+        const values = Float32Array.from({ length: width * height }, (_, i) => 0.5 + 0.5 * Math.sin((i % width) / 7 + Math.floor(i / width) / 5 + time));
+        const tokens = { ...DEFAULT_TOKENS, mode, cell: mode === "ascii" ? 12 : DEFAULT_TOKENS.cell, palette: paletteColors("gameboy") };
+        out.push({ fixture: `video/${mode}/t${time}`, mismatch: compare({ source: { kind: "video", element }, tokens, width, height, time: 0, values }) });
+      }
+    }
     pre.current!.textContent = JSON.stringify(out, null, 2);
   }, []);
   return (

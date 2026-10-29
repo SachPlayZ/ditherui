@@ -54,17 +54,8 @@ export function imageValues(src: string, crossOrigin: "anonymous" | undefined, c
   const key = `${cols}x${rows}x${aspect.toFixed(4)}`;
   let values = e.values.get(key);
   if (!values) {
-    const canvas = document.createElement("canvas");
-    canvas.width = cols;
-    canvas.height = rows;
-    const ctx = canvas.getContext("2d");
-    const { naturalWidth: iw, naturalHeight: ih } = e.image;
-    // Cover: crop the image's longer side so it fills the element's aspect.
-    const sw = Math.min(iw, ih * aspect), sh = sw / aspect;
     try {
-      ctx!.imageSmoothingQuality = "high";
-      ctx!.drawImage(e.image, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, cols, rows);
-      values = luminance(ctx!.getImageData(0, 0, cols, rows).data);
+      values = sample(e.image, e.image.naturalWidth, e.image.naturalHeight, cols, rows, aspect, false);
     } catch {
       // Tainted canvas (cross-origin image without CORS headers) or no 2D context: pixels can't be read.
       e.status = "error";
@@ -74,4 +65,31 @@ export function imageValues(src: string, crossOrigin: "anonymous" | undefined, c
     e.values.set(key, values);
   }
   return values;
+}
+
+/** Luminance of the video's current frame cover-fitted to cols × rows marks, or its status while it has no frame. */
+export function videoValues(video: HTMLVideoElement, cols: number, rows: number, aspect: number): Float32Array | ImageStatus {
+  if (video.error) return "error";
+  if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return "loading";
+  try {
+    return sample(video, video.videoWidth, video.videoHeight, cols, rows, aspect, true);
+  } catch {
+    return "error";
+  }
+}
+
+// Video reads back every frame, so it gets a CPU-backed canvas; images keep the default (GPU) resampling.
+const scratches = new Map<boolean, CanvasRenderingContext2D | null>();
+
+/** Cover-fit a drawable into cols × rows: crop its longer side to the element's aspect. Throws if pixels can't be read. */
+function sample(source: CanvasImageSource, iw: number, ih: number, cols: number, rows: number, aspect: number, frequent: boolean): Float32Array {
+  if (!scratches.has(frequent)) scratches.set(frequent, document.createElement("canvas").getContext("2d", { willReadFrequently: frequent }));
+  const scratch = scratches.get(frequent);
+  if (!scratch) throw new Error("no 2D context");
+  scratch.canvas.width = cols;
+  scratch.canvas.height = rows;
+  const sw = Math.min(iw, ih * aspect), sh = sw / aspect;
+  scratch.imageSmoothingQuality = "high";
+  scratch.drawImage(source, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, cols, rows);
+  return luminance(scratch.getImageData(0, 0, cols, rows).data);
 }

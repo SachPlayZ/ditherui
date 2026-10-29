@@ -22,6 +22,7 @@ export interface DitherTokens {
 export type Source =
   | { kind: "field"; field: FieldName; params?: Record<string, number> }
   | { kind: "image"; src: string; crossOrigin?: "anonymous" }
+  /** Keep the element rendered (e.g. visually hidden), not `display: none`: browsers may not decode a hidden paused video's frames. */
   | { kind: "video"; element: HTMLVideoElement };
 
 /** One render request: quantized size in marks, time in seconds. */
