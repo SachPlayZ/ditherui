@@ -4,6 +4,7 @@ description: An animated dithered background field with real DOM content on top.
 ---
 
 import DitherFieldDemo from '@/registry/examples/dither-field-demo';
+import DitherFieldProviderDemo from '@/registry/examples/dither-field-provider-demo';
 
 <DitherFieldDemo />
 
@@ -21,4 +22,19 @@ import { DitherField } from "@/components/ui/dither-field";
 <DitherField style={{ height: 320 }}>
   <h1>Hello</h1>
 </DitherField>
+```
+
+## Tokens
+
+Set tokens once with `DitherProvider`; any prop overrides them for one component. Here the provider sets `gameboy`, and the right field overrides it with `amber` and `bayer8`.
+
+<DitherFieldProviderDemo />
+
+```tsx
+import { DitherProvider } from "@/lib/ditherui/provider";
+
+<DitherProvider palette="gameboy" cell={4}>
+  <DitherField />
+  <DitherField palette="amber" pattern="bayer8" />
+</DitherProvider>
 ```
