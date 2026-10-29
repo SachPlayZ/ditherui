@@ -11,12 +11,13 @@ import { useDitherTokens } from "@/lib/dotgrain/provider";
 import type { DitherTokens } from "@/lib/dotgrain/types";
 import { components } from "@/registry/meta";
 import type { ComponentMeta, KnobMeta } from "@/registry/meta/types";
+import { AsciiVideo } from "@/registry/ui/ascii-video";
 import { DitherField } from "@/registry/ui/dither-field";
 import { DitherImage } from "@/registry/ui/dither-image";
 import { DitherProgress } from "@/registry/ui/dither-progress";
 
 // Each preview gets its meta example props plus knob values, so props are only known at runtime.
-const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress } as unknown as Record<
+const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress, "ascii-video": AsciiVideo } as unknown as Record<
   string,
   ComponentType<Record<string, unknown> & { children?: ReactNode }>
 >;
@@ -41,8 +42,9 @@ function useKnobs(name: string): [KnobValues, (values: KnobValues) => void] {
 const TOKENS: (keyof DitherTokens)[] = ["mode", "pattern", "palette", "glyphs", "cell", "speed", "contrast", "threshold"];
 
 /** Knob values on top of the style bar's tokens: what the preview renders, so knobs and code show it. */
-function useEffective(values: KnobValues): KnobValues {
-  const site = useDitherTokens({});
+function useEffective(meta: ComponentMeta, values: KnobValues): KnobValues {
+  // Single-mode components force their mode, so mode-dependent defaults (cell, glyph knobs) follow it.
+  const site = useDitherTokens(meta.modes.length === 1 ? { mode: meta.modes[0] } : {});
   return { ...Object.fromEntries(TOKENS.map((k) => [k, site[k] as string | number])), ...values };
 }
 
@@ -89,7 +91,7 @@ function Knob({ knob, values, set }: { knob: KnobMeta; values: KnobValues; set: 
 export function Playground({ name }: { name: string }) {
   const meta = metaOf(name);
   const [values, setValues] = useKnobs(name);
-  const effective = useEffective(values);
+  const effective = useEffective(meta, values);
   const Component = COMPONENTS[name];
   const visible = knobsFor(meta).filter((k) => isVisible(k, effective));
   return (
@@ -120,7 +122,7 @@ export function Playground({ name }: { name: string }) {
 export function CopyPrompt({ name }: { name: string }) {
   const meta = metaOf(name);
   const [values] = useKnobs(name);
-  const effective = useEffective(values);
+  const effective = useEffective(meta, values);
   const [copied, setCopied] = useState(false);
   const text = prompt(meta, effective);
   return (

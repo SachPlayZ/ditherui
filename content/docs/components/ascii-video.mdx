@@ -1,0 +1,49 @@
+---
+title: ASCII Video
+description: Plays a video file or the viewer's webcam as live ASCII, with a pause button and an accessible label.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+import AsciiVideoWebcamDemo from '@/registry/examples/ascii-video-webcam-demo';
+
+<ComponentHeader name="ascii-video" />
+
+<Playground name="ascii-video" />
+
+## Installation
+
+<Install name="ascii-video" />
+
+## Usage
+
+```tsx
+import { AsciiVideo } from "@/components/ui/ascii-video";
+
+<AsciiVideo src="/clip.mp4" label="Describe the video" width={1280} height={720} />
+```
+
+The video plays muted and loops. `speed` sets the playback rate, and the token props restyle it live without reloading the video.
+
+## Webcam
+
+With `webcam`, a **Start camera** button appears. The camera starts only when the viewer clicks it, and the image is mirrored like a selfie view. If access is denied or there is no camera, a message says so and nothing else changes. Nothing is recorded or sent anywhere: frames are drawn in the browser.
+
+<Preview>
+  <AsciiVideoWebcamDemo />
+</Preview>
+
+```tsx
+<AsciiVideo webcam label="Your webcam as ASCII" glyphs="blocks" />
+```
+
+## Accessibility and performance
+
+- The canvas is announced as one image named by `label`. A native **Pause** / **Play** button controls playback, and the status message for the camera is a live region.
+- Under `prefers-reduced-motion: reduce` (or with `speed={0}`) the video holds its first frame until the viewer presses **Play**.
+- The `<video>` stays in the DOM, invisible. If a cross-origin video's frames can't be read (no CORS headers), the plain video is shown instead.
+- Frames are sampled at the ASCII grid size, not the video's resolution, and drawing pauses offscreen, in hidden tabs and while the video is paused. Webcam tracks stop on unmount.
+
+## Props
+
+<PropsTable name="ascii-video" />

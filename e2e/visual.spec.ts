@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { PALETTES } from "../registry/engine/palettes";
 import { examples } from "../registry/examples";
+import { components } from "../registry/meta";
 
 for (const example of Object.keys(examples)) {
   for (const palette of Object.keys(PALETTES)) {
@@ -20,9 +21,10 @@ for (const example of Object.keys(examples)) {
   }
 }
 
-// Phase 1 components on the Canvas2D path and with animation frozen; each still renders a full frame.
-for (const example of ["dither-field-demo", "dither-image-demo", "dither-progress-demo"]) {
-  for (const mode of ["dither", "ascii"]) {
+// Every component's main demo on the Canvas2D path and with animation frozen; each still renders a full frame.
+for (const { name, modes } of components) {
+  const example = `${name}-demo`;
+  for (const mode of modes) {
     for (const variant of ["cpu", "reduced-motion"]) {
       test(`${example} · ${mode} · ${variant}`, async ({ page }) => {
         if (variant === "reduced-motion") await page.emulateMedia({ reducedMotion: "reduce" });
