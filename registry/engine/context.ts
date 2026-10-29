@@ -143,7 +143,7 @@ function tinted(atlas: HTMLCanvasElement, [r, g, b]: RGB): HTMLCanvasElement {
 }
 
 /** Canvas2D twin of the ASCII shader: background fill, then one tinted glyph per cell. */
-function drawGlyphs(ctx: CanvasRenderingContext2D, frame: Frame, cellW: number, cellH: number): void {
+export function drawGlyphs(ctx: CanvasRenderingContext2D, frame: Frame, cellW: number, cellH: number): void {
   const { width: cols, height: rows, tokens } = frame;
   const palette = resolvePalette(tokens.palette);
   const atlas = glyphAtlas(rampGlyphs(tokens.glyphs), cellW, cellH, frame.font ?? DEFAULT_FONT);
