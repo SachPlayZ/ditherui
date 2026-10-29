@@ -1,5 +1,4 @@
-import { readFileSync } from "node:fs";
-import { Code } from "./code";
+import { Code, RegistryFile } from "./code";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { TypeTable } from "fumadocs-ui/components/type-table";
 import { addCommand, PACKAGE_MANAGERS, type PackageManager, REGISTRY_URL } from "@/lib/install";
@@ -53,9 +52,7 @@ export function Install({ name }: { name: string }) {
             Copy this into <code>components/ui/{meta.name}.tsx</code>. Imports assume the <code>@/</code> path alias.
           </li>
         </ol>
-        {meta.files.map((file) => (
-          <Code key={file} lang="tsx" code={readFileSync(file, "utf8")} />
-        ))}
+        <RegistryFile name={meta.name} />
       </Tab>
     </Tabs>
   );
