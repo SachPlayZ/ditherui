@@ -14,7 +14,8 @@
     "test:install": "scripts/e2e-install.sh",
     "size": "node scripts/check-size.ts",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "check:worker": "scripts/check-worker.sh"
   },
   "dependencies": {
     "cn": "^0.5.0",
