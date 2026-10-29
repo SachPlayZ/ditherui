@@ -1,9 +1,9 @@
-import { render } from "./cpu";
+import { glyphGrid, render } from "./cpu";
 import { FIELD_IDS, fieldParams } from "./fields";
 import { clearGlyphAtlases, DEFAULT_FONT, GLYPH_ASPECT, glyphAtlas, rampGlyphs } from "./glyphs";
-import { resolvePalette } from "./palettes";
+import { resolvePalette, type RGB } from "./palettes";
 import { thresholdMap } from "./patterns";
-import { ASCII, DITHER, getProgram } from "./programs";
+import { ASCII, clearPrograms, DITHER, getProgram } from "./programs";
 import { getScheduler } from "./scheduler";
 import type { Frame } from "./types";
 
@@ -13,13 +13,25 @@ const ASCII_UNIFORMS = [...SHARED, "uCell", "uAspect", "uGlyphs", "uAtlas"];
 
 let gl: WebGL2RenderingContext | null | undefined;
 let glCanvas: HTMLCanvasElement;
-const textures = new WeakMap<object, WebGLTexture>();
+let textures = new WeakMap<object, WebGLTexture>();
 
 // One WebGL2 context per page, shared by every view (browsers cap live contexts at ~16).
 function getGL(): WebGL2RenderingContext | null {
   if (gl === undefined) {
     glCanvas = document.createElement("canvas");
-    gl = glCanvas.getContext("webgl2", { antialias: false, depth: false, stencil: false, premultipliedAlpha: false });
+    // Dev-only escape hatch to see the Canvas2D path: `?cpu=1`.
+    const forceCPU = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("cpu");
+    gl = forceCPU ? null : glCanvas.getContext("webgl2", { antialias: false, depth: false, stencil: false, premultipliedAlpha: false });
+    // While lost, views draw on the CPU; on restore, rebuild programs and textures lazily and redraw everything.
+    glCanvas.addEventListener("webglcontextlost", (e) => {
+      e.preventDefault();
+      getScheduler().invalidateAll();
+    });
+    glCanvas.addEventListener("webglcontextrestored", () => {
+      if (gl) clearPrograms(gl);
+      textures = new WeakMap();
+      getScheduler().invalidateAll();
+    });
     // Atlases drawn with a fallback font are stale once a web font arrives.
     document.fonts?.addEventListener("loadingdone", () => {
       clearGlyphAtlases();
@@ -59,9 +71,9 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   if (!ctx) return;
   const g = getGL();
   if (source.kind === "video" || (source.kind === "image" && !frame.values)) return;
-  if (!g) {
-    // shortcut: the CPU display path only draws dither so far; ASCII without WebGL2 lands with #9.
-    if (!ascii) ctx.putImageData(new ImageData(render(frame), cols, rows), 0, 0);
+  if (!g || g.isContextLost()) {
+    if (ascii) drawGlyphs(ctx, frame, cellW, cellH);
+    else ctx.putImageData(new ImageData(render(frame), cols, rows), 0, 0);
     return;
   }
   if (glCanvas.width < w) glCanvas.width = w;
@@ -105,4 +117,42 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   g.drawArrays(g.TRIANGLES, 0, 3);
   // The viewport sits at the bottom-left of the shared canvas.
   ctx.drawImage(glCanvas, 0, glCanvas.height - h, w, h, 0, 0, w, h);
+}
+
+const tints = new WeakMap<HTMLCanvasElement, Map<string, HTMLCanvasElement>>();
+
+/** The atlas recoloured to one palette colour (cached), so the CPU path blits glyphs like the shader. */
+function tinted(atlas: HTMLCanvasElement, [r, g, b]: RGB): HTMLCanvasElement {
+  let byColor = tints.get(atlas);
+  if (!byColor) tints.set(atlas, (byColor = new Map()));
+  const fill = `rgb(${r},${g},${b})`;
+  let tint = byColor.get(fill);
+  if (!tint) {
+    tint = document.createElement("canvas");
+    tint.width = atlas.width;
+    tint.height = atlas.height;
+    const t = tint.getContext("2d")!;
+    t.drawImage(atlas, 0, 0);
+    t.globalCompositeOperation = "source-in";
+    t.fillStyle = fill;
+    t.fillRect(0, 0, tint.width, tint.height);
+    byColor.set(fill, tint);
+  }
+  return tint;
+}
+
+/** Canvas2D twin of the ASCII shader: background fill, then one tinted glyph per cell. */
+function drawGlyphs(ctx: CanvasRenderingContext2D, frame: Frame, cellW: number, cellH: number): void {
+  const { width: cols, height: rows, tokens } = frame;
+  const palette = resolvePalette(tokens.palette);
+  const atlas = glyphAtlas(rampGlyphs(tokens.glyphs), cellW, cellH, frame.font ?? DEFAULT_FONT);
+  const tints = palette.map((c) => tinted(atlas, c));
+  const { glyphs, bands } = glyphGrid(frame);
+  const [r, g, b] = palette[0];
+  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  ctx.fillRect(0, 0, cols * cellW, rows * cellH);
+  for (let i = 0; i < glyphs.length; i++) {
+    const x = (i % cols) * cellW, y = Math.floor(i / cols) * cellH;
+    ctx.drawImage(tints[bands[i]], glyphs[i] * cellW, 0, cellW, cellH, x, y, cellW, cellH);
+  }
 }

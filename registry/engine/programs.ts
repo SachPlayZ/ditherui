@@ -87,6 +87,11 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string): WebG
 }
 
 /** Compile (once per context) and return a program with its uniform locations. */
+/** Forget compiled programs, e.g. after the context was lost and restored. */
+export function clearPrograms(gl: WebGL2RenderingContext): void {
+  cache.delete(gl);
+}
+
 export function getProgram(gl: WebGL2RenderingContext, fragment: string, uniforms: string[]): Program {
   let programs = cache.get(gl);
   if (!programs) cache.set(gl, (programs = new Map()));

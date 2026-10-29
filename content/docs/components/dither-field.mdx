@@ -72,3 +72,9 @@ import { DitherProvider } from "@/lib/dithercn/provider";
 Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used.
 
 <DitherFieldPatternsDemo />
+
+## Fallbacks
+
+- **No WebGL2:** the field renders through a Canvas2D path in both modes, matching the GPU output. In development, add `?cpu=1` to any URL to force it.
+- **Context loss:** while the GPU context is lost, views draw on the CPU; once it is restored, programs and textures rebuild and every view redraws without remounting.
+- **Reduced motion:** with `prefers-reduced-motion: reduce`, the field draws one static frame with no animation and no cursor spot.
