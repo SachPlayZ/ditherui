@@ -80,6 +80,8 @@ export function createScheduler(env: SchedulerEnv) {
   env.onReducedMotionChange(invalidateAll);
 
   return {
+    /** Re-render every view on the next frame (e.g. fonts finished loading). */
+    invalidateAll,
     add(view: View): ViewHandle {
       const e: Entry = { view, visible: false, dirty: true, width: 0, height: 0 };
       entries.add(e);

@@ -1,28 +1,47 @@
 import { cursorBump, field, fieldParams } from "./fields";
+import { GLYPH_ASPECT, glyphCell, rampGlyphs } from "./glyphs";
 import { resolvePalette } from "./palettes";
 import { level, thresholdMap } from "./patterns";
 import type { Frame } from "./types";
 
-/** Deterministic CPU render of a frame: RGBA bytes, width × height marks. */
-export function render({ source, tokens, width, height, time, cursor = [0, 0, 0, 0] }: Frame): Uint8ClampedArray<ArrayBuffer> {
+/** Calls back with the source value (0–1 plus cursor) at every mark's centre. */
+function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number, v: number) => void): void {
+  const { source, width, height, time, cursor = [0, 0, 0, 0] } = frame;
   if (source.kind !== "field") throw new Error(`ditherui: "${source.kind}" sources are not supported yet`);
-  const palette = resolvePalette(tokens.palette);
-  const { size, data: thresholds } = thresholdMap(tokens.pattern);
   const params = fieldParams(source.field, source.params);
-  const aspect = width / height;
-  const out = new Uint8ClampedArray(width * height * 4);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const u = (x + 0.5) / width, w = (y + 0.5) / height;
-      const v = field(source.field, u, w, aspect, time, params) + cursorBump(u, w, aspect, cursor);
-      const t = thresholds[(y % size) * size + (x % size)];
-      const [r, g, b] = palette[level(v, tokens.contrast, tokens.threshold, t, palette.length)];
-      const i = (y * width + x) * 4;
-      out[i] = r;
-      out[i + 1] = g;
-      out[i + 2] = b;
-      out[i + 3] = 255;
+      callback(x, y, field(source.field, u, w, aspect, time, params) + cursorBump(u, w, aspect, cursor));
     }
   }
+}
+
+/** Deterministic CPU dither render of a frame: RGBA bytes, width × height marks. */
+export function render(frame: Frame): Uint8ClampedArray<ArrayBuffer> {
+  const { tokens, width, height } = frame;
+  const palette = resolvePalette(tokens.palette);
+  const { size, data: thresholds } = thresholdMap(tokens.pattern);
+  const out = new Uint8ClampedArray(width * height * 4);
+  eachValue(frame, width / height, (x, y, v) => {
+    const t = thresholds[(y % size) * size + (x % size)];
+    const [r, g, b] = palette[level(v, tokens.contrast, tokens.threshold, t, palette.length)];
+    out.set([r, g, b, 255], (y * width + x) * 4);
+  });
   return out;
+}
+
+/** Deterministic CPU ASCII render: glyph index per cell and palette band for its colour. */
+export function glyphGrid(frame: Frame): { glyphs: Uint16Array; bands: Uint8Array } {
+  const { tokens, width, height } = frame;
+  const ramp = rampGlyphs(tokens.glyphs).length;
+  const colors = resolvePalette(tokens.palette).length;
+  const glyphs = new Uint16Array(width * height);
+  const bands = new Uint8Array(width * height);
+  eachValue(frame, (width * GLYPH_ASPECT) / height, (x, y, v) => {
+    const cell = glyphCell(v, tokens.contrast, tokens.threshold, ramp, colors);
+    glyphs[y * width + x] = cell.glyph;
+    bands[y * width + x] = cell.band;
+  });
+  return { glyphs, bands };
 }

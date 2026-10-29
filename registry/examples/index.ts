@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import DitherFieldAsciiDemo from "./dither-field-ascii-demo";
 import DitherFieldDemo from "./dither-field-demo";
 import DitherFieldFieldsDemo from "./dither-field-fields-demo";
 import DitherFieldPatternsDemo from "./dither-field-patterns-demo";
@@ -10,4 +11,5 @@ export const examples: Record<string, ComponentType> = {
   "dither-field-provider-demo": DitherFieldProviderDemo,
   "dither-field-patterns-demo": DitherFieldPatternsDemo,
   "dither-field-fields-demo": DitherFieldFieldsDemo,
+  "dither-field-ascii-demo": DitherFieldAsciiDemo,
 };
