@@ -18,6 +18,8 @@ export interface RenderInfo {
   height: number;
   /** Device pixel ratio, capped at 2. */
   dpr: number;
+  /** Reduced motion is on: draw a static frame, no motion effects. */
+  still: boolean;
 }
 
 export interface View {
@@ -67,7 +69,7 @@ export function createScheduler(env: SchedulerEnv) {
       const animate = !still && e.view.animated();
       if (animate || e.dirty) {
         e.dirty = false;
-        e.view.render({ seconds: ms / 1000, width: e.width, height: e.height, dpr });
+        e.view.render({ seconds: ms / 1000, width: e.width, height: e.height, dpr, still });
       }
       again ||= animate;
     }

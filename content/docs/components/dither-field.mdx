@@ -4,10 +4,13 @@ description: An animated dithered background field with real DOM content on top.
 ---
 
 import DitherFieldDemo from '@/registry/examples/dither-field-demo';
+import DitherFieldFieldsDemo from '@/registry/examples/dither-field-fields-demo';
 import DitherFieldPatternsDemo from '@/registry/examples/dither-field-patterns-demo';
 import DitherFieldProviderDemo from '@/registry/examples/dither-field-provider-demo';
 
 <DitherFieldDemo />
+
+Move the pointer over it: a soft spot brightens under the cursor (and under a finger on touch screens). Turn it off with `interactive={false}`; it is always off under reduced motion.
 
 ## Installation
 
@@ -23,6 +26,18 @@ import { DitherField } from "@/components/ui/dither-field";
 <DitherField style={{ height: 320 }}>
   <h1>Hello</h1>
 </DitherField>
+```
+
+## Fields
+
+`noise` (`scale`), `radial` (`x`, `y`, `radius`) and `linear` (`angle` in degrees), tuned with `params`.
+
+<DitherFieldFieldsDemo />
+
+```tsx
+<DitherField field="noise" params={{ scale: 6 }} />
+<DitherField field="radial" params={{ radius: 0.6 }} />
+<DitherField field="linear" params={{ angle: 30 }} />
 ```
 
 ## Tokens

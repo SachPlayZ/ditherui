@@ -5,8 +5,13 @@ import { Quantize } from "@/lib/ditherui/quantize";
 import type { DitherTokens, FieldName } from "@/lib/ditherui/types";
 
 export type DitherFieldProps = Partial<DitherTokens> & {
-  field?: FieldName;
+  field?: Exclude<FieldName, "progress">;
+  /** Field parameters, e.g. `{ scale: 3 }` for noise or `{ angle: 90 }` for linear. */
   params?: Record<string, number>;
+  /** Brighten a soft spot under the pointer (mouse and touch). Off under reduced motion. */
+  interactive?: boolean;
+  /** Radius of the pointer spot in CSS pixels. */
+  cursorRadius?: number;
   /** Announces the background as one image; omit when decorative. */
   label?: string;
   children?: ReactNode;
@@ -15,10 +20,28 @@ export type DitherFieldProps = Partial<DitherTokens> & {
   ref?: Ref<HTMLDivElement>;
 };
 
-export function DitherField({ field = "noise", params, label, children, className, style, ref, ...tokens }: DitherFieldProps) {
+export function DitherField({
+  field = "noise",
+  params,
+  interactive = true,
+  cursorRadius,
+  label,
+  children,
+  className,
+  style,
+  ref,
+  ...tokens
+}: DitherFieldProps) {
   return (
     <div ref={ref} className={className} style={{ position: "relative", ...style }}>
-      <Quantize source={{ kind: "field", field, params }} label={label} {...tokens} style={{ position: "absolute", inset: 0 }} />
+      <Quantize
+        source={{ kind: "field", field, params }}
+        label={label}
+        interactive={interactive}
+        cursorRadius={cursorRadius}
+        {...tokens}
+        style={{ position: "absolute", inset: 0 }}
+      />
       {children !== undefined && <div style={{ position: "relative" }}>{children}</div>}
     </div>
   );
