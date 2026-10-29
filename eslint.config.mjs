@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     '.source/**',
     '.open-next/**',
     '.wrangler/**',
+    '.claude/**',
   ]),
 ]);
 
