@@ -25,7 +25,9 @@ import { DitherProgress } from "@/components/ui/dither-progress";
 
 The bar is 16px tall by default; set `style={{ height }}` or a `className` to change it. When `value` changes, the edge eases to the new position; under `prefers-reduced-motion: reduce` it moves straight there.
 
-<DitherProgressDemo />
+<Preview>
+  <DitherProgressDemo />
+</Preview>
 
 ## ASCII
 
@@ -35,9 +37,10 @@ In ASCII mode the bar uses only the two ends of the glyph ramp: the densest glyp
 <DitherProgress value={40} mode="ascii" glyphs=".#" />
 ```
 
-## Accessibility
+## Accessibility and performance
 
-The wrapper is a native `role="progressbar"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`, named by `label`. The canvas is decorative and hidden from assistive tech.
+- The wrapper is a native `role="progressbar"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`, named by `label`. The canvas is decorative and hidden from assistive tech.
+- The bar draws only when its value changes, then for the few frames the edge takes to ease; no idle animation loop. Under reduced motion it moves in one step.
 
 ## Props
 
