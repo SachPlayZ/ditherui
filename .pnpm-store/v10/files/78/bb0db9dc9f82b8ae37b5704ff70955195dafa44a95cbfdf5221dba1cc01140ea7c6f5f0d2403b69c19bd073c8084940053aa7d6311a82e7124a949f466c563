@@ -1,0 +1,21 @@
+import { t as Components } from "../hast-to-jsx-ezp6bh3J.js";
+import { FC } from "react";
+import { Options } from "remark-rehype";
+import { Compatible } from "vfile";
+import { PluggableList } from "unified";
+export interface MarkdownRendererOptions {
+  remarkPlugins?: PluggableList;
+  rehypePlugins?: PluggableList;
+  remarkRehypeOptions?: Options;
+}
+export interface MarkdownRenderer {
+  Markdown: FC<MarkdownProps>;
+  MarkdownServer: FC<Omit<MarkdownProps, 'async'>>;
+}
+export interface MarkdownProps {
+  async?: boolean;
+  components?: Partial<Components>;
+  children: Compatible;
+}
+export declare function createMarkdownRenderer({ rehypePlugins, remarkPlugins, remarkRehypeOptions }?: MarkdownRendererOptions): MarkdownRenderer;
+export declare function Markdown(props: MarkdownProps & MarkdownRendererOptions): Promise<import("react").ReactNode> | import("react").ReactNode;

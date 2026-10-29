@@ -1,0 +1,256 @@
+"use client";
+import { cn } from "../utils/cn.js";
+import { buttonVariants } from "./ui/button.js";
+import { Uncontrolled } from "../node_modules/.pnpm/react-medium-image-zoom@5.4.9_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/react-medium-image-zoom/dist/uncontrolled.js";
+import "./image-zoom2.css";
+import { Image } from "fumadocs-core/framework";
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { createContext, use, useRef, useState } from "react";
+import { useTranslations } from "@fuma-translate/react";
+import { createPortal, flushSync } from "react-dom";
+// src/components/image-zoom.tsx
+const LightboxContext = createContext(null);
+function getImageSrc(src) {
+	if (typeof src === "string") return src;
+	if (typeof src === "object") {
+		if ("default" in src) return src.default.src;
+		return src.src;
+	}
+	return "";
+}
+function ImageZoom({ zoomInProps, children, rmiz, caption, ...props }) {
+	const lightbox = use(LightboxContext);
+	const zoomImg = {
+		src: getImageSrc(props.src),
+		sizes: void 0,
+		...zoomInProps
+	};
+	const image = children ?? /* @__PURE__ */ jsx(Image, {
+		sizes: "(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 900px",
+		...props
+	});
+	if (lightbox) return /* @__PURE__ */ jsx("span", {
+		role: "button",
+		tabIndex: 0,
+		"aria-haspopup": "dialog",
+		ref: (element) => {
+			if (!element) return;
+			return lightbox.register({
+				element,
+				image: {
+					alt: props.alt,
+					...zoomImg
+				},
+				caption: caption ?? props.title
+			});
+		},
+		onClick: (e) => {
+			if (e.target !== e.currentTarget) lightbox.open(e.currentTarget);
+		},
+		onKeyDown: (e) => {
+			if (e.key !== "Enter" && e.key !== " ") return;
+			e.preventDefault();
+			lightbox.open(e.currentTarget);
+		},
+		className: "block outline-none [&_img]:cursor-zoom-in [&:focus-visible_img]:ring-2 [&:focus-visible_img]:ring-fd-ring",
+		children: image
+	});
+	return /* @__PURE__ */ jsx(Uncontrolled, {
+		zoomMargin: 20,
+		wrapElement: "span",
+		...rmiz,
+		zoomImg,
+		children: image
+	});
+}
+/**
+* Browse the zoomable images inside in one viewer
+*/
+function Lightbox({ children }) {
+	const t = useTranslations({ note: "image zoom" });
+	const [slides, setSlides] = useState(null);
+	const scrollerRef = useRef(null);
+	const [context] = useState(() => {
+		const items = /* @__PURE__ */ new Set();
+		return {
+			register(item) {
+				items.add(item);
+				return () => void items.delete(item);
+			},
+			open(element) {
+				const list = [];
+				for (const item of items) {
+					if (!item.element.checkVisibility()) continue;
+					const img = item.element.querySelector("img");
+					list.push({
+						...item,
+						style: img ? getSlideStyle(img) : void 0
+					});
+				}
+				list.sort((a, b) => a.element.compareDocumentPosition(b.element) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+				const index = list.findIndex((slide) => slide.element === element);
+				transition(getImage(element), () => {
+					flushSync(() => setSlides(list));
+					const slide = scrollerRef.current.children[index];
+					slide.scrollIntoView({
+						block: "nearest",
+						inline: "start",
+						behavior: "instant"
+					});
+					return slide.querySelector("img");
+				});
+			}
+		};
+	});
+	function close() {
+		const scroller = scrollerRef.current;
+		if (!scroller || !slides) return;
+		const index = getIndex(scroller);
+		const { element } = slides[index];
+		transition(scroller.children[index].querySelector("img"), () => {
+			flushSync(() => setSlides(null));
+			element.focus({ preventScroll: true });
+			const image = getImage(element);
+			image.scrollIntoView({
+				block: "nearest",
+				behavior: "instant"
+			});
+			return image;
+		});
+	}
+	function navigate(step) {
+		const scroller = scrollerRef.current;
+		scroller.children[getIndex(scroller) + step]?.scrollIntoView({
+			block: "nearest",
+			inline: "start",
+			behavior: "smooth"
+		});
+	}
+	return /* @__PURE__ */ jsxs(LightboxContext, {
+		value: context,
+		children: [children, slides && createPortal(/* @__PURE__ */ jsxs("dialog", {
+			ref: initDialog,
+			tabIndex: -1,
+			"aria-label": t("Image Viewer", { note: "aria-label" }),
+			onCancel: (e) => {
+				e.preventDefault();
+				close();
+			},
+			onClose: () => setSlides(null),
+			onKeyDown: (e) => {
+				if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+				e.preventDefault();
+				const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+				navigate(e.key === "ArrowRight" !== rtl ? 1 : -1);
+			},
+			className: "m-0 size-full max-h-none max-w-none overflow-hidden border-none bg-fd-background p-0 text-fd-foreground outline-none",
+			children: [
+				/* @__PURE__ */ jsx("button", {
+					type: "button",
+					"aria-label": t("Close", { note: "aria-label" }),
+					onClick: close,
+					className: cn(buttonVariants({
+						variant: "ghost",
+						size: "icon-sm",
+						className: "absolute top-3.25 inset-e-2.5"
+					})),
+					children: /* @__PURE__ */ jsx(X, {})
+				}),
+				/* @__PURE__ */ jsx("div", {
+					ref: scrollerRef,
+					onClick: (e) => {
+						if (!e.target.closest("figcaption")) close();
+					},
+					className: "flex size-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none]",
+					children: slides.map((slide, i) => /* @__PURE__ */ jsxs("figure", {
+						className: "flex w-full shrink-0 snap-start snap-always flex-col items-center pb-6",
+						children: [
+							/* @__PURE__ */ jsx("p", {
+								className: "flex h-14 w-full items-center px-4 text-sm text-fd-muted-foreground tabular-nums",
+								children: slides.length > 1 && `${i + 1} / ${slides.length}`
+							}),
+							/* @__PURE__ */ jsx("div", {
+								className: "flex min-h-0 w-full flex-1 items-center justify-center px-4 [container-type:size] md:px-16",
+								children: /* @__PURE__ */ jsx("img", {
+									loading: "lazy",
+									...slide.image,
+									style: slide.style,
+									className: cn("max-h-full cursor-zoom-out bg-cover", slide.image.className)
+								})
+							}),
+							slide.caption && /* @__PURE__ */ jsx("figcaption", {
+								className: "prose prose-sm mt-4 px-4 text-center text-fd-muted-foreground md:px-16",
+								children: slide.caption
+							})
+						]
+					}, i))
+				}),
+				slides.length > 1 && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("button", {
+					type: "button",
+					"aria-label": t("Previous Image", { note: "aria-label" }),
+					onClick: () => navigate(-1),
+					className: cn(buttonVariants({
+						variant: "ghost",
+						size: "icon",
+						className: "absolute top-1/2 inset-s-2.5 -translate-y-1/2 max-md:hidden"
+					})),
+					children: /* @__PURE__ */ jsx(ChevronLeft, { className: "rtl:-scale-x-100" })
+				}), /* @__PURE__ */ jsx("button", {
+					type: "button",
+					"aria-label": t("Next Image", { note: "aria-label" }),
+					onClick: () => navigate(1),
+					className: cn(buttonVariants({
+						variant: "ghost",
+						size: "icon",
+						className: "absolute top-1/2 inset-e-2.5 -translate-y-1/2 max-md:hidden"
+					})),
+					children: /* @__PURE__ */ jsx(ChevronRight, { className: "rtl:-scale-x-100" })
+				})] })
+			]
+		}), document.body)]
+	});
+}
+function initDialog(element) {
+	if (!element.open) element.showModal();
+	element.focus();
+	const { style } = document.documentElement;
+	const overflow = style.overflow;
+	style.overflow = "hidden";
+	return () => {
+		style.overflow = overflow;
+	};
+}
+function getIndex(scroller) {
+	return Math.round(Math.abs(scroller.scrollLeft) / scroller.clientWidth);
+}
+function getImage(element) {
+	return element.querySelector("img") ?? element;
+}
+function getSlideStyle(img) {
+	const ratio = (img.naturalWidth || img.width) / (img.naturalHeight || img.height);
+	return {
+		width: ratio ? `min(100cqw, ${ratio} * 100cqh)` : void 0,
+		aspectRatio: ratio ? `auto ${ratio}` : void 0,
+		backgroundImage: img.currentSrc ? `url(${JSON.stringify(img.currentSrc)})` : void 0
+	};
+}
+/**
+* morph `from` into the element returned by `update`
+*/
+function transition(from, update) {
+	if (!("startViewTransition" in document) || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		update();
+		return;
+	}
+	let to;
+	from.style.viewTransitionName = "fd-lightbox";
+	document.startViewTransition(() => {
+		from.style.viewTransitionName = "";
+		to = update();
+		to.style.viewTransitionName = "fd-lightbox";
+	}).finished.finally(() => {
+		if (to) to.style.viewTransitionName = "";
+	});
+}
+export { ImageZoom, Lightbox };

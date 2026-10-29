@@ -1,0 +1,83 @@
+import { PluggableList, Transformer } from "unified";
+import { Nodes, Root } from "mdast";
+import { MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx";
+interface StructuredDataHeading {
+  id: string;
+  content: string;
+}
+interface StructuredDataContent {
+  heading: string | undefined;
+  content: string;
+  /** the table of a table row, unique in its page */
+  table?: string;
+}
+interface StructuredData {
+  headings: StructuredDataHeading[];
+  /**
+   * Refer to paragraphs, a heading may contain multiple contents as well
+   */
+  contents: StructuredDataContent[];
+}
+type JsxElement = MdxJsxFlowElement | MdxJsxTextElement;
+interface StructureOptions {
+  /**
+   * MDAST node types to be scanned as a content block.
+   *
+   * If a node's type is listed in this array, it will be converted into a single content block, except tables which become a content block per row, along with the header row.
+   *
+   * @defaultValue ['heading', 'paragraph', 'blockquote', 'table', 'mdxJsxFlowElement']
+   */
+  types?: string[] | ((node: Nodes) => boolean);
+  /**
+   * Whether the MDX element should be treated as a single content block, only effective if `types` has `mdxJsxFlowElement`.
+   *
+   * Default: return `true` if the element is a leaf node, otherwise `false`.
+   */
+  mdxTypes?: (node: JsxElement) => boolean;
+  /**
+   * Return `true` to keep a JSX element as an HTML tag, other elements are replaced by their content.
+   *
+   * Default: keep `File`, `TypeTable`, `Callout` and `Card` elements.
+   */
+  filterElement?: (node: JsxElement) => boolean;
+  /**
+   * export as `structuredData` (if true) or specified variable name.
+   */
+  exportAs?: string | boolean;
+}
+declare module 'mdast' {
+  interface Data {
+    /**
+     * [Fumadocs: remark-structure] Items to add to the structured data, in place of the node.
+     */
+    structuredData?: {
+      contents: StructuredDataContent[];
+    };
+  }
+}
+declare module 'vfile' {
+  interface DataMap {
+    /**
+     * [Fumadocs: remark-structure] output data.
+     */
+    structuredData: StructuredData;
+  }
+}
+declare const remarkStructureDefaultOptions: {
+  types: string[];
+  mdxTypes(node: JsxElement): boolean;
+  filterElement(node: JsxElement): boolean;
+  exportAs: false;
+};
+/**
+ * Extract content into structured data, as Markdown sliced from the authored source. Links and JSX elements are
+ * replaced by their content, images are removed.
+ *
+ * By default, the output is stored into VFile (`vfile.data.structuredData`), you can specify `exportAs` to export it.
+ */
+declare function remarkStructure({ types, mdxTypes, filterElement, exportAs }?: StructureOptions): Transformer<Root, Root>;
+/**
+ * Extract data from markdown/mdx content
+ */
+declare function structure(content: string, remarkPlugins?: PluggableList, options?: StructureOptions): StructuredData;
+export { remarkStructureDefaultOptions as a, remarkStructure as i, StructuredData as n, structure as o, StructuredDataContent as r, StructureOptions as t };

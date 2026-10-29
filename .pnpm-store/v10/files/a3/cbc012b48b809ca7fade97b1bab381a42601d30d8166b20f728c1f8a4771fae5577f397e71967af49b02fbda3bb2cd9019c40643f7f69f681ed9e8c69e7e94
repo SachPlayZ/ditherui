@@ -1,0 +1,2 @@
+import { n as remarkNpm, t as RemarkNpmOptions } from "../remark-npm-IH35Vls_.js";
+export { RemarkNpmOptions, remarkNpm };

@@ -1,0 +1,5 @@
+import { ComponentProps } from "react";
+export interface ThemeSwitchProps extends ComponentProps<'div'> {
+  mode?: 'light-dark' | 'light-dark-system';
+}
+export declare function ThemeSwitch({ className, mode, ...props }: ThemeSwitchProps): import("react").JSX.Element;

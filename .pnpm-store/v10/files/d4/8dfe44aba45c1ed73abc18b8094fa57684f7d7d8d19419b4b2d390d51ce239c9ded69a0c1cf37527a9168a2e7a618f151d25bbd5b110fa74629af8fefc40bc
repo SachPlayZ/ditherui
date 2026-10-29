@@ -1,0 +1,7 @@
+import { SidebarProviderProps as SidebarProviderProps$1 } from "../../../components/sidebar/base.js";
+import { ComponentProps } from "react";
+export type SidebarProviderProps = Omit<SidebarProviderProps$1, 'collapsible'>;
+export type SidebarProps = ComponentProps<'aside'>;
+export declare function SidebarProvider(props: SidebarProviderProps): import("react").JSX.Element;
+export declare function Sidebar({ className, ...props }: SidebarProps): import("react").JSX.Element | undefined;
+export declare function SidebarDrawer(): import("react").JSX.Element;

@@ -1,0 +1,28 @@
+import { useEffect, useEffectEvent } from "react";
+// src/utils/hotkey.ts
+/**
+* Listen to `keydown` on window, skipping keys that are already handled or composing text.
+*/
+function useHotKey(onKeyDown, { enabled = true, ignoreTyping = false } = {}) {
+	const listener = useEffectEvent((e) => {
+		if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
+		if (ignoreTyping && isTypingTarget(e.target)) return;
+		onKeyDown(e);
+	});
+	useEffect(() => {
+		if (!enabled) return;
+		window.addEventListener("keydown", listener);
+		return () => window.removeEventListener("keydown", listener);
+	}, [enabled]);
+}
+function isTypingTarget(target) {
+	if (!(target instanceof HTMLElement)) return false;
+	if (target.isContentEditable) return true;
+	if ([
+		"INPUT",
+		"TEXTAREA",
+		"SELECT"
+	].includes(target.tagName)) return true;
+	return target.closest("[role=\"dialog\"]") !== null;
+}
+export { useHotKey };

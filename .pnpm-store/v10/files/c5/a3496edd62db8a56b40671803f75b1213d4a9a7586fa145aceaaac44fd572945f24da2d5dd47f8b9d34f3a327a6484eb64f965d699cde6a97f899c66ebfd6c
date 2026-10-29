@@ -1,0 +1,33 @@
+"use client";
+import { cn } from "../../../utils/cn.js";
+import { buttonVariants } from "../../../components/ui/button.js";
+import { SidebarTrigger } from "../../../components/sidebar/base.js";
+import { useSpaciousLayout } from "../index.js";
+import { jsx, jsxs } from "react/jsx-runtime";
+import { SidebarIcon } from "lucide-react";
+// src/layouts/spacious/slots/header.tsx
+/** the mobile navbar */
+function Header({ className, ...props }) {
+	const { slots } = useSpaciousLayout();
+	return /* @__PURE__ */ jsxs("header", {
+		id: "nd-subnav",
+		className: cn("sticky top-(--fd-banner-height,0px) z-30 [grid-area:header] flex items-center h-(--fd-header-height) ps-4 pe-2.5 bg-fd-card md:hidden", className),
+		...props,
+		children: [
+			/* @__PURE__ */ jsx(slots.navTitle, { className: "inline-flex items-center gap-2.5 me-auto font-semibold" }),
+			slots.searchTrigger && /* @__PURE__ */ jsx(slots.searchTrigger.sm, {
+				hideIfDisabled: true,
+				className: "p-2"
+			}),
+			/* @__PURE__ */ jsx(SidebarTrigger, {
+				className: buttonVariants({
+					variant: "ghost",
+					size: "icon-sm",
+					className: "p-2"
+				}),
+				children: /* @__PURE__ */ jsx(SidebarIcon, {})
+			})
+		]
+	});
+}
+export { Header };

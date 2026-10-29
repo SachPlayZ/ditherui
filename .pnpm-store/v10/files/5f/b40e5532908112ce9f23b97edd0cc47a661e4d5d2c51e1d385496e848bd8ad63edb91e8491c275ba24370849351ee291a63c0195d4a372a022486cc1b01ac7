@@ -1,0 +1,9 @@
+import { TOCEmpty } from "./default.js";
+import { ComponentProps } from "react";
+import * as Primitive from "fumadocs-core/toc";
+export type TOCItemsProps = ComponentProps<'div'>;
+export declare function TOCItems({ className, children, ...props }: TOCItemsProps): import("react").JSX.Element;
+export declare function TOCItem({ item, ...props }: Primitive.TOCItemProps & {
+  item: Primitive.TOCItemType;
+}): import("react").JSX.Element;
+export { TOCEmpty };

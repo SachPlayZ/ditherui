@@ -1,0 +1,66 @@
+import { n as useSearch } from "../../use-search-eSAjMJVB.js";
+import { useCallback } from "react";
+// src/search/client/meilisearch.ts
+async function searchMeilisearch(options, query) {
+	const { client, indexName, tag, locale } = options;
+	if (query.trim().length === 0) return [];
+	const filter = [];
+	if (locale) filter.push(`locale = ${JSON.stringify(locale)}`);
+	for (const item of typeof tag === "string" ? [tag] : tag ?? []) filter.push(`tag = ${JSON.stringify(item)}`);
+	const { hits } = await client.index(indexName).search(query, {
+		filter,
+		limit: 20
+	});
+	const groups = /* @__PURE__ */ new Map();
+	for (const hit of hits) {
+		let group = groups.get(hit.url);
+		if (!group) {
+			group = [{
+				id: hit.url,
+				type: "page",
+				content: hit.title,
+				breadcrumbs: hit.breadcrumbs,
+				url: hit.url
+			}];
+			groups.set(hit.url, group);
+		}
+		if (hit.type === "page") continue;
+		group.push({
+			id: hit.id.toString(),
+			type: hit.type,
+			content: hit.content,
+			url: hit.heading ? `${hit.url}#${hit.heading}` : hit.url,
+			table: hit.table
+		});
+	}
+	const results = [];
+	for (const group of groups.values()) results.push(...group);
+	return results;
+}
+function meilisearchClient(options) {
+	return {
+		deps: [
+			options.client,
+			options.indexName,
+			String(options.tag),
+			options.locale
+		],
+		search: (query) => searchMeilisearch(options, query)
+	};
+}
+function useMeilisearch({ client, indexName, locale, tag, ...rest }) {
+	const tags = String(tag ?? "");
+	const run = useCallback((query) => searchMeilisearch({
+		client,
+		indexName,
+		locale,
+		tag: tags ? tags.split(",") : void 0
+	}, query), [
+		client,
+		indexName,
+		locale,
+		tags
+	]);
+	return useSearch(run, rest);
+}
+export { meilisearchClient, useMeilisearch };

@@ -1,0 +1,24 @@
+import { C as DocsCollection, D as defineCollections, E as SatteriPresetOptions, F as DefaultMDXOptions, I as MDXPresetOptions, L as applyMdxPreset, O as defineConfig, P as PostprocessOptions, S as DocCollectionSatteri, T as MetaCollection, _ as BaseCollection, b as DocCollectionBase, g as AnyCollection, k as defineDocs, v as CollectionSchema, w as GlobalConfig, x as DocCollectionMdx, y as DocCollection } from "../core-w3CkO8cV.js";
+import { remarkInclude } from "fumadocs-core/mdx-plugins/remark-include";
+//#region src/config/index.d.ts
+/** @deprecated import `pageSchema` from `fumadocs-core/source/schema` instead (since 16.2.3) */
+export declare const frontmatterSchema: import("zod").ZodObject<{
+  title: import("zod").ZodString;
+  description: import("zod").ZodOptional<import("zod").ZodString>;
+  icon: import("zod").ZodOptional<import("zod").ZodString>;
+  full: import("zod").ZodOptional<import("zod").ZodBoolean>;
+  _openapi: import("zod").ZodOptional<import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodCustom<import("fumadocs-core/source/schema")._JSONType, import("fumadocs-core/source/schema")._JSONType>>>;
+}, import("zod/v4/core").$strip>;
+/** @deprecated import from `fumadocs-core/source/schema` instead (since 16.2.3) */
+export declare const metaSchema: import("zod").ZodObject<{
+  title: import("zod").ZodOptional<import("zod").ZodString>;
+  pages: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
+  pagesIndex: import("zod").ZodOptional<import("zod").ZodString>;
+  description: import("zod").ZodOptional<import("zod").ZodString>;
+  root: import("zod").ZodOptional<import("zod").ZodUnion<readonly [import("zod").ZodBoolean, import("zod").ZodString]>>;
+  defaultOpen: import("zod").ZodOptional<import("zod").ZodBoolean>;
+  collapsible: import("zod").ZodOptional<import("zod").ZodBoolean>;
+  icon: import("zod").ZodOptional<import("zod").ZodString>;
+}, import("zod/v4/core").$strip>;
+//#endregion
+export { AnyCollection, BaseCollection, CollectionSchema, DefaultMDXOptions, DocCollection, DocCollectionBase, DocCollectionMdx, DocCollectionSatteri, DocsCollection, GlobalConfig, MDXPresetOptions, MetaCollection, type PostprocessOptions, type SatteriPresetOptions, applyMdxPreset, defineCollections, defineConfig, defineDocs, remarkInclude };

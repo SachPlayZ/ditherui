@@ -10,8 +10,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "registry:build": "node scripts/build-registry.ts && shadcn build",
     "test": "vitest run --passWithNoTests",
-    "test:visual": "playwright test --pass-with-no-tests",
-    "test:install": "scripts/e2e-install.sh"
+    "test:visual": "scripts/visual.sh",
+    "test:install": "scripts/e2e-install.sh",
+    "size": "node scripts/check-size.ts"
   },
   "dependencies": {
     "cn": "^0.5.0",
@@ -31,6 +32,7 @@
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.4.2",
     "jsdom": "^30.1.3",

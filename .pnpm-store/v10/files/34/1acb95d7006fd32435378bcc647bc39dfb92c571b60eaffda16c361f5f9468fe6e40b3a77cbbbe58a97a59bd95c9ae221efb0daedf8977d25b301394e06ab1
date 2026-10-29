@@ -1,0 +1,88 @@
+"use client";
+import { cn } from "../utils/cn.js";
+import { CodeBlock, Pre } from "./codeblock.js";
+import { jsx } from "react/jsx-runtime";
+import { Suspense, createContext, use, useMemo, useRef } from "react";
+import { toJsx } from "fumadocs-core/utils/hast-to-jsx";
+import { createShikiHighlighter } from "fumadocs-core/highlight/shiki";
+// src/components/dynamic-codeblock.core.tsx
+const PropsContext = createContext(void 0);
+function DefaultPre(props) {
+	const extraProps = use(PropsContext);
+	return /* @__PURE__ */ jsx(CodeBlock, {
+		...props,
+		...extraProps,
+		className: cn("my-0", props.className, extraProps?.className),
+		children: /* @__PURE__ */ jsx(Pre, { children: props.children })
+	});
+}
+/**
+* Create a code block that highlights with your own highlighter.
+*/
+function createDynamicCodeBlock({ highlighter }) {
+	return function DynamicCodeBlock(props) {
+		return /* @__PURE__ */ jsx(Base, {
+			highlighter,
+			components: { pre: DefaultPre },
+			...props
+		});
+	};
+}
+function DynamicCodeBlock({ highlighter, options, wrapInSuspense = true, ...props }) {
+	const initial = useRef({
+		highlighter,
+		options
+	});
+	const instance = useMemo(() => createShikiHighlighter(initial.current.highlighter, {
+		defaultColor: false,
+		...initial.current.options
+	}), []);
+	const node = /* @__PURE__ */ jsx(Base, {
+		highlighter: instance,
+		components: {
+			pre: DefaultPre,
+			...options?.components
+		},
+		wrapInSuspense,
+		...props
+	});
+	return wrapInSuspense ? node : /* @__PURE__ */ jsx(Suspense, { children: node });
+}
+function Base({ highlighter, lang, code, codeblock, wrapInSuspense = true, components }) {
+	let node = /* @__PURE__ */ jsx(Highlighted, {
+		highlighter,
+		lang,
+		code,
+		components
+	});
+	if (wrapInSuspense && highlighter.loadLanguage) node = /* @__PURE__ */ jsx(Suspense, {
+		fallback: /* @__PURE__ */ jsx(Placeholder, {
+			code,
+			components
+		}),
+		children: node
+	});
+	return /* @__PURE__ */ jsx(PropsContext, {
+		value: codeblock,
+		children: node
+	});
+}
+const languages = /* @__PURE__ */ new WeakMap();
+function Highlighted({ highlighter, lang, code, components }) {
+	if (highlighter.loadLanguage) {
+		let loading = languages.get(highlighter);
+		if (!loading) languages.set(highlighter, loading = /* @__PURE__ */ new Map());
+		let promise = loading.get(lang);
+		if (!promise) loading.set(lang, promise = highlighter.loadLanguage(lang));
+		use(promise);
+	}
+	return toJsx(highlighter.codeToHast(code, { lang }), { components });
+}
+function Placeholder({ code, components = {} }) {
+	const { pre: Pre = "pre", code: Code = "code" } = components;
+	return /* @__PURE__ */ jsx(Pre, { children: /* @__PURE__ */ jsx(Code, { children: code.split("\n").map((line, i) => /* @__PURE__ */ jsx("span", {
+		className: "line",
+		children: line
+	}, i)) }) });
+}
+export { DynamicCodeBlock, createDynamicCodeBlock };

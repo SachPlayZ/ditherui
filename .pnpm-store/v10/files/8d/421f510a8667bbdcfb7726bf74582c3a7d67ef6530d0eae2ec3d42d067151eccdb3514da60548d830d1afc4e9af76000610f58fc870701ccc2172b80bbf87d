@@ -1,0 +1,4 @@
+/**
+ * the default not found page content, please make your own if you want to customize it.
+ */
+export declare function DefaultNotFound(): import("react").JSX.Element;

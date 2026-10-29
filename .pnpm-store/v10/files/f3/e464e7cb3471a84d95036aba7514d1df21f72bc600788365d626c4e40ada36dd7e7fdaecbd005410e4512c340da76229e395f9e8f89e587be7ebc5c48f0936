@@ -1,0 +1,20 @@
+import { t as Components } from "../../hast-to-jsx-ezp6bh3J.js";
+import { t as Awaitable } from "../../types-Dvkw0Kd0.js";
+import { t as HighlightHastOptions } from "../../index-B0Bzrmfa.js";
+import { DependencyList, ReactNode } from "react";
+import { HighlighterCore } from "shiki";
+export type UseShikiOptions = HighlightHastOptions & {
+  components?: Partial<Components>;
+};
+/**
+ * get highlighted results (uncached), use `useEffect` instead of React 19 APIs.
+ */
+export declare function useShikiDynamic(highlighter: HighlighterCore | (() => Awaitable<HighlighterCore>), code: string, options: UseShikiOptions & {
+  defaultValue?: ReactNode;
+}, deps: DependencyList): ReactNode;
+/**
+ * get highlighted results, should be used with React Suspense API.
+ *
+ * note: results are cached with (lang, code) as keys, if this is not the desired behaviour, pass a `deps` instead.
+ */
+export declare function useShiki(highlighter: HighlighterCore | (() => Awaitable<HighlighterCore>), code: string, options: UseShikiOptions, deps?: DependencyList): ReactNode;

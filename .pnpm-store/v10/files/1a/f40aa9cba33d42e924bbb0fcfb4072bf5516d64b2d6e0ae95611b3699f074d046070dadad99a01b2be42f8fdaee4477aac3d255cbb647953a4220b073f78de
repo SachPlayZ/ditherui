@@ -1,0 +1,2 @@
+import { n as RemarkFeedbackBlockOptions, r as remarkFeedbackBlock, t as FeedbackBlockProps } from "../remark-feedback-block-2Ei4IDr4.js";
+export { FeedbackBlockProps, RemarkFeedbackBlockOptions, remarkFeedbackBlock };

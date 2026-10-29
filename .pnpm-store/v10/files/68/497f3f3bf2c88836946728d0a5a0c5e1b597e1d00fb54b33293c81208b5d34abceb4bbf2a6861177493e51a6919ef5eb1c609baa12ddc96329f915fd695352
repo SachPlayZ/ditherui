@@ -1,0 +1,7 @@
+import { LayoutTab } from "../../../layouts/shared/index.js";
+import * as PageTree from "fumadocs-core/page-tree";
+export type SidebarTab = LayoutTab;
+export interface GetSidebarTabsOptions {
+  transform?: (option: SidebarTab, node: PageTree.Folder) => SidebarTab | null;
+}
+export declare function getSidebarTabs(tree: PageTree.Root, { transform }?: GetSidebarTabsOptions): SidebarTab[];

@@ -1,0 +1,50 @@
+import { t as Awaitable } from "./types-Dvkw0Kd0.js";
+import { n as StructuredData } from "./remark-structure-50nmY6sX.js";
+import { S as LoaderOutput, b as LoaderConfig } from "./index-DAbFAfHX.js";
+import { Meilisearch } from "meilisearch";
+interface DocumentRecord {
+  title: string;
+  description?: string;
+  breadcrumbs?: string[];
+  /**
+   * URL to the page
+   */
+  url: string;
+  structured: StructuredData;
+  /**
+   * Tag(s) to filter results
+   */
+  tag?: string | string[];
+  locale?: string;
+}
+/**
+ * Document in Meilisearch, for the title, headings and paragraphs of a page
+ */
+interface MeilisearchDocument extends Omit<DocumentRecord, 'description' | 'structured'> {
+  id: number;
+  type: 'page' | 'heading' | 'text';
+  /**
+   * ID of the heading it belongs to
+   */
+  heading?: string;
+  content: string;
+  table?: string;
+}
+/**
+ * Build the search documents of every page in a source.
+ */
+declare function toDocuments<C extends LoaderConfig>(source: LoaderOutput<C> | (() => Awaitable<LoaderOutput<C>>), options?: {
+  /** Tag to filter results by. */
+  tag?: (page: C['page']) => string | string[];
+}): Promise<DocumentRecord[]>;
+interface SyncOptions {
+  indexName: string;
+  documents: DocumentRecord[];
+}
+/**
+ * Configure the index and replace its documents, existing documents stay searchable until the new ones are indexed.
+ *
+ * @param client - Meilisearch client with an admin API key
+ */
+declare function sync(client: Meilisearch, options: SyncOptions): Promise<void>;
+export { toDocuments as a, sync as i, MeilisearchDocument as n, SyncOptions as r, DocumentRecord as t };

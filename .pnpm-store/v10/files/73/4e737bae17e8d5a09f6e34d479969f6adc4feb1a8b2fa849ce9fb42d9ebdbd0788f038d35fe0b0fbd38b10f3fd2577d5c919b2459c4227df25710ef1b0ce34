@@ -1,0 +1,15 @@
+// src/mdx-plugins/heading-id.ts
+/** a custom ID at the end of heading text, like `[#id]` */
+const headingIdRegex = /\s*\[#(?<slug>[^]+?)]\s*$/;
+/** write the ID of a heading in stringified Markdown, or remove its custom ID */
+function stringifyHeadingId(s, node, enabled) {
+	const start = s.range(node)?.start;
+	const last = node.children.at(-1);
+	const end = last && s.range(last)?.end;
+	if (start === void 0 || end === void 0) return;
+	const marker = headingIdRegex.exec(s.source.slice(start, end));
+	const id = node.data?.hProperties?.id;
+	if (!enabled && marker) s.edit(start + marker.index, end, "", node);
+	else if (enabled && !marker && id) s.edit(end, end, ` [#${id}]`, node);
+}
+export { stringifyHeadingId as n, headingIdRegex as t };

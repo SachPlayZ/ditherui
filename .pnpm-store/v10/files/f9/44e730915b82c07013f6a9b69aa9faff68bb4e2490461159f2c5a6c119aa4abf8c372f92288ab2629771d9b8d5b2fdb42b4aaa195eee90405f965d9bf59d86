@@ -1,0 +1,99 @@
+import { SharedProps } from "../../contexts/search.js";
+import { ComponentProps, ReactNode } from "react";
+import { Dialog } from "@base-ui/react/dialog";
+import { SearchResult, SearchResultItem, SearchResultRecord, SearchResultTable } from "fumadocs-core/search/client";
+import { ReactSortedResult } from "fumadocs-core/search";
+export type SearchItemType = ((ReactSortedResult | SearchResultRecord) & {
+  external?: boolean;
+}) | {
+  id: string;
+  type: 'action';
+  node: ReactNode;
+  onSelect: () => void;
+};
+type ItemRenderer = (props: {
+  item: SearchItemType;
+  table?: SearchResultTable;
+  onClick: () => void;
+}) => ReactNode;
+interface TableProps {
+  table: SearchResultTable;
+  Item: ItemRenderer;
+  onSelect: (item: SearchItemType) => void;
+}
+export interface SearchDialogProps extends SharedProps {
+  search: string;
+  onSearchChange: (v: string) => void;
+  onSelect?: (item: SearchItemType) => void;
+  isLoading?: boolean;
+  /** the last successful search, `<SearchDialogList />` shows its results */
+  data?: SearchResult;
+  /** the last search failed, `<SearchDialogList />` shows it above the results of `data` */
+  error?: Error;
+  children: ReactNode;
+}
+export declare function SearchDialog({ open, onOpenChange, search, onSearchChange, isLoading, data, error, onSelect: onSelectProp, children, dialogHandle }: SearchDialogProps): import("react").JSX.Element;
+export declare function SearchDialogHeader(props: ComponentProps<'div'>): import("react").JSX.Element;
+export declare function SearchDialogInput(props: ComponentProps<'input'>): import("react").JSX.Element;
+export declare function SearchDialogClose({ children, className, ...props }: ComponentProps<'button'>): import("react").JSX.Element;
+export declare function SearchDialogFooter(props: ComponentProps<'div'>): import("react").JSX.Element;
+export declare function SearchDialogOverlay({ className, ...props }: ComponentProps<typeof Dialog.Backdrop>): import("react").JSX.Element;
+export declare function SearchDialogContent({ ref, children, className, ...props }: ComponentProps<typeof Dialog.Popup>): import("react").JSX.Element;
+export declare function SearchDialogList({ items: itemsProp, defaultItems, Empty, Item, Table, ...props }: Omit<ComponentProps<'div'>, 'children'> & {
+  /** @defaultValue the results of `data` from `<SearchDialog />` */
+  items?: (SearchItemType | SearchResultItem)[] | null;
+  /** shown without results */
+  defaultItems?: (SearchItemType | SearchResultItem)[] | null;
+  /**
+   * Renderer for empty list UI
+   */
+  Empty?: () => ReactNode;
+  /**
+   * Renderer for items
+   */
+  Item?: ItemRenderer;
+  /**
+   * Renderer for tables, `Item` and `onSelect` render their rows
+   */
+  Table?: (props: TableProps) => ReactNode;
+}): import("react").JSX.Element;
+export declare function SearchDialogListTable({ table, Item, onSelect }: TableProps): import("react").JSX.Element;
+export declare function SearchDialogListItem({ item, table, className, children, renderMarkdown, ...props }: ComponentProps<'div'> & {
+  /** the table of a row */
+  table?: SearchResultTable;
+  /** render the Markdown `content` of items, instead of their `hastContent` */
+  renderMarkdown?: (v: string) => ReactNode;
+  item: SearchItemType;
+}): import("react").JSX.Element;
+export declare function SearchDialogIcon(props: ComponentProps<'svg'>): import("react").JSX.Element;
+export interface TagsListProps extends ComponentProps<'div'> {
+  tag?: string;
+  onTagChange: (tag: string | undefined) => void;
+  allowClear?: boolean;
+}
+export declare function TagsList({ tag, onTagChange, allowClear, ...props }: TagsListProps): import("react").JSX.Element;
+export declare function TagsListItem({ value, className, ...props }: ComponentProps<'button'> & {
+  value: string;
+}): import("react").JSX.Element;
+export declare function useSearch(): {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  search: string;
+  onSearchChange: (v: string) => void;
+  onSelect: (item: SearchItemType) => void;
+  isLoading: boolean;
+  data?: SearchResult;
+  error?: Error;
+  /** the query to highlight */
+  query: string;
+  /** the id of the active item */
+  getActive: () => string | null;
+  setActive: (id: string | null) => void;
+  subscribeActive: (listener: () => void) => () => void;
+};
+export declare function useTagsList(): {
+  value?: string;
+  onValueChange: (value: string | undefined) => void;
+  allowClear: boolean;
+};
+export type { SharedProps };

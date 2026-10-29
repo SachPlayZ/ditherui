@@ -1,0 +1,32 @@
+import { PopoverTrigger } from "../../components/ui/popover.js";
+import { ComponentProps } from "react";
+/**
+ * see https://fumadocs.dev/docs/integrations/llms#page-actions to customize.
+ */
+export declare function MarkdownCopyButton({ markdownUrl: _markdownUrl, ...props }: ComponentProps<'button'> & {
+  /**
+   * A URL to fetch the raw Markdown/MDX content of page
+   */
+  markdownUrl: string;
+}): import("react").JSX.Element;
+/**
+ * see https://fumadocs.dev/docs/integrations/llms#page-actions to customize.
+ */
+export declare function ViewOptionsPopover({ markdownUrl, githubUrl, pageUrl: pageUrlProp, ...props }: ComponentProps<typeof PopoverTrigger> & {
+  /**
+   * A URL to the raw Markdown/MDX content of page
+   */
+  markdownUrl?: string;
+  /**
+   * Source file URL on GitHub
+   */
+  githubUrl?: string;
+  /**
+   * The page URL the AI prompts ask to read.
+   *
+   * Defaults to the URL the reader is on, without query and hash (the router
+   * pathname during server rendering). Set it when the site should hand out a
+   * canonical URL instead.
+   */
+  pageUrl?: string;
+}): import("react").JSX.Element;

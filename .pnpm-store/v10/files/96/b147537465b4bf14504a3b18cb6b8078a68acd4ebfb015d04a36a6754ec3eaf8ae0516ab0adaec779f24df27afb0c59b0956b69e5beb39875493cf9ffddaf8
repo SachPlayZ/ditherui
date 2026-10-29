@@ -1,0 +1,79 @@
+"use client";
+import { cn } from "../../utils/cn.js";
+import { TreeContextProvider } from "../../contexts/tree.js";
+import { AIChatPanel, baseSlots } from "../shared/client.js";
+import { getLayoutTabs, useLinkItems } from "../shared/index.js";
+import { Sidebar, SidebarDrawer, SidebarProvider } from "./slots/sidebar.js";
+import { Header } from "./slots/header.js";
+import { HeaderActions } from "./slots/actions.js";
+import { jsx, jsxs } from "react/jsx-runtime";
+import { createContext, use, useMemo } from "react";
+// src/layouts/spacious/index.tsx
+const LayoutContext = createContext(null);
+function useSpaciousLayout() {
+	const context = use(LayoutContext);
+	if (!context) throw new Error("Please use Spacious layout components under <DocsLayout /> (`fumadocs-ui/layouts/spacious`).");
+	return context;
+}
+const { useBaseSlots } = baseSlots({ useProps() {
+	return useSpaciousLayout().props;
+} });
+function DocsLayout(props) {
+	const { tree, tabs: tabsOptions, aiChat, sidebar, slots: customSlots = {}, children } = props;
+	const linkItems = useLinkItems(props);
+	const { baseSlots, baseProps } = useBaseSlots(props);
+	const tabs = useMemo(() => {
+		if (Array.isArray(tabsOptions)) return tabsOptions;
+		if (tabsOptions === false) return [];
+		return getLayoutTabs(tree, {
+			transform: (option) => option,
+			...tabsOptions
+		});
+	}, [tree, tabsOptions]);
+	const slots = {
+		...baseSlots,
+		header: customSlots.header ?? Header,
+		actions: customSlots.actions ?? HeaderActions,
+		sidebar: customSlots.sidebar ?? {
+			provider: SidebarProvider,
+			main: Sidebar,
+			drawer: SidebarDrawer
+		}
+	};
+	return /* @__PURE__ */ jsx(LayoutContext, {
+		value: {
+			props: {
+				tabs,
+				aiChat,
+				...baseProps
+			},
+			slots,
+			...linkItems
+		},
+		children: /* @__PURE__ */ jsx(TreeContextProvider, {
+			tree,
+			children: /* @__PURE__ */ jsx(slots.sidebar.provider, {
+				...sidebar,
+				children: /* @__PURE__ */ jsxs("div", {
+					id: "fd-spacious-layout",
+					className: "relative grid min-h-(--fd-layout-height) bg-fd-card transition-[grid-template-columns] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none [--fd-layout-height:calc(100dvh-var(--fd-banner-height,0px))] [--fd-header-height:--spacing(14)] [--fd-page-width:760px] [--fd-sidebar-width:0px] [--fd-sidebar-col:var(--fd-sidebar-width)] [--fd-toc-width:0px] max-md:[--fd-docs-row-3:calc(var(--fd-banner-height,0px)+var(--fd-header-height)+var(--fd-toc-popover-height,0px))] md:h-(--fd-layout-height) md:overflow-clip print:h-auto print:overflow-visible",
+					style: { gridTemplate: `"sidebar header right" auto
+"sidebar toc-popover right" var(--fd-toc-popover-height, 0px)
+"sidebar main right" 1fr / var(--fd-sidebar-col) minmax(0, 1fr) auto` },
+					children: [
+						/* @__PURE__ */ jsx(slots.sidebar.main, {}),
+						/* @__PURE__ */ jsx(slots.header, {}),
+						children,
+						aiChat?.panel && /* @__PURE__ */ jsx(AIChatPanel, {
+							open: aiChat.open,
+							className: cn("[grid-area:right] xl:my-2 xl:rounded-2xl xl:border xl:bg-fd-background xl:shadow-sm", aiChat.open && "xl:me-2"),
+							children: aiChat.panel
+						}),
+						/* @__PURE__ */ jsx(slots.sidebar.drawer, {})
+					]
+				})
+			})
+		})
+	});
+}
+export { DocsLayout, useSpaciousLayout };

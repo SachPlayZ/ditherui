@@ -1,0 +1,16 @@
+"use client";
+import { useSyncExternalStore } from "react";
+// src/utils/use-is-scroll-top.ts
+const subscribe = (onChange) => {
+	window.addEventListener("scroll", onChange, { passive: true });
+	return () => window.removeEventListener("scroll", onChange);
+};
+const noop = () => () => {};
+const getServerSnapshot = () => void 0;
+/**
+* @returns `undefined` on the server, during hydration, or when disabled.
+*/
+function useIsScrollTop({ enabled = true }) {
+	return useSyncExternalStore(enabled ? subscribe : noop, () => enabled ? window.scrollY < 10 : void 0, getServerSnapshot);
+}
+export { useIsScrollTop };

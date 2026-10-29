@@ -1,0 +1,6 @@
+// src/search/highlight.ts
+function buildRegexFromQuery(query) {
+	const source = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "|");
+	return source ? new RegExp(source, "gi") : null;
+}
+export { buildRegexFromQuery as t };

@@ -1,0 +1,15 @@
+import { ComponentProps } from "react";
+export interface LinkProps extends ComponentProps<'a'> {
+  /**
+   * If the href is an external URL
+   *
+   * automatically determined by default
+   */
+  external?: boolean;
+  /**
+   * Prefetch links
+   */
+  prefetch?: boolean;
+}
+export declare function Link({ ref, href, external, prefetch, children, ...props }: LinkProps): import("react").JSX.Element;
+export { Link as default };

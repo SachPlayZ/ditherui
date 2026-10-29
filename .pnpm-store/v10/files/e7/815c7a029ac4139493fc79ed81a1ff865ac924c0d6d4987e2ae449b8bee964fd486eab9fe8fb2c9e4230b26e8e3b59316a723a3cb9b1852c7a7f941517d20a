@@ -1,0 +1,77 @@
+"use client";
+import { TreeContextProvider } from "../../contexts/tree.js";
+import { AIChatPanel, baseSlots } from "../shared/client.js";
+import { getLayoutTabs, useLinkItems } from "../shared/index.js";
+import { Sidebar, SidebarDrawer, SidebarProvider, drawerHandle, useSidebar } from "./slots/sidebar.js";
+import { Header } from "./slots/header.js";
+import { jsx, jsxs } from "react/jsx-runtime";
+import { createContext, use, useMemo } from "react";
+// src/layouts/glass/index.tsx
+const LayoutContext = createContext(null);
+function useGlassLayout() {
+	const context = use(LayoutContext);
+	if (!context) throw new Error("Please use Glass layout components under <DocsLayout /> (`fumadocs-ui/layouts/glass`).");
+	return context;
+}
+const { useBaseSlots } = baseSlots({ useProps() {
+	return useGlassLayout().props;
+} });
+function DocsLayout(props) {
+	const { tree, tabs: defaultTabs, aiChat, children, slots: defaultSlots = {} } = props;
+	const linkItems = useLinkItems(props);
+	const { baseSlots, baseProps } = useBaseSlots(props);
+	const tabs = useMemo(() => {
+		if (Array.isArray(defaultTabs)) return defaultTabs;
+		if (defaultTabs === false) return [];
+		return getLayoutTabs(tree, {
+			transform: (option) => option,
+			...defaultTabs
+		});
+	}, [tree, defaultTabs]);
+	const slots = {
+		...baseSlots,
+		header: defaultSlots.header ?? Header,
+		sidebar: defaultSlots.sidebar ?? {
+			drawer: SidebarDrawer,
+			drawerHandle,
+			main: Sidebar,
+			provider: SidebarProvider,
+			use: useSidebar
+		}
+	};
+	const leftSpace = "calc(50% - var(--fd-main-width)/2 - var(--fd-left-width))";
+	return /* @__PURE__ */ jsx(LayoutContext, {
+		value: {
+			props: {
+				tabs,
+				aiChat,
+				...baseProps
+			},
+			slots,
+			...linkItems
+		},
+		children: /* @__PURE__ */ jsx(slots.sidebar.provider, {
+			...props.sidebar,
+			children: /* @__PURE__ */ jsx(TreeContextProvider, {
+				tree,
+				children: /* @__PURE__ */ jsxs("div", {
+					id: "fd-glass-layout",
+					className: "grid overflow-x-clip min-h-dvh [--fd-main-width:900px] [--fd-left-width:0px] [--fd-right-width:0px]",
+					style: { gridTemplate: `"left left-margin main right-margin right" 1fr / var(--fd-left-width) ${leftSpace} 1fr minmax(calc(50% - var(--fd-main-width)/2 - var(--fd-right-width) + min(${leftSpace}, 0px)), auto) var(--fd-right-width)` },
+					children: [
+						/* @__PURE__ */ jsx(slots.sidebar.drawer, {}),
+						/* @__PURE__ */ jsx(slots.sidebar.main, {}),
+						/* @__PURE__ */ jsx(slots.header, {}),
+						children,
+						aiChat?.panel && /* @__PURE__ */ jsx(AIChatPanel, {
+							open: aiChat.open,
+							className: "[grid-area:right/right-margin/right/right] justify-self-end xl:sticky xl:top-[calc(var(--fd-header-height)+--spacing(2))] xl:h-[calc(100dvh-var(--fd-header-height)---spacing(4))] xl:me-2 xl:rounded-2xl xl:border xl:bg-fd-popover xl:shadow-sm",
+							children: aiChat.panel
+						})
+					]
+				})
+			})
+		})
+	});
+}
+export { DocsLayout, DocsLayout as GlassLayout, useGlassLayout };

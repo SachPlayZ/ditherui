@@ -1,0 +1,51 @@
+import { r as StructuredDataContent } from "./remark-structure-50nmY6sX.js";
+import { ReactNode } from "react";
+interface SortedResult<Content = string> {
+  id: string;
+  url: string;
+  type: 'page' | 'heading' | 'text';
+  content: Content;
+  /**
+   * breadcrumbs to be displayed on UI
+   */
+  breadcrumbs?: Content[];
+  /** the table of a table row, unique in its page */
+  table?: string;
+}
+type ReactSortedResult = SortedResult<ReactNode>;
+/**
+ * A table row as structured data: a Markdown table of the row, after the header row of its table.
+ */
+declare function tableRowToStructuredData({ table, heading, row, header }: {
+  /** the id of its table, unique in its page */
+  table: string;
+  heading?: string;
+  /** the cells, as inline Markdown */
+  row: string[];
+  /** the cells of the header row, tables like the props of type tables have none */
+  header?: string[];
+}): StructuredDataContent;
+/**
+ * @deprecated
+ */
+interface HighlightedText<Content = string> {
+  type: 'text';
+  content: Content;
+  styles?: {
+    highlight?: boolean;
+  };
+}
+/**
+ * @deprecated search results are no longer highlighted, highlight the rendered results with `useHighlightQuery()` instead.
+ */
+declare function createContentHighlighter(query: string | RegExp): {
+  /**
+   * @deprecated use `highlightMarkdown()` instead.
+   */
+  highlight(content: string): HighlightedText[];
+  /**
+   * @param content - Markdown, it assumes the content is already sanitized & safe, no escape is performed.
+   */
+  highlightMarkdown(content: string): string;
+};
+export { tableRowToStructuredData as a, createContentHighlighter as i, ReactSortedResult as n, SortedResult as r, HighlightedText as t };

@@ -1,0 +1,213 @@
+import fsSync from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createRequire } from "node:module";
+//#region ../vite/dist/index.js
+let pnp;
+if (process.versions.pnp) try {
+	pnp = createRequire(import.meta.url)("pnpapi");
+} catch {}
+/**
+* Breadth-first, so each `package.json` is read once however many chains reach it, and the chain
+* recorded for a CommonJS package is the shortest one (ties broken by name): Vite hashes
+* `optimizeDeps.include`, the output must not depend on I/O order.
+*/
+async function crawlFrameworkPkgs(root, isFrameworkPkg) {
+	const rootPkgJsonPath = await findClosestPkgJsonPath(root);
+	if (!rootPkgJsonPath) return {
+		framework: [],
+		include: []
+	};
+	const framework = /* @__PURE__ */ new Set();
+	const include = [];
+	const visited = /* @__PURE__ */ new Set([rootPkgJsonPath]);
+	let discovered = /* @__PURE__ */ new Map();
+	let level = [{
+		pkgJsonPath: rootPkgJsonPath,
+		pkgJson: await readJson(rootPkgJsonPath),
+		chain: []
+	}];
+	async function visit(parent, dep) {
+		const pkgJsonPath = await findDepPkgJsonPath(dep, parent.pkgJsonPath);
+		if (!pkgJsonPath) return;
+		if (isFrameworkPkg(dep)) framework.add(dep);
+		if (visited.has(pkgJsonPath)) return;
+		const chain = [...parent.chain, dep];
+		const found = discovered.get(pkgJsonPath);
+		if (found) {
+			if (compareChains(chain, found.chain) < 0) found.chain = chain;
+			return;
+		}
+		const node = {
+			pkgJsonPath,
+			chain
+		};
+		discovered.set(pkgJsonPath, node);
+		node.pkgJson = await readJson(pkgJsonPath).catch(() => void 0);
+	}
+	while (level.length > 0) {
+		const tasks = [];
+		discovered = /* @__PURE__ */ new Map();
+		for (const node of level) {
+			const isRoot = node.chain.length === 0;
+			const deps = Object.keys(node.pkgJson.dependencies ?? {});
+			if (isRoot) deps.push(...Object.keys(node.pkgJson.devDependencies ?? {}));
+			for (const dep of deps) {
+				const flag = isFrameworkPkg(dep);
+				if (flag === false || isRoot && !flag) continue;
+				tasks.push(visit(node, dep));
+			}
+		}
+		await Promise.all(tasks);
+		level = [];
+		tasks.length = 0;
+		for (const node of discovered.values()) {
+			visited.add(node.pkgJsonPath);
+			if (!node.pkgJson) continue;
+			tasks.push(pkgNeedsOptimization(node.pkgJson, node.pkgJsonPath).then((needed) => {
+				if (!needed) {
+					level.push(node);
+					return;
+				}
+				const chain = node.chain.join(" > ");
+				for (const subpath of getExportsSubpaths(node.pkgJson.exports)) include.push(subpath === "." ? chain : chain + subpath.slice(1));
+			}));
+		}
+		await Promise.all(tasks);
+	}
+	return {
+		framework: [...framework].sort(),
+		include: include.sort()
+	};
+}
+function compareChains(left, right) {
+	for (let i = 0; i < left.length; i++) if (left[i] !== right[i]) return left[i] < right[i] ? -1 : 1;
+	return 0;
+}
+async function findClosestPkgJsonPath(dir) {
+	for (let current = dir;; current = path.dirname(current)) {
+		const pkg = path.join(current, "package.json");
+		if ((await fs.stat(pkg).catch(() => void 0))?.isFile()) return pkg;
+		if (path.dirname(current) === current) return;
+	}
+}
+async function pkgNeedsOptimization(pkgJson, pkgJsonPath) {
+	if (pkgJson.module || pkgJson.type === "module") return false;
+	if (pkgJson.exports) return !exportsHasEsmEntry(pkgJson.exports) && exportsHasJsEntry(pkgJson.exports);
+	if (pkgJson.main) {
+		const entryExt = path.extname(pkgJson.main);
+		return !entryExt || entryExt === ".js" || entryExt === ".cjs";
+	}
+	try {
+		await fs.access(path.join(path.dirname(pkgJsonPath), "index.js"));
+		return true;
+	} catch {
+		return false;
+	}
+}
+function exportsHasEsmEntry(exportsField) {
+	if (typeof exportsField === "string") return exportsField.endsWith(".mjs");
+	if (Array.isArray(exportsField)) return exportsField.some(exportsHasEsmEntry);
+	if (exportsField && typeof exportsField === "object") return Object.entries(exportsField).some(([key, value]) => key === "import" || key === "module" || exportsHasEsmEntry(value));
+	return false;
+}
+function exportsHasJsEntry(exportsField) {
+	if (typeof exportsField === "string") return /\.[cm]?js$/.test(exportsField);
+	if (Array.isArray(exportsField)) return exportsField.some(exportsHasJsEntry);
+	if (exportsField && typeof exportsField === "object") return Object.entries(exportsField).some(([key, value]) => key !== "types" && exportsHasJsEntry(value));
+	return false;
+}
+function getExportsSubpaths(exportsField) {
+	if (!exportsField || typeof exportsField !== "object" || Array.isArray(exportsField)) return ["."];
+	const subpaths = [];
+	let hasSubpathKeys = false;
+	for (const [key, value] of Object.entries(exportsField)) {
+		if (!key.startsWith(".")) continue;
+		hasSubpathKeys = true;
+		if ((key === "." || /^\.\/[^*.]+$/.test(key)) && exportsHasJsEntry(value)) subpaths.push(key);
+	}
+	return hasSubpathKeys ? subpaths : ["."];
+}
+async function findDepPkgJsonPath(dep, parent) {
+	if (pnp) try {
+		const depRoot = pnp.resolveToUnqualified(dep, parent);
+		return depRoot ? path.join(depRoot, "package.json") : void 0;
+	} catch {
+		return;
+	}
+	for (let root = parent;; root = path.dirname(root)) {
+		const pkg = path.join(root, "node_modules", dep, "package.json");
+		try {
+			await fs.access(pkg);
+			return fsSync.realpathSync(pkg);
+		} catch {
+			if (path.dirname(root) === root) return;
+		}
+	}
+}
+async function readJson(pkgJsonPath) {
+	return JSON.parse(await fs.readFile(pkgJsonPath, "utf8"));
+}
+/**
+* Vite config for a project using Fumadocs, derived from its installed dependencies.
+*
+* Our packages are served as source rather than pre-bundled, which means Vite also serves their
+* dependencies raw and no longer discovers the CommonJS ones on its own. The crawl walks the
+* project's tree to name them explicitly:
+* https://vite.dev/config/dep-optimization-options#optimizedeps-exclude
+*/
+async function getConfig(options) {
+	const { framework, include } = await crawlCached(options.root);
+	return {
+		optimizeDeps: {
+			include,
+			exclude: framework
+		},
+		ssr: { noExternal: framework },
+		resolve: options.isBuild ? { alias: buildAlias } : {}
+	};
+}
+const buildAlias = [{
+	find: /^use-sync-external-store\/shim$/,
+	replacement: "react"
+}];
+const cache = /* @__PURE__ */ new Map();
+async function crawlCached(root) {
+	const key = await getInstallKey(root);
+	const cached = key && cache.get(root);
+	if (cached && cached.key === key) return cached.result;
+	const result = crawlFrameworkPkgs(root, (name) => {
+		if (name.startsWith("@fumadocs/") || name.startsWith("fumadocs-")) return true;
+		switch (name) {
+			case "vite":
+			case "waku":
+			case "shiki": return false;
+		}
+	});
+	if (key) {
+		cache.set(root, {
+			key,
+			result
+		});
+		result.catch(() => cache.delete(root));
+	}
+	return result;
+}
+const installStateFiles = [
+	"node_modules/.pnpm/lock.yaml",
+	"node_modules/.package-lock.json",
+	"node_modules/.yarn-state.yml",
+	"bun.lock"
+];
+async function getInstallKey(root) {
+	for (let dir = root;; dir = path.dirname(dir)) {
+		for (const file of installStateFiles) {
+			const filePath = path.join(dir, file);
+			const stat = await fs.stat(filePath).catch(() => void 0);
+			if (stat) return `${filePath}:${stat.mtimeMs}:${stat.size}`;
+		}
+		if (path.dirname(dir) === dir) return;
+	}
+}
+//#endregion
+export { getConfig };

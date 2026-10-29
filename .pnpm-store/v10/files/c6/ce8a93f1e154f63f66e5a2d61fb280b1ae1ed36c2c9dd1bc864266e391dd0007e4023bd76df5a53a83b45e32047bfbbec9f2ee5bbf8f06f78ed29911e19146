@@ -1,0 +1,8 @@
+import { ComponentProps } from "react";
+import { BreadcrumbOptions } from "fumadocs-core/breadcrumb";
+export type BreadcrumbProps = BreadcrumbOptions & ComponentProps<'nav'>;
+export declare function useBreadcrumbItems({ includeRoot, includeSeparator, includePage }?: BreadcrumbOptions): import("fumadocs-core/breadcrumb").BreadcrumbItem[];
+/**
+ * The folders of current page
+ */
+export declare function Breadcrumb({ includeRoot, includeSeparator, includePage, className, ...props }: BreadcrumbProps): import("react").JSX.Element | undefined;

@@ -1,0 +1,49 @@
+import { n as join, t as BASE_PATH } from "../../url-BF81yL4m.js";
+import { n as useSearch } from "../../use-search-eSAjMJVB.js";
+import { useCallback, useRef } from "react";
+// src/search/client/fetch.ts
+const globalCache = /* @__PURE__ */ new Map();
+async function searchFetch({ api = join(BASE_PATH, "/api/search"), locale, tag, cache = globalCache }, query) {
+	const url = new URL(api, window.location.origin);
+	url.searchParams.set("query", query);
+	if (locale) url.searchParams.set("locale", locale);
+	if (tag) url.searchParams.set("tag", Array.isArray(tag) ? tag.join(",") : tag);
+	const key = url.toString();
+	const cached = cache.get(key);
+	if (cached) return cached;
+	const res = await fetch(url);
+	if (!res.ok) throw new Error(await res.text());
+	const result = await res.json();
+	cache.set(key, result);
+	return result;
+}
+function fetchClient(options = {}) {
+	return {
+		deps: [
+			options.api,
+			options.locale,
+			String(options.tag)
+		],
+		search: (query) => searchFetch(options, query)
+	};
+}
+/**
+* Search with the search server, or an API of the same format.
+*/
+function useFetchSearch({ api, locale, tag, ...rest } = {}) {
+	const latest = useRef(rest);
+	latest.current = rest;
+	const tags = String(tag ?? "");
+	const run = useCallback((query) => searchFetch({
+		...latest.current,
+		api,
+		locale,
+		tag: tags
+	}, query), [
+		api,
+		locale,
+		tags
+	]);
+	return useSearch(run, rest);
+}
+export { fetchClient, useFetchSearch };

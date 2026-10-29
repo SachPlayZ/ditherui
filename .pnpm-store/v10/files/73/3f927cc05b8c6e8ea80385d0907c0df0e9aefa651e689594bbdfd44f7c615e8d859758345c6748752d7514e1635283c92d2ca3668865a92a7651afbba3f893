@@ -1,0 +1,18 @@
+import { CodeBlockProps } from "./codeblock.js";
+import { HighlightOptions, Highlighter } from "fumadocs-core/highlight";
+export type ServerCodeBlockProps = HighlightOptions & {
+  code: string;
+  /**
+   * Extra props for the underlying `<CodeBlock />` component.
+   *
+   * Ignored if you defined your own `pre` component in `components`.
+   */
+  codeblock?: CodeBlockProps;
+};
+export declare function ServerCodeBlock({ code, codeblock, ...options }: ServerCodeBlockProps): Promise<Iterable<import("react").ReactNode> | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | (string | number | bigint | boolean | Iterable<import("react").ReactNode> | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | import("react").ReactPortal | null | undefined)>;
+/**
+ * Create a server code block that highlights with your own highlighter.
+ */
+export declare function createServerCodeBlock({ highlighter }: {
+  highlighter: Highlighter;
+}): ({ code, lang, codeblock }: Pick<ServerCodeBlockProps, 'code' | 'lang' | 'codeblock'>) => Promise<Iterable<import("react").ReactNode> | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | (string | number | bigint | boolean | Iterable<import("react").ReactNode> | import("react").ReactElement<unknown, string | import("react").JSXElementConstructor<any>> | import("react").ReactPortal | null | undefined)>;
