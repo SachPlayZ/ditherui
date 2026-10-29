@@ -5,6 +5,7 @@ import DitherFieldFieldsDemo from "./dither-field-fields-demo";
 import DitherFieldPatternsDemo from "./dither-field-patterns-demo";
 import DitherImageDemo from "./dither-image-demo";
 import DitherImagePatternsDemo from "./dither-image-patterns-demo";
+import DitherProgressDemo from "./dither-progress-demo";
 import DitherFieldProviderDemo from "./dither-field-provider-demo";
 
 /** Every docs example by name; visual regression screenshots each one. */
@@ -16,4 +17,5 @@ export const examples: Record<string, ComponentType> = {
   "dither-field-ascii-demo": DitherFieldAsciiDemo,
   "dither-image-demo": DitherImageDemo,
   "dither-image-patterns-demo": DitherImagePatternsDemo,
+  "dither-progress-demo": DitherProgressDemo,
 };

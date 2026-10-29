@@ -1,0 +1,44 @@
+---
+title: Dither Progress
+description: A progress bar drawn in dither or ASCII, with native progressbar semantics.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+import DitherProgressDemo from '@/registry/examples/dither-progress-demo';
+
+<ComponentHeader name="dither-progress" />
+
+<Playground name="dither-progress" />
+
+## Installation
+
+<Install name="dither-progress" />
+
+## Usage
+
+```tsx
+import { DitherProgress } from "@/components/ui/dither-progress";
+
+<DitherProgress value={60} label="Uploading" />
+```
+
+The bar is 16px tall by default; set `style={{ height }}` or a `className` to change it. When `value` changes, the edge eases to the new position; under `prefers-reduced-motion: reduce` it moves straight there.
+
+<DitherProgressDemo />
+
+## ASCII
+
+In ASCII mode the bar uses only the two ends of the glyph ramp: the densest glyph up to the value and the sparsest after it, like `@@@@@@     `. Pick the pair with `glyphs`, e.g. `glyphs=".#"` for `######......`.
+
+```tsx
+<DitherProgress value={40} mode="ascii" glyphs=".#" />
+```
+
+## Accessibility
+
+The wrapper is a native `role="progressbar"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`, named by `label`. The canvas is decorative and hidden from assistive tech.
+
+## Props
+
+<PropsTable name="dither-progress" />

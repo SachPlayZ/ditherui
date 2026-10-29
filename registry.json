@@ -25,6 +25,11 @@
           "target": "lib/dotgrain/diffusion.ts"
         },
         {
+          "path": "registry/engine/ease.ts",
+          "type": "registry:lib",
+          "target": "lib/dotgrain/ease.ts"
+        },
+        {
           "path": "registry/engine/fields.ts",
           "type": "registry:lib",
           "target": "lib/dotgrain/fields.ts"
@@ -126,6 +131,31 @@
       "files": [
         {
           "path": "registry/ui/dither-image.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither",
+          "ascii"
+        ]
+      }
+    },
+    {
+      "name": "dither-progress",
+      "type": "registry:ui",
+      "title": "Dither Progress",
+      "description": "A progress bar drawn in dither or ASCII, with native progressbar semantics.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/dither-progress.tsx",
           "type": "registry:ui"
         }
       ],

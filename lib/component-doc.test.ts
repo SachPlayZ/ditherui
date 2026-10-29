@@ -22,7 +22,7 @@ describe("component docs", () => {
       'import { DitherField } from "@/components/ui/dither-field";\n\n<DitherField style={{ height: 320 }}>\n  Hello\n</DitherField>',
     );
     expect(snippet(ditherField, { field: "radial", interactive: false, cursorRadius: 80 })).toContain(
-      '<DitherField\n  field="radial"\n  interactive={false}\n  cursorRadius={80}\n  style={{ height: 320 }}\n>',
+      '<DitherField\n  style={{ height: 320 }}\n  field="radial"\n  interactive={false}\n  cursorRadius={80}\n>',
     );
     expect(snippet(ditherImage, {})).toMatch(/<DitherImage\n  src="\/examples\/landscape.svg"\n[\s\S]*\n\/>$/);
   });

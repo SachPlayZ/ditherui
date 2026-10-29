@@ -1,5 +1,6 @@
 import ditherField from "./dither-field.ts";
 import ditherImage from "./dither-image.ts";
+import ditherProgress from "./dither-progress.ts";
 import type { ComponentMeta } from "./types.ts";
 
-export const components: ComponentMeta[] = [ditherField, ditherImage];
+export const components: ComponentMeta[] = [ditherField, ditherImage, ditherProgress];

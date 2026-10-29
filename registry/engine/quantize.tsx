@@ -3,6 +3,7 @@
 import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } from "react";
 import { draw } from "./context";
 import { diffused, isDiffusion } from "./diffusion";
+import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
 import { imageValues, watchImage } from "./images";
@@ -19,6 +20,8 @@ export type QuantizeProps = Partial<DitherTokens> & {
   interactive?: boolean;
   /** Radius of the pointer spot in CSS pixels. */
   cursorRadius?: number;
+  /** Ease changes to the field's numeric params (e.g. a progress value) instead of jumping; snaps under reduced motion. */
+  ease?: boolean;
   /** Called when an image source can't be loaded or read (e.g. a cross-origin image without CORS). */
   onError?: () => void;
   className?: string;
@@ -31,6 +34,7 @@ export function Quantize({
   label,
   interactive = false,
   cursorRadius = 120,
+  ease = false,
   onError,
   className,
   style,
@@ -49,12 +53,13 @@ export function Quantize({
     merged.palette === "ink" && preference === "system"
       ? `light-dark(${INK_PALETTES.light[0]}, ${INK_PALETTES.dark[0]})`
       : colors[0];
-  const latest = useRef({ source, tokens, cursorRadius, font, onError });
+  const latest = useRef({ source, tokens, cursorRadius, font, onError, ease });
+  const easer = useRef<Easer>(null);
   const view = useRef<ViewHandle>(null);
   const pointer = useRef<PointerTracker>(null);
   useImperativeHandle(ref, () => canvas.current!, []);
   useEffect(() => {
-    latest.current = { source, tokens, cursorRadius, font, onError };
+    latest.current = { source, tokens, cursorRadius, font, onError, ease };
     view.current?.invalidate();
   });
 
@@ -76,9 +81,22 @@ export function Quantize({
     const element = canvas.current!;
     const handle = getScheduler().add({
       element,
-      animated: () => (latest.current.tokens.speed > 0 && latest.current.source.kind === "field") || !!pointer.current?.settling(),
+      animated: () => {
+        const { source, tokens, ease } = latest.current;
+        if (source.kind !== "field") return !!pointer.current?.settling();
+        // Only noise changes with time; other fields redraw on change, pointer movement or easing.
+        return (
+          (tokens.speed > 0 && source.field === "noise") ||
+          !!pointer.current?.settling() ||
+          (ease && !!source.params && !!easer.current?.settling(source.params))
+        );
+      },
       render({ seconds, width, height, dpr, still }) {
-        const { source, tokens, cursorRadius, font, onError } = latest.current;
+        const { tokens, cursorRadius, font, onError, ease } = latest.current;
+        let { source } = latest.current;
+        if (ease && source.kind === "field" && source.params) {
+          source = { ...source, params: (easer.current ??= createEaser()).step(source.params, seconds, still) };
+        }
         const w = Math.round(width / (tokens.mode === "ascii" ? tokens.cell * GLYPH_ASPECT : tokens.cell));
         const h = Math.round(height / tokens.cell);
         const spot = pointer.current && !still ? pointer.current.step(seconds) : undefined;
