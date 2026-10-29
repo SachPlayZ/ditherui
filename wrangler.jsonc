@@ -6,5 +6,8 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "workers_dev": false,
-  "routes": [{ "pattern": "dotgrain.space", "custom_domain": true }]
+  "routes": [
+    { "pattern": "dotgrain.space", "custom_domain": true },
+    { "pattern": "www.dotgrain.space/*", "zone_name": "dotgrain.space" }
+  ]
 }
