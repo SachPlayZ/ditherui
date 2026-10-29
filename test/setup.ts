@@ -1,10 +1,12 @@
 // Browser APIs jsdom lacks; tests that care install their own fakes.
 if (typeof window !== "undefined") {
-  globalThis.ResizeObserver ??= class {
+  class NoopObserver {
     observe() {}
     unobserve() {}
     disconnect() {}
-  };
+  }
+  globalThis.ResizeObserver ??= NoopObserver as unknown as typeof ResizeObserver;
+  globalThis.IntersectionObserver ??= NoopObserver as unknown as typeof IntersectionObserver;
   globalThis.matchMedia ??= ((query: string) => ({
     matches: false,
     media: query,
