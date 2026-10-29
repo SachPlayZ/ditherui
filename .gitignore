@@ -34,3 +34,6 @@ next-env.d.ts
 # generated registry
 /public/r/
 /.pnpm-store/
+/public/og/
+/.open-next/
+/.wrangler/
