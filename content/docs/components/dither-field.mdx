@@ -4,6 +4,7 @@ description: An animated dithered background field with real DOM content on top.
 ---
 
 import DitherFieldDemo from '@/registry/examples/dither-field-demo';
+import DitherFieldPatternsDemo from '@/registry/examples/dither-field-patterns-demo';
 import DitherFieldProviderDemo from '@/registry/examples/dither-field-provider-demo';
 
 <DitherFieldDemo />
@@ -38,3 +39,9 @@ import { DitherProvider } from "@/lib/ditherui/provider";
   <DitherField palette="amber" pattern="bayer8" />
 </DitherProvider>
 ```
+
+## Patterns
+
+Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used.
+
+<DitherFieldPatternsDemo />
