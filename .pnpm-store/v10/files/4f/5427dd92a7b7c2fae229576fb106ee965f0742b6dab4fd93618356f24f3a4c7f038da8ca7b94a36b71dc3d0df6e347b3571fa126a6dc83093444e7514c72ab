@@ -1,2 +1,0 @@
-import { a as toDocuments, i as sync, n as MeilisearchDocument, r as SyncOptions, t as DocumentRecord } from "../meilisearch-DLgT0_3G.js";
-export { DocumentRecord, MeilisearchDocument, SyncOptions, sync, toDocuments };

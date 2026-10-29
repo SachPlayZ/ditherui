@@ -1,4 +1,0 @@
-/**
- * @returns `null` on the server, during hydration, or when disabled.
- */
-export declare function useMediaQuery(query: string, disabled?: boolean): boolean | null;

@@ -1,2 +1,0 @@
-import { MouseEventHandler } from "react";
-export declare function useCopyButton(onCopy: () => void | Promise<void>): [checked: boolean, onClick: MouseEventHandler];

@@ -1,2 +1,0 @@
-import { n as remarkAdmonition, t as RemarkAdmonitionOptions } from "../remark-admonition-BxacgP6i.js";
-export { RemarkAdmonitionOptions, remarkAdmonition };

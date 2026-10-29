@@ -1,8 +1,0 @@
-import { ComponentProps } from "react";
-import { Collapsible as Collapsible$1 } from "@base-ui/react/collapsible";
-export declare const Collapsible: import("react").ForwardRefExoticComponent<Omit<import("@base-ui/react").CollapsibleRootProps, "ref"> & import("react").RefAttributes<HTMLDivElement>>;
-export declare const CollapsibleTrigger: import("react").ForwardRefExoticComponent<Omit<import("@base-ui/react").CollapsibleTriggerProps, "ref"> & import("react").RefAttributes<HTMLButtonElement>>;
-export declare function CollapsibleContent({ children, className, ...props }: ComponentProps<typeof Collapsible$1.Panel>): import("react").JSX.Element;
-export type CollapsibleProps = Collapsible$1.Root.Props;
-export type CollapsibleContentProps = Collapsible$1.Panel.Props;
-export type CollapsibleTriggerProps = Collapsible$1.Trigger.Props;

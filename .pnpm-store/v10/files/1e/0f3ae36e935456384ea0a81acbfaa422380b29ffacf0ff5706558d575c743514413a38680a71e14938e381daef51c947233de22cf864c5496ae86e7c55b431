@@ -1,2 +1,0 @@
-import { b as useAlgoliaSearch, v as AlgoliaOptions, y as algoliaClient } from "../../client-DnKr8e39.js";
-export { AlgoliaOptions, algoliaClient, useAlgoliaSearch };

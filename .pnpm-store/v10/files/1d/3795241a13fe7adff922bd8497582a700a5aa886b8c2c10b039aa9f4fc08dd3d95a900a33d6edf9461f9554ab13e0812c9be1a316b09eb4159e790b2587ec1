@@ -1,5 +1,0 @@
-import { ComponentProps } from "react";
-export declare const navItemVariants: (props?: ({
-  variant?: "button" | "icon" | "main" | null | undefined;
-} & import("class-variance-authority/types").ClassProp) | undefined) => string;
-export declare function Header(props: ComponentProps<'header'>): import("react").JSX.Element;

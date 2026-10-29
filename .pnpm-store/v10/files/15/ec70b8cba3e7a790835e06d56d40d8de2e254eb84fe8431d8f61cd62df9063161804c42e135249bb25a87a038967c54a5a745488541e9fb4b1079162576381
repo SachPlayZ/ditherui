@@ -1,2 +1,0 @@
-import { a as remarkStructureDefaultOptions, i as remarkStructure, n as StructuredData, o as structure, r as StructuredDataContent, t as StructureOptions } from "../remark-structure-50nmY6sX.js";
-export { StructureOptions, StructuredData, StructuredDataContent, remarkStructure, remarkStructureDefaultOptions, structure };

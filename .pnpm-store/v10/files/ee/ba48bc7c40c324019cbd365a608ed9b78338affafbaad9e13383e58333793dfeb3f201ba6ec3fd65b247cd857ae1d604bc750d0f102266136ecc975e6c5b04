@@ -1,3 +1,0 @@
-import { ComponentProps } from "react";
-/** the mobile navbar */
-export declare function Header({ className, ...props }: ComponentProps<'header'>): import("react").JSX.Element;
