@@ -1,3 +1,0 @@
-import { ComponentProps } from "react";
-/** AI chat, language switcher and icon links move into the options menu on smaller viewports */
-export declare function HeaderActions({ className, ...props }: ComponentProps<'div'>): import("react").JSX.Element;

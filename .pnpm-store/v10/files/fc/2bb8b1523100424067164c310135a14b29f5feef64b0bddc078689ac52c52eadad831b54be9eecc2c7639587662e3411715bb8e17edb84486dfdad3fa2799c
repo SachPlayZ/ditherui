@@ -1,2 +1,0 @@
-import { n as remarkDirectiveAdmonition, t as RemarkDirectiveAdmonitionOptions } from "../remark-directive-admonition-BT_PH6hL.js";
-export { RemarkDirectiveAdmonitionOptions, remarkDirectiveAdmonition };

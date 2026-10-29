@@ -1,5 +1,0 @@
-import * as PageTree from "fumadocs-core/page-tree";
-/**
- * @returns a list of page tree items (linear), that you can obtain footer items
- */
-export declare function useFooterItems(): PageTree.Item[];

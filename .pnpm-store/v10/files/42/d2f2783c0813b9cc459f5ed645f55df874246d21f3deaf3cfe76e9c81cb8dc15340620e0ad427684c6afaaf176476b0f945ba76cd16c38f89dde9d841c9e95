@@ -1,2 +1,0 @@
-import { ComponentProps } from "react";
-export declare function Container(props: ComponentProps<'div'>): import("react").JSX.Element;

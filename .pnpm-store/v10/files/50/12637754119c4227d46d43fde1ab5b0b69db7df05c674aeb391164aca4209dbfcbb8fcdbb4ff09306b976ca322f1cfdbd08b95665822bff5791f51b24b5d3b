@@ -1,2 +1,0 @@
-import { a as flexsearchStaticClient, i as FlexsearchStaticOptions, o as useFlexsearchStatic } from "../../client-DnKr8e39.js";
-export { FlexsearchStaticOptions, flexsearchStaticClient, useFlexsearchStatic };

@@ -1,6 +1,0 @@
-/**
- * @returns `undefined` on the server, during hydration, or when disabled.
- */
-export declare function useIsScrollTop({ enabled }: {
-  enabled?: boolean;
-}): boolean | undefined;

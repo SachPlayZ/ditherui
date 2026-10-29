@@ -1,2 +1,0 @@
-import { D as useFetchSearch, E as fetchClient, T as FetchOptions } from "../../client-DnKr8e39.js";
-export { FetchOptions, fetchClient, useFetchSearch };

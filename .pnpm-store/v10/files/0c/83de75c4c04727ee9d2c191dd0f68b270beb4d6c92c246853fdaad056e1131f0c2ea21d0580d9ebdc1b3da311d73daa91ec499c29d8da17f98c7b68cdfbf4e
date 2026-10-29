@@ -1,2 +1,0 @@
-import { n as remarkCodeTab, t as RemarkCodeTabOptions } from "../remark-code-tab-Dj_--R3y.js";
-export { RemarkCodeTabOptions, remarkCodeTab };

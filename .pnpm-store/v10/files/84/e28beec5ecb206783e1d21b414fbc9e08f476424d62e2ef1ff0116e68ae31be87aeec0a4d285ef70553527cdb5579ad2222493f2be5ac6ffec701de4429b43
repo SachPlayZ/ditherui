@@ -1,2 +1,0 @@
-import { f as MeilisearchOptions, m as useMeilisearch, p as meilisearchClient } from "../../client-DnKr8e39.js";
-export { MeilisearchOptions, meilisearchClient, useMeilisearch };

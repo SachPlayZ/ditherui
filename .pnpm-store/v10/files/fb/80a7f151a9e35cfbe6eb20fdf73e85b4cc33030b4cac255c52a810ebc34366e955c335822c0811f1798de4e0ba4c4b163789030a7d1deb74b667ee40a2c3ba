@@ -1,2 +1,0 @@
-import { n as extractCodeRegion, r as remarkInclude, t as RemarkIncludeOptions } from "../remark-include-D_FmDdtI.js";
-export { RemarkIncludeOptions, extractCodeRegion, remarkInclude };
