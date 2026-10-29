@@ -253,7 +253,7 @@ Component behaviour decisions:
 
 - `@dotgrain/engine` is a `registry:lib` item. Every component is a `registry:ui` item with `registryDependencies: ["@dotgrain/engine"]` and an empty `dependencies` list.
 - Items carry `title`, a one-sentence `description` (reused for search, llms.txt and copy prompts), `categories` and `meta.modes`.
-- Three install forms are documented: namespaced, direct URL and GitHub. The namespace snippet maps `@dotgrain` to `https://dotgrain.com/r/{name}.json`.
+- Three install forms are documented: namespaced, direct URL and GitHub. The namespace snippet maps `@dotgrain` to `https://dotgrain.space/r/{name}.json`.
 - Free items are v0-compatible: no `cssVars` or `envVars`.
 - At launch, submit to the shadcn registry index, registry.directory and 21st.dev.
 - Item request counts are logged per registry item for analytics.
@@ -351,5 +351,4 @@ Post one component per day as a short screen recording on X before launch. Launc
 
 - Pricing for Pro (per-person and team, one-time).
 - Choice between Polar and Lemon Squeezy.
-- Domain confirmation (dotgrain.com is assumed throughout).
 - Monospace and pixel display fonts for the site.

@@ -6,7 +6,7 @@ import { components } from "../registry/meta/index.ts";
 const out = process.argv[2] ?? "registry.json";
 // shortcut: engine is referenced by URL because `@dotgrain/engine` only resolves once the namespace
 // is configured by the user or listed in the shadcn index; switch after the index listing (phase 2).
-const base = process.env.REGISTRY_URL ?? "https://dotgrain.com/r";
+const base = process.env.REGISTRY_URL ?? "https://dotgrain.space/r";
 const engineFiles = readdirSync("registry/engine")
   .filter((f) => /\.tsx?$/.test(f) && !f.includes(".test."))
   .sort();
@@ -14,7 +14,7 @@ const engineFiles = readdirSync("registry/engine")
 const registry = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
   name: "dotgrain",
-  homepage: "https://dotgrain.com",
+  homepage: "https://dotgrain.space",
   items: [
     {
       name: "engine",

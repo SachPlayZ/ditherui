@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "dotgrain",
-  "homepage": "https://dotgrain.com",
+  "homepage": "https://dotgrain.space",
   "items": [
     {
       "name": "engine",
@@ -90,7 +90,7 @@
         "background"
       ],
       "registryDependencies": [
-        "https://dotgrain.com/r/engine.json"
+        "https://dotgrain.space/r/engine.json"
       ],
       "dependencies": [],
       "files": [
@@ -115,7 +115,7 @@
         "media"
       ],
       "registryDependencies": [
-        "https://dotgrain.com/r/engine.json"
+        "https://dotgrain.space/r/engine.json"
       ],
       "dependencies": [],
       "files": [
