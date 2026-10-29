@@ -23,7 +23,9 @@ export type Source =
   | { kind: "field"; field: FieldName; params?: Record<string, number> }
   | { kind: "image"; src: string; crossOrigin?: "anonymous" }
   /** Keep the element rendered (e.g. visually hidden), not `display: none`: browsers may not decode a hidden paused video's frames. */
-  | { kind: "video"; element: HTMLVideoElement };
+  | { kind: "video"; element: HTMLVideoElement }
+  /** The element's text as laid out in the DOM; the canvas should cover the element's box exactly. */
+  | { kind: "text"; element: HTMLElement };
 
 /** One render request: quantized size in marks, time in seconds. */
 export interface Frame {

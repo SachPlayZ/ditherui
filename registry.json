@@ -85,6 +85,11 @@
           "target": "lib/dotgrain/scheduler.ts"
         },
         {
+          "path": "registry/engine/text.ts",
+          "type": "registry:lib",
+          "target": "lib/dotgrain/text.ts"
+        },
+        {
           "path": "registry/engine/types.ts",
           "type": "registry:lib",
           "target": "lib/dotgrain/types.ts"
