@@ -36,6 +36,39 @@ void main() {
   outColor = vec4(uPalette[i] / 255.0, 1.0);
 }`;
 
+// One cell per mark: sample the source at the cell centre, pick a glyph by value and
+// mask the background → band colour with the glyph atlas. Mirrors glyphCell() in glyphs.ts.
+export const ASCII = `#version 300 es
+precision highp float;
+precision highp int;
+uniform vec2 uSize;
+uniform vec2 uCell;
+uniform float uAspect;
+uniform float uTime;
+uniform int uField;
+uniform vec4 uParams;
+uniform vec4 uCursor;
+uniform float uContrast;
+uniform float uThreshold;
+uniform vec3 uPalette[4];
+uniform int uLevels;
+uniform int uGlyphs;
+uniform sampler2D uAtlas;
+out vec4 outColor;
+${FIELD_GLSL}
+void main() {
+  vec2 px = vec2(gl_FragCoord.x, uSize.y * uCell.y - gl_FragCoord.y);
+  vec2 cell = floor(px / uCell);
+  vec2 uv = (cell + 0.5) / uSize;
+  float v = field(uField, uv, uAspect, uTime, uParams) + cursorBump(uv, uAspect, uCursor);
+  float s = clamp((v - 0.5) * uContrast + 1.0 - uThreshold, 0.0, 1.0);
+  int glyph = min(uGlyphs - 1, int(floor(s * float(uGlyphs))));
+  int band = min(uLevels - 1, 1 + int(floor(s * float(uLevels - 1))));
+  vec2 local = (px - cell * uCell) / uCell;
+  float mask = texture(uAtlas, vec2((float(glyph) + local.x) / float(uGlyphs), local.y)).a;
+  outColor = vec4(mix(uPalette[0], uPalette[band], mask) / 255.0, 1.0);
+}`;
+
 export interface Program {
   program: WebGLProgram;
   uniforms: Record<string, WebGLUniformLocation | null>;

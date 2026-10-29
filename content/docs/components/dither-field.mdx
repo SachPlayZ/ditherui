@@ -3,6 +3,7 @@ title: Dither Field
 description: An animated dithered background field with real DOM content on top.
 ---
 
+import DitherFieldAsciiDemo from '@/registry/examples/dither-field-ascii-demo';
 import DitherFieldDemo from '@/registry/examples/dither-field-demo';
 import DitherFieldFieldsDemo from '@/registry/examples/dither-field-fields-demo';
 import DitherFieldPatternsDemo from '@/registry/examples/dither-field-patterns-demo';
@@ -38,6 +39,17 @@ import { DitherField } from "@/components/ui/dither-field";
 <DitherField field="noise" params={{ scale: 6 }} />
 <DitherField field="radial" params={{ radius: 0.6 }} />
 <DitherField field="linear" params={{ angle: 30 }} />
+```
+
+## ASCII
+
+Set `mode="ascii"` to draw glyphs instead of pixels. `glyphs` takes a ramp name (`standard`, `blocks`, `binary`, `katakana`) or your own string, ordered background → foreground. With 3–4 colours, glyphs are tinted by brightness band.
+
+<DitherFieldAsciiDemo />
+
+```tsx
+<DitherField mode="ascii" />
+<DitherField mode="ascii" glyphs="blocks" cell={12} palette="cga" />
 ```
 
 ## Tokens

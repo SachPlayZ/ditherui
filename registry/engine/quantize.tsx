@@ -3,8 +3,9 @@
 import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } from "react";
 import { draw } from "./context";
 import { INK_PALETTES, paletteColors } from "./palettes";
+import { GLYPH_ASPECT } from "./glyphs";
 import { trackPointer, type PointerTracker } from "./pointer";
-import { useColorScheme, useDitherTokens } from "./provider";
+import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
 import type { DitherTokens, Source } from "./types";
 
@@ -27,18 +28,19 @@ export function Quantize({ source, label, interactive = false, cursorRadius = 12
   const { preference, scheme } = useColorScheme();
   const colors = paletteColors(merged.palette, scheme);
   const tokens = { ...merged, palette: colors };
+  const font = useDitherFont();
   // Painted before the first frame (and during SSR) so there is no flash; `ink` + system
   // follows the page's color-scheme via light-dark() because the server can't know it.
   const background =
     merged.palette === "ink" && preference === "system"
       ? `light-dark(${INK_PALETTES.light[0]}, ${INK_PALETTES.dark[0]})`
       : colors[0];
-  const latest = useRef({ source, tokens, cursorRadius });
+  const latest = useRef({ source, tokens, cursorRadius, font });
   const view = useRef<ViewHandle>(null);
   const pointer = useRef<PointerTracker>(null);
   useImperativeHandle(ref, () => canvas.current!, []);
   useEffect(() => {
-    latest.current = { source, tokens, cursorRadius };
+    latest.current = { source, tokens, cursorRadius, font };
     view.current?.invalidate();
   });
 
@@ -56,13 +58,13 @@ export function Quantize({ source, label, interactive = false, cursorRadius = 12
     const handle = getScheduler().add({
       element,
       animated: () => latest.current.tokens.speed > 0 || !!pointer.current?.settling(),
-      render({ seconds, width, height, still }) {
-        const { source, tokens, cursorRadius } = latest.current;
-        const w = Math.round(width / tokens.cell);
+      render({ seconds, width, height, dpr, still }) {
+        const { source, tokens, cursorRadius, font } = latest.current;
+        const w = Math.round(width / (tokens.mode === "ascii" ? tokens.cell * GLYPH_ASPECT : tokens.cell));
         const h = Math.round(height / tokens.cell);
         const spot = pointer.current && !still ? pointer.current.step(seconds) : undefined;
         const cursor = spot && ([...spot, cursorRadius / height] as [number, number, number, number]);
-        if (w > 0 && h > 0) draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor });
+        if (w > 0 && h > 0) draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font });
       },
     });
     view.current = handle;

@@ -55,6 +55,11 @@ export function useDitherTokens(overrides: Partial<DitherTokens>): DitherTokens 
   return tokens;
 }
 
+/** Font family for ASCII glyphs set by the nearest provider, if any. */
+export function useDitherFont(): string | undefined {
+  return useContext(DitherContext).font;
+}
+
 function systemScheme(): Scheme {
   const html = document.documentElement;
   const theme = html.dataset.theme ?? (html.classList.contains("dark") ? "dark" : html.classList.contains("light") ? "light" : "");

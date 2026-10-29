@@ -31,6 +31,10 @@ export interface Frame {
   width: number;
   height: number;
   time: number;
+  /** Device pixel ratio (ASCII glyphs render at device resolution). */
+  dpr?: number;
+  /** Font family for ASCII glyphs. */
+  font?: string;
   /** Soft bright spot: x, y in 0–1 uv, strength 0–1, radius as a fraction of height. */
   cursor?: [number, number, number, number];
 }

@@ -5,7 +5,7 @@ export default {
   title: "Dither Field",
   description: "An animated dithered background field with real DOM content on top.",
   category: "background",
-  modes: ["dither"],
+  modes: ["dither", "ascii"],
   tier: "free",
   files: ["registry/ui/dither-field.tsx"],
   props: [

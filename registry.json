@@ -25,6 +25,11 @@
           "target": "lib/ditherui/fields.ts"
         },
         {
+          "path": "registry/engine/glyphs.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/glyphs.ts"
+        },
+        {
           "path": "registry/engine/index.ts",
           "type": "registry:lib",
           "target": "lib/ditherui/index.ts"
@@ -91,7 +96,8 @@
       ],
       "meta": {
         "modes": [
-          "dither"
+          "dither",
+          "ascii"
         ]
       }
     }
