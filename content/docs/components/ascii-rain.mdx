@@ -1,0 +1,37 @@
+---
+title: ASCII Rain
+description: A background of falling ASCII glyph columns with real DOM content on top.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="ascii-rain" />
+
+<Playground name="ascii-rain" />
+
+## Installation
+
+<Install name="ascii-rain" />
+
+## Usage
+
+```tsx
+import { AsciiRain } from "@/components/ui/ascii-rain";
+
+<AsciiRain style={{ height: 320 }}>
+  <h1>Hello</h1>
+</AsciiRain>
+```
+
+Each glyph column falls at its own speed with a fading tail drawn from the glyph ramp, densest glyph at the head. `density` sets how many columns rain, `length` how long the tails are, and the `speed` token how fast they fall. `glyphs`, `palette`, `cell`, `contrast` and `threshold` style it like any other ASCII component.
+
+## Accessibility and performance
+
+- The canvas is `aria-hidden`; children are normal DOM above it. Pass `label` to announce the background as one image instead.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, the rain freezes on a single static frame.
+- It renders one glyph per cell on the GPU (Canvas2D fallback without WebGL2) and pauses offscreen or in a hidden tab.
+
+## Props
+
+<PropsTable name="ascii-rain" />

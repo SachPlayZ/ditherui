@@ -11,7 +11,7 @@ import type { FieldName, Frame, GlyphRampName, PaletteName, Pattern } from "@/li
 
 const PATTERNS: Pattern[] = ["bayer2", "bayer4", "bayer8", "blueNoise"];
 const PALETTES: PaletteName[] = ["ink", "gameboy", "cga"];
-const FIELDS: FieldName[] = ["noise", "radial", "linear", "progress"];
+const FIELDS: FieldName[] = ["noise", "radial", "linear", "progress", "rain"];
 const RAMPS: GlyphRampName[] = ["standard", "blocks"];
 
 export interface ParityResult {

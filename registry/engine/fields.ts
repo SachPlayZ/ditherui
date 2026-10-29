@@ -9,10 +9,13 @@ const FIELD_PARAMS: Record<FieldName, Record<string, number>> = {
   radial: { x: 0.5, y: 0.5, radius: 0.5 },
   linear: { angle: 0 },
   progress: { value: 0.5, softness: 0.05 },
+  // Share of columns raining; tail length as a share of the height; columns across the width, more than any
+  // glyph grid has so each glyph column falls on its own. The speed token scales time, so fall speed needs no param.
+  rain: { density: 0.7, length: 0.4, columns: 1024 },
 };
 
 /** Index the shader switches on. */
-export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3 };
+export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3, rain: 4 };
 
 /** Field params packed into the vec4 the shader reads, defaults filled in. */
 export function fieldParams(field: FieldName, params: Record<string, number> = {}): number[] {
@@ -46,6 +49,14 @@ float field(int kind, vec2 uv, float aspect, float t, vec4 params) {
     return clamp(dot(uv - 0.5, vec2(cos(a), sin(a))) + 0.5, 0.0, 1.0);
   }
   if (kind == 3) return clamp((params.x - uv.x) / max(params.y, 1e-4) * 0.5 + 0.5, 0.0, 1.0);
+  if (kind == 4) {
+    // Each column: hashed on/off, phase and speed; a head falls and its tail fades behind it, wrapping.
+    int c = int(floor(uv.x * params.z));
+    if (hash3(ivec3(c, 2, 0)) > params.x) return 0.0;
+    float head = fract(hash3(ivec3(c, 1, 0)) + t * (0.3 + 0.7 * hash3(ivec3(c, 0, 0))));
+    float d = fract(head - uv.y);
+    return d < params.y ? 1.0 - d / params.y : 0.0;
+  }
   vec2 p = vec2(uv.x * aspect, uv.y) * params.x;
   float z = t * 0.25;
   return 0.65 * vnoise(vec3(p, z)) + 0.35 * vnoise(vec3(p * 2.0 + 17.0, z * 2.0));
@@ -78,6 +89,7 @@ function vnoise(x: number, y: number, z: number): number {
 }
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const fract = (x: number) => x - Math.floor(x);
 
 /** JS twin of the GLSL `field`: value 0–1 at uv for the given time. */
 export function field(name: FieldName, u: number, v: number, aspect: number, t: number, params: number[]): number {
@@ -87,6 +99,13 @@ export function field(name: FieldName, u: number, v: number, aspect: number, t: 
     return clamp01((u - 0.5) * Math.cos(a) + (v - 0.5) * Math.sin(a) + 0.5);
   }
   if (name === "progress") return clamp01(((params[0] - u) / Math.max(params[1], 1e-4)) * 0.5 + 0.5);
+  if (name === "rain") {
+    const c = Math.floor(u * params[2]);
+    if (hash3(c, 2, 0) > params[0]) return 0;
+    const head = fract(hash3(c, 1, 0) + t * (0.3 + 0.7 * hash3(c, 0, 0)));
+    const d = fract(head - v);
+    return d < params[1] ? 1 - d / params[1] : 0;
+  }
   const px = u * aspect * params[0], py = v * params[0], z = t * 0.25;
   return 0.65 * vnoise(px, py, z) + 0.35 * vnoise(px * 2 + 17, py * 2 + 17, z * 2);
 }

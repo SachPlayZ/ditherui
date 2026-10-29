@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import AsciiRainDemo from "./ascii-rain-demo";
 import AsciiVideoDemo from "./ascii-video-demo";
 import AsciiVideoWebcamDemo from "./ascii-video-webcam-demo";
 import DitherFieldAsciiDemo from "./dither-field-ascii-demo";
@@ -26,4 +27,5 @@ export const examples: Record<string, ComponentType> = {
   "ascii-video-webcam-demo": AsciiVideoWebcamDemo,
   "scramble-text-demo": ScrambleTextDemo,
   "dither-reveal-demo": DitherRevealDemo,
+  "ascii-rain-demo": AsciiRainDemo,
 };
