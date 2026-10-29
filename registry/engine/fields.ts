@@ -3,9 +3,16 @@ import type { FieldName } from "./types";
 // Each field exists twice: GLSL for the GPU and an identical JS twin for the CPU path and tests.
 // The integer hash keeps both sides bit-compatible (sin-based hashes drift between GPU and CPU).
 
+// Param order is the vec4 slot order the shader reads.
 const FIELD_PARAMS: Record<FieldName, Record<string, number>> = {
   noise: { scale: 3 },
+  radial: { x: 0.5, y: 0.5, radius: 0.5 },
+  linear: { angle: 0 },
+  progress: { value: 0.5, softness: 0.05 },
 };
+
+/** Index the shader switches on. */
+export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3 };
 
 /** Field params packed into the vec4 the shader reads, defaults filled in. */
 export function fieldParams(field: FieldName, params: Record<string, number> = {}): number[] {
@@ -32,10 +39,21 @@ float vnoise(vec3 p) {
   float e = mix(hash3(c + ivec3(0, 1, 1)), hash3(c + ivec3(1, 1, 1)), u.x);
   return mix(mix(a, b, u.y), mix(d, e, u.y), u.z);
 }
-float field(vec2 uv, float aspect, float t, vec4 params) {
+float field(int kind, vec2 uv, float aspect, float t, vec4 params) {
+  if (kind == 1) return clamp(1.0 - length((uv - params.xy) * vec2(aspect, 1.0)) / params.z, 0.0, 1.0);
+  if (kind == 2) {
+    float a = radians(params.x);
+    return clamp(dot(uv - 0.5, vec2(cos(a), sin(a))) + 0.5, 0.0, 1.0);
+  }
+  if (kind == 3) return clamp((params.x - uv.x) / max(params.y, 1e-4) * 0.5 + 0.5, 0.0, 1.0);
   vec2 p = vec2(uv.x * aspect, uv.y) * params.x;
   float z = t * 0.25;
   return 0.65 * vnoise(vec3(p, z)) + 0.35 * vnoise(vec3(p * 2.0 + 17.0, z * 2.0));
+}
+// Soft radial bump at the pointer, added to the field value.
+float cursorBump(vec2 uv, float aspect, vec4 cursor) {
+  vec2 d = (uv - cursor.xy) * vec2(aspect, 1.0);
+  return cursor.z * 0.6 * exp(-dot(d, d) / max(cursor.w * cursor.w, 1e-6));
 }
 `;
 
@@ -59,8 +77,22 @@ function vnoise(x: number, y: number, z: number): number {
   return mix(mix(a, b, uy), mix(d, e, uy), uz);
 }
 
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+
 /** JS twin of the GLSL `field`: value 0–1 at uv for the given time. */
 export function field(name: FieldName, u: number, v: number, aspect: number, t: number, params: number[]): number {
+  if (name === "radial") return clamp01(1 - Math.hypot((u - params[0]) * aspect, v - params[1]) / params[2]);
+  if (name === "linear") {
+    const a = (params[0] * Math.PI) / 180;
+    return clamp01((u - 0.5) * Math.cos(a) + (v - 0.5) * Math.sin(a) + 0.5);
+  }
+  if (name === "progress") return clamp01(((params[0] - u) / Math.max(params[1], 1e-4)) * 0.5 + 0.5);
   const px = u * aspect * params[0], py = v * params[0], z = t * 0.25;
   return 0.65 * vnoise(px, py, z) + 0.35 * vnoise(px * 2 + 17, py * 2 + 17, z * 2);
+}
+
+/** JS twin of the GLSL `cursorBump`. */
+export function cursorBump(u: number, v: number, aspect: number, [x, y, strength, radius]: number[]): number {
+  const dx = (u - x) * aspect, dy = v - y;
+  return strength * 0.6 * Math.exp(-(dx * dx + dy * dy) / Math.max(radius * radius, 1e-6));
 }

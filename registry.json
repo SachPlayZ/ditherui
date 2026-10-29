@@ -40,6 +40,11 @@
           "target": "lib/ditherui/patterns.ts"
         },
         {
+          "path": "registry/engine/pointer.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/pointer.ts"
+        },
+        {
           "path": "registry/engine/programs.ts",
           "type": "registry:lib",
           "target": "lib/ditherui/programs.ts"

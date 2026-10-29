@@ -14,7 +14,9 @@ precision highp float;
 precision highp int;
 uniform vec2 uSize;
 uniform float uTime;
+uniform int uField;
 uniform vec4 uParams;
+uniform vec4 uCursor;
 uniform float uContrast;
 uniform float uThreshold;
 uniform vec3 uPalette[4];
@@ -24,7 +26,9 @@ out vec4 outColor;
 ${FIELD_GLSL}
 void main() {
   vec2 px = vec2(gl_FragCoord.x, uSize.y - gl_FragCoord.y);
-  float v = field(px / uSize, uSize.x / uSize.y, uTime, uParams);
+  vec2 uv = px / uSize;
+  float aspect = uSize.x / uSize.y;
+  float v = field(uField, uv, aspect, uTime, uParams) + cursorBump(uv, aspect, uCursor);
   float t = texelFetch(uPattern, ivec2(px) % textureSize(uPattern, 0), 0).r;
   float s = clamp((v - 0.5) * uContrast + 1.0 - uThreshold, 0.0, 1.0) * float(uLevels - 1);
   float b = floor(s);

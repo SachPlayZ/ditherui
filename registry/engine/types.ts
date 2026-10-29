@@ -2,7 +2,7 @@ export type Mode = "dither" | "ascii";
 export type Pattern = "bayer2" | "bayer4" | "bayer8" | "blueNoise" | "atkinson" | "floyd";
 export type PaletteName = "ink" | "gameboy" | "amber" | "phosphor" | "cga" | "riso";
 export type GlyphRampName = "standard" | "blocks" | "binary" | "katakana";
-export type FieldName = "noise";
+export type FieldName = "noise" | "radial" | "linear" | "progress";
 
 export interface DitherTokens {
   mode: Mode;
@@ -31,4 +31,6 @@ export interface Frame {
   width: number;
   height: number;
   time: number;
+  /** Soft bright spot: x, y in 0–1 uv, strength 0–1, radius as a fraction of height. */
+  cursor?: [number, number, number, number];
 }

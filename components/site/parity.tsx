@@ -5,10 +5,11 @@ import { draw } from "@/lib/ditherui/context";
 import { render } from "@/lib/ditherui/cpu";
 import { paletteColors } from "@/lib/ditherui/palettes";
 import { DEFAULT_TOKENS } from "@/lib/ditherui/provider";
-import type { Frame, PaletteName, Pattern } from "@/lib/ditherui/types";
+import type { FieldName, Frame, PaletteName, Pattern } from "@/lib/ditherui/types";
 
 const PATTERNS: Pattern[] = ["bayer2", "bayer4", "bayer8", "blueNoise"];
 const PALETTES: PaletteName[] = ["ink", "gameboy", "cga"];
+const FIELDS: FieldName[] = ["noise", "radial", "linear", "progress"];
 
 export interface ParityResult {
   fixture: string;
@@ -29,11 +30,14 @@ export function Parity() {
   const pre = useRef<HTMLPreElement>(null);
   useEffect(() => {
     const out: ParityResult[] = [];
-    for (const pattern of PATTERNS) {
-      for (const palette of PALETTES) {
-        for (const time of [0, 7.3]) {
-          const tokens = { ...DEFAULT_TOKENS, pattern, palette: paletteColors(palette) };
-          out.push({ fixture: `${pattern}/${palette}/t${time}`, mismatch: compare({ source: { kind: "field", field: "noise" }, tokens, width: 97, height: 61, time }) });
+    for (const field of FIELDS) {
+      for (const pattern of PATTERNS) {
+        for (const palette of PALETTES) {
+          for (const time of [0, 7.3]) {
+            const tokens = { ...DEFAULT_TOKENS, pattern, palette: paletteColors(palette) };
+            const frame: Frame = { source: { kind: "field", field }, tokens, width: 97, height: 61, time, cursor: [0.3, 0.6, 1, 0.25] };
+            out.push({ fixture: `${field}/${pattern}/${palette}/t${time}`, mismatch: compare(frame) });
+          }
         }
       }
     }

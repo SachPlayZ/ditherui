@@ -1,11 +1,11 @@
 import { render } from "./cpu";
-import { fieldParams } from "./fields";
+import { FIELD_IDS, fieldParams } from "./fields";
 import { resolvePalette } from "./palettes";
 import { thresholdMap, type ThresholdMap } from "./patterns";
 import { DITHER, getProgram } from "./programs";
 import type { Frame } from "./types";
 
-const UNIFORMS = ["uSize", "uTime", "uParams", "uContrast", "uThreshold", "uPalette", "uLevels", "uPattern"];
+const UNIFORMS = ["uSize", "uTime", "uField", "uParams", "uCursor", "uContrast", "uThreshold", "uPalette", "uLevels", "uPattern"];
 
 let gl: WebGL2RenderingContext | null | undefined;
 let glCanvas: HTMLCanvasElement;
@@ -54,7 +54,9 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   g.viewport(0, 0, w, h);
   g.uniform2f(u.uSize, w, h);
   g.uniform1f(u.uTime, frame.time);
+  g.uniform1i(u.uField, FIELD_IDS[source.field]);
   g.uniform4fv(u.uParams, fieldParams(source.field, source.params));
+  g.uniform4fv(u.uCursor, frame.cursor ?? [0, 0, 0, 0]);
   g.uniform1f(u.uContrast, tokens.contrast);
   g.uniform1f(u.uThreshold, tokens.threshold);
   g.uniform3fv(u.uPalette, [0, 1, 2, 3].flatMap((i) => palette[Math.min(i, palette.length - 1)]));

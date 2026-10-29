@@ -67,7 +67,7 @@ describe("scheduler", () => {
     const v = view();
     fake.tick(3);
     expect(v.renders).toHaveLength(3);
-    expect(v.renders[2]).toMatchObject({ width: 100, height: 50, seconds: 0.048, dpr: 1 });
+    expect(v.renders[2]).toMatchObject({ width: 100, height: 50, seconds: 0.048, dpr: 1, still: false });
   });
 
   it("skips offscreen views and resumes when they scroll back", () => {
@@ -95,6 +95,7 @@ describe("scheduler", () => {
     const v = view();
     fake.tick(5);
     expect(v.renders).toHaveLength(1);
+    expect(v.renders[0].still).toBe(true);
     v.handle.invalidate();
     fake.tick(3);
     expect(v.renders).toHaveLength(2);
