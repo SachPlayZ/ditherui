@@ -1,0 +1,28 @@
+---
+title: Dither Image
+description: Converts any image to dither or ASCII live, with the real image kept for accessibility.
+---
+
+import DitherImageDemo from '@/registry/examples/dither-image-demo';
+
+<DitherImageDemo />
+
+## Installation
+
+```bash
+npx shadcn@latest add https://ditherui.com/r/dither-image.json
+```
+
+## Usage
+
+```tsx
+import { DitherImage } from "@/components/ui/dither-image";
+
+<DitherImage src="/photo.jpg" alt="Describe the photo" width={1200} height={800} />
+```
+
+`width` and `height` reserve the aspect ratio, so the page doesn't shift while the image loads. Changing tokens re-renders without reloading the image.
+
+## Accessibility
+
+The real `<img alt>` stays in the DOM, visually hidden, for screen readers and search engines; the canvas is decorative. If the image's pixels can't be read (a cross-origin image without CORS headers), the plain image is shown instead.

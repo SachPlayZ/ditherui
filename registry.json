@@ -30,6 +30,11 @@
           "target": "lib/ditherui/glyphs.ts"
         },
         {
+          "path": "registry/engine/images.ts",
+          "type": "registry:lib",
+          "target": "lib/ditherui/images.ts"
+        },
+        {
           "path": "registry/engine/index.ts",
           "type": "registry:lib",
           "target": "lib/ditherui/index.ts"
@@ -91,6 +96,31 @@
       "files": [
         {
           "path": "registry/ui/dither-field.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither",
+          "ascii"
+        ]
+      }
+    },
+    {
+      "name": "dither-image",
+      "type": "registry:ui",
+      "title": "Dither Image",
+      "description": "Converts any image to dither or ASCII live, with the real image kept for accessibility.",
+      "categories": [
+        "media"
+      ],
+      "registryDependencies": [
+        "https://ditherui.com/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/dither-image.tsx",
           "type": "registry:ui"
         }
       ],

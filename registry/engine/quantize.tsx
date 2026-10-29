@@ -4,6 +4,7 @@ import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } 
 import { draw } from "./context";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
+import { imageValues, watchImage } from "./images";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
@@ -17,12 +18,24 @@ export type QuantizeProps = Partial<DitherTokens> & {
   interactive?: boolean;
   /** Radius of the pointer spot in CSS pixels. */
   cursorRadius?: number;
+  /** Called when an image source can't be loaded or read (e.g. a cross-origin image without CORS). */
+  onError?: () => void;
   className?: string;
   style?: CSSProperties;
   ref?: Ref<HTMLCanvasElement>;
 };
 
-export function Quantize({ source, label, interactive = false, cursorRadius = 120, className, style, ref, ...overrides }: QuantizeProps) {
+export function Quantize({
+  source,
+  label,
+  interactive = false,
+  cursorRadius = 120,
+  onError,
+  className,
+  style,
+  ref,
+  ...overrides
+}: QuantizeProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const merged = useDitherTokens(overrides);
   const { preference, scheme } = useColorScheme();
@@ -35,14 +48,19 @@ export function Quantize({ source, label, interactive = false, cursorRadius = 12
     merged.palette === "ink" && preference === "system"
       ? `light-dark(${INK_PALETTES.light[0]}, ${INK_PALETTES.dark[0]})`
       : colors[0];
-  const latest = useRef({ source, tokens, cursorRadius, font });
+  const latest = useRef({ source, tokens, cursorRadius, font, onError });
   const view = useRef<ViewHandle>(null);
   const pointer = useRef<PointerTracker>(null);
   useImperativeHandle(ref, () => canvas.current!, []);
   useEffect(() => {
-    latest.current = { source, tokens, cursorRadius, font };
+    latest.current = { source, tokens, cursorRadius, font, onError };
     view.current?.invalidate();
   });
+
+  const image = source.kind === "image" ? source : undefined;
+  useEffect(() => {
+    if (image) return watchImage(image.src, image.crossOrigin, () => view.current?.invalidate());
+  }, [image?.src, image?.crossOrigin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!interactive) return;
@@ -57,14 +75,22 @@ export function Quantize({ source, label, interactive = false, cursorRadius = 12
     const element = canvas.current!;
     const handle = getScheduler().add({
       element,
-      animated: () => latest.current.tokens.speed > 0 || !!pointer.current?.settling(),
+      animated: () => (latest.current.tokens.speed > 0 && latest.current.source.kind === "field") || !!pointer.current?.settling(),
       render({ seconds, width, height, dpr, still }) {
-        const { source, tokens, cursorRadius, font } = latest.current;
+        const { source, tokens, cursorRadius, font, onError } = latest.current;
         const w = Math.round(width / (tokens.mode === "ascii" ? tokens.cell * GLYPH_ASPECT : tokens.cell));
         const h = Math.round(height / tokens.cell);
         const spot = pointer.current && !still ? pointer.current.step(seconds) : undefined;
         const cursor = spot && ([...spot, cursorRadius / height] as [number, number, number, number]);
-        if (w > 0 && h > 0) draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font });
+        if (w <= 0 || h <= 0) return;
+        let values: Float32Array | undefined;
+        if (source.kind === "image") {
+          const result = imageValues(source.src, source.crossOrigin, w, h, width / height);
+          if (result === "error") onError?.();
+          if (typeof result === "string") return;
+          values = result;
+        }
+        draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font, values });
       },
     });
     view.current = handle;
