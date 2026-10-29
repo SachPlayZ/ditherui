@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { VisualExample } from "@/components/site/visual-example";
-import { PALETTES } from "@/lib/dithercn/palettes";
-import type { PaletteName } from "@/lib/dithercn/types";
+import { PALETTES } from "@/lib/dotgrain/palettes";
+import type { PaletteName } from "@/lib/dotgrain/types";
 import { examples } from "@/registry/examples";
 
 // Test-only route for visual regression; not part of the production site.

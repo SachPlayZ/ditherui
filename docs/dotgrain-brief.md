@@ -1,6 +1,6 @@
-# dithercn — product and engineering brief
+# dotgrain — product and engineering brief
 
-This is the complete brief for dithercn. It is written to be read by `/to-spec`, then split into tickets by `/to-tickets`. It follows the spec template: problem, solution, user stories, implementation decisions, testing decisions, out of scope, further notes. All product and technical decisions below are final unless listed under "Open items".
+This is the complete brief for dotgrain. It is written to be read by `/to-spec`, then split into tickets by `/to-tickets`. It follows the spec template: problem, solution, user stories, implementation decisions, testing decisions, out of scope, further notes. All product and technical decisions below are final unless listed under "Open items".
 
 ---
 
@@ -8,8 +8,8 @@ This is the complete brief for dithercn. It is written to be read by `/to-spec`,
 
 Use these terms consistently in specs, tickets, code and docs.
 
-- **dithercn**: the product. A React component library and its docs site. Registry namespace `@dithercn`.
-- **dithercn Pro**: the paid tier. Separate private registry, namespace `@dithercn-pro`.
+- **dotgrain**: the product. A React component library and its docs site. Registry namespace `@dotgrain`.
+- **dotgrain Pro**: the paid tier. Separate private registry, namespace `@dotgrain-pro`.
 - **Render mode**: how marks are drawn. `dither` (pixels on/off) or `ascii` (glyphs). Later: `halftone`, `pixel`.
 - **Mark**: one output unit. A pixel in dither mode, a glyph in ASCII mode.
 - **Cell**: the size of one mark in CSS pixels.
@@ -40,13 +40,13 @@ No library treats dither and ASCII as a complete, coherent design system. Existi
 
 ## Solution
 
-dithercn is a library of React components where every visual is rendered as dither or ASCII by one shared, dependency-free WebGL2 engine. Components share tokens, so a single provider or one prop restyles an entire site: switch from 1-bit ink to Game Boy green, from dither to ASCII.
+dotgrain is a library of React components where every visual is rendered as dither or ASCII by one shared, dependency-free WebGL2 engine. Components share tokens, so a single provider or one prop restyles an entire site: switch from 1-bit ink to Game Boy green, from dither to ASCII.
 
-- Components install straight into the user's codebase with the shadcn CLI (`npx shadcn@latest add @dithercn/<name>`). Users own the code, with no runtime npm dependencies.
+- Components install straight into the user's codebase with the shadcn CLI (`npx shadcn@latest add @dotgrain/<name>`). Users own the code, with no runtime npm dependencies.
 - A docs site lets people tune every component live with knobs. They copy the exact code, copy an AI-agent prompt, or open it in v0.
 - The library is accessible by default: real text stays real DOM text, canvases are decorative, and reduced motion is respected. It is fast by default: one GPU context, rendering at low resolution, paused when offscreen.
-- Most components are free under MIT. Premium blocks and full templates are sold as dithercn Pro, installed through a token-gated private registry.
-- Free tools such as `/convert` (image to dither or ASCII) bring traffic. AI channels (MCP via the shadcn MCP server, llms.txt, copy prompts) make dithercn the default choice when someone asks an agent for "a dithered hero".
+- Most components are free under MIT. Premium blocks and full templates are sold as dotgrain Pro, installed through a token-gated private registry.
+- Free tools such as `/convert` (image to dither or ASCII) bring traffic. AI channels (MCP via the shadcn MCP server, llms.txt, copy prompts) make dotgrain the default choice when someone asks an agent for "a dithered hero".
 
 ---
 
@@ -54,10 +54,10 @@ dithercn is a library of React components where every visual is rendered as dith
 
 ### Developer using free components
 
-1. As a developer, I want to install a component with one `npx shadcn@latest add @dithercn/<name>` command, so that it lands in my repo without manual copying.
+1. As a developer, I want to install a component with one `npx shadcn@latest add @dotgrain/<name>` command, so that it lands in my repo without manual copying.
 2. As a developer, I want to install by direct URL without configuring a namespace, so that I can try a component in seconds.
 3. As a developer, I want the shared engine to install automatically the first time I add any component, and only once, so that I never duplicate code.
-4. As a developer, I want zero new npm dependencies from dithercn components, so that my bundle and lockfile stay clean.
+4. As a developer, I want zero new npm dependencies from dotgrain components, so that my bundle and lockfile stay clean.
 5. As a developer, I want every component to work without a provider, using sensible defaults, so that I can drop one in anywhere.
 6. As a developer, I want to wrap my app in `DitherProvider` to set palette, pattern, cell size and mode once, so that every component matches.
 7. As a developer, I want to override any token on a single component through props, so that one section can look different.
@@ -101,7 +101,7 @@ dithercn is a library of React components where every visual is rendered as dith
 42. As a visitor, I want `/convert` to also give me the component code for the same settings, so that I can move from tool to code.
 43. As a visitor, I want a `/playground` to stack components into a page and export the code, so that I can prototype a whole layout.
 44. As a visitor, I want a changelog and "new" badges, so that I can see what's been added.
-45. As a visitor, I want a "Built with dithercn" showcase, so that I can see real sites using it.
+45. As a visitor, I want a "Built with dotgrain" showcase, so that I can see real sites using it.
 
 ### AI-assisted developer
 
@@ -109,23 +109,23 @@ dithercn is a library of React components where every visual is rendered as dith
 47. As an AI-assisted developer, I want the copy prompt to include my current knob settings, so that the agent reproduces the exact look.
 48. As an AI-assisted developer, I want "Open in Cursor", "Open in Claude" and "Open in ChatGPT" options, so that I can send the prompt straight to my tool.
 49. As an AI-assisted developer, I want an Open in v0 button on every free component, so that I can start a v0 chat with it.
-50. As an AI-assisted developer, I want an MCP page explaining the shadcn MCP server setup, so that my agent can list, search and install dithercn components by name.
+50. As an AI-assisted developer, I want an MCP page explaining the shadcn MCP server setup, so that my agent can list, search and install dotgrain components by name.
 51. As an AI agent, I want `llms.txt`, `llms-full.txt` and a Markdown version of every docs page, so that I can read the docs efficiently.
-52. As an AI agent, I want an installable agent skill describing when and how to use dithercn, so that I pick the right component and props.
+52. As an AI agent, I want an installable agent skill describing when and how to use dotgrain, so that I pick the right component and props.
 
 ### Pro customer
 
 53. As a buyer, I want a pricing page that clearly separates free and Pro, so that I know what I'm paying for.
 54. As a buyer, I want to pay through a checkout that handles tax and receipts, so that buying is simple.
 55. As a Pro customer, I want to receive a licence key right after purchase, so that I can start immediately.
-56. As a Pro customer, I want to add `@dithercn-pro` to `components.json` with my key from an environment variable, so that I can install Pro items with the same CLI.
+56. As a Pro customer, I want to add `@dotgrain-pro` to `components.json` with my key from an environment variable, so that I can install Pro items with the same CLI.
 57. As a Pro customer, I want clear CLI errors when my key is missing or invalid, so that I can fix setup myself.
 58. As a Pro customer, I want Pro docs pages to show live previews to everyone and code to me once my key is verified, so that I can browse before and after buying.
 59. As a Pro customer, I want MCP to work with Pro items too, so that my agent can install them.
 60. As a Pro customer, I want full templates (portfolio, SaaS launch, game studio, music) as complete repos, so that I can ship a site fast.
 61. As a team buyer, I want a team licence, so that my colleagues can use the same Pro items.
 
-### Accessibility and end users of sites built with dithercn
+### Accessibility and end users of sites built with dotgrain
 
 62. As a screen-reader user, I want decorative canvases hidden from assistive tech, so that I'm not read noise.
 63. As a screen-reader user, I want ASCII art to be announced as one labelled image, so that I'm not read thousands of characters.
@@ -133,7 +133,7 @@ dithercn is a library of React components where every visual is rendered as dith
 65. As a keyboard user, I want every interactive component to keep native focus, keyboard behaviour and visible focus rings, so that I can use it fully.
 66. As a user with motion sensitivity, I want animation to stop when I've set reduced motion, so that the site is comfortable.
 67. As a user with photosensitivity, I want no rapid flashing patterns, so that the site is safe to view.
-68. As a mobile user, I want effects to stay smooth and not drain my battery, so that sites built with dithercn are pleasant on phones.
+68. As a mobile user, I want effects to stay smooth and not drain my battery, so that sites built with dotgrain are pleasant on phones.
 
 ### Maintainer and contributor
 
@@ -153,7 +153,7 @@ dithercn is a library of React components where every visual is rendered as dith
 
 ### Product decisions
 
-- Name: **dithercn**. Public registry namespace `@dithercn`; Pro namespace `@dithercn-pro`.
+- Name: **dotgrain**. Public registry namespace `@dotgrain`; Pro namespace `@dotgrain-pro`.
 - Launch with dither and ASCII only. Halftone and pixel modes come later as new render modes of the same engine.
 - Free components: all primitives, controls, feedback, surfaces, media, data and basic blocks. Pro: premium block packs, full-page templates and complete starter repos. Growth-driving showcase pieces (`DitherImage`, `AsciiVideo`, `HeroTerminal`) stay free.
 - Licence: free code is **MIT**. Pro code ships under a separate commercial licence (per-person and team tiers, one-time payment). Pricing amounts are an open item.
@@ -251,9 +251,9 @@ Component behaviour decisions:
 
 ### Registry and distribution
 
-- `@dithercn/engine` is a `registry:lib` item. Every component is a `registry:ui` item with `registryDependencies: ["@dithercn/engine"]` and an empty `dependencies` list.
+- `@dotgrain/engine` is a `registry:lib` item. Every component is a `registry:ui` item with `registryDependencies: ["@dotgrain/engine"]` and an empty `dependencies` list.
 - Items carry `title`, a one-sentence `description` (reused for search, llms.txt and copy prompts), `categories` and `meta.modes`.
-- Three install forms are documented: namespaced, direct URL and GitHub. The namespace snippet maps `@dithercn` to `https://dithercn.com/r/{name}.json`.
+- Three install forms are documented: namespaced, direct URL and GitHub. The namespace snippet maps `@dotgrain` to `https://dotgrain.com/r/{name}.json`.
 - Free items are v0-compatible: no `cssVars` or `envVars`.
 - At launch, submit to the shadcn registry index, registry.directory and 21st.dev.
 - Item request counts are logged per registry item for analytics.
@@ -266,18 +266,18 @@ Component behaviour decisions:
 ### Docs site
 
 - Pages: landing (`HeroTerminal` plus a live component wall), docs (introduction, installation, theming and tokens, MCP, accessibility, one page per component), gallery, `/playground`, `/convert`, pricing, Pro docs, changelog, showcase, sponsors.
-- The whole site renders in dithercn and wraps everything in a provider driven by the global **style bar** (mode, pattern, palette, cell).
+- The whole site renders in dotgrain and wraps everything in a provider driven by the global **style bar** (mode, pattern, palette, cell).
 - Component page order: header with mode badges and actions (Copy prompt, Open in v0, GitHub); preview with knobs, replay, light/dark and width toggles; code tab reflecting knob state; install tabs (CLI and manual, package-manager switch); usage; examples (preset looks); props table; accessibility and performance notes.
 - Copy prompt template: add the namespace if missing; the install command; the usage snippet with current knob values; keep the API and customise via props and className; mark it as a client component. Primary action is "Copy prompt", with "Open in Cursor / Claude / ChatGPT" in a dropdown.
 - ⌘K search over component names, descriptions and categories, styled as a terminal prompt.
 - `/convert`: upload an image or logo; choose mode, pattern, palette and cell; download PNG (dither) or TXT and PNG (ASCII); copy the matching component code. Processing happens in the browser, and nothing is uploaded to a server.
 - `/playground`: stack sections and blocks, tune tokens, and export a page of JSX plus the install commands.
-- AI channels: `/llms.txt`, `/llms-full.txt`, a `.md` twin of every docs page, an MCP page (shadcn MCP server setup and example prompts, warning to use the `@dithercn/` prefix), and an installable agent skill.
+- AI channels: `/llms.txt`, `/llms-full.txt`, a `.md` twin of every docs page, an MCP page (shadcn MCP server setup and example prompts, warning to use the `@dotgrain/` prefix), and an installable agent skill.
 
 ### Pro
 
-- A private repo and deployment serves `@dithercn-pro` registry items from a route that requires `Authorization: Bearer <key>`. The route validates the key with the payment provider's licence API (cached) and returns 401 with a clear message when the key is missing or invalid.
-- Customer setup: put `DITHERCN_PRO_KEY` in `.env.local`, then map `@dithercn-pro` in `components.json` with the bearer header reading that variable.
+- A private repo and deployment serves `@dotgrain-pro` registry items from a route that requires `Authorization: Bearer <key>`. The route validates the key with the payment provider's licence API (cached) and returns 401 with a clear message when the key is missing or invalid.
+- Customer setup: put `DOTGRAIN_PRO_KEY` in `.env.local`, then map `@dotgrain-pro` in `components.json` with the bearer header reading that variable.
 - Pro docs pages live on the main site. Previews are public; code views call a verification endpoint with the user's key, which is stored only in that browser.
 - Templates are delivered as private GitHub repo access or a download, granted on purchase.
 - The licence allows use in unlimited end products and forbids redistributing or reselling the Pro source.
@@ -351,5 +351,5 @@ Post one component per day as a short screen recording on X before launch. Launc
 
 - Pricing for Pro (per-person and team, one-time).
 - Choice between Polar and Lemon Squeezy.
-- Domain confirmation (dithercn.com is assumed throughout).
+- Domain confirmation (dotgrain.com is assumed throughout).
 - Monospace and pixel display fonts for the site.

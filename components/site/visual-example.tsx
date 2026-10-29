@@ -1,7 +1,7 @@
 "use client";
 
-import { DitherProvider } from "@/lib/dithercn/provider";
-import type { Mode, PaletteName } from "@/lib/dithercn/types";
+import { DitherProvider } from "@/lib/dotgrain/provider";
+import type { Mode, PaletteName } from "@/lib/dotgrain/types";
 import { examples } from "@/registry/examples";
 
 /** One example frozen at time 0 in a given palette and mode, for screenshots. */

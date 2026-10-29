@@ -1,6 +1,6 @@
 "use client";
 
-import { DitherProvider } from "@/lib/dithercn/provider";
+import { DitherProvider } from "@/lib/dotgrain/provider";
 import { DitherField } from "@/registry/ui/dither-field";
 
 export default function DitherFieldProviderDemo() {
