@@ -16,4 +16,18 @@ export default {
     { name: "label", type: "string", description: "Announces the background as one image; omit when decorative." },
     { name: "children", type: "ReactNode", description: "Content rendered above the field as normal DOM." },
   ],
+  example: { props: { style: { height: 320 } }, children: "Hello" },
+  knobs: [
+    { name: "field", kind: "select", options: ["noise", "radial", "linear"], default: "noise" },
+    "mode",
+    "pattern",
+    "palette",
+    "glyphs",
+    "cell",
+    "speed",
+    "contrast",
+    "threshold",
+    { name: "interactive", kind: "boolean", default: true },
+    { name: "cursorRadius", kind: "range", min: 20, max: 400, step: 10, default: 120 },
+  ],
 } satisfies ComponentMeta;
