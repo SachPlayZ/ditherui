@@ -3,15 +3,16 @@ title: Dither Image
 description: Converts any image to dither or ASCII live, with the real image kept for accessibility.
 ---
 
-import DitherImageDemo from '@/registry/examples/dither-image-demo';
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
 
-<DitherImageDemo />
+<ComponentHeader name="dither-image" />
+
+<Playground name="dither-image" />
 
 ## Installation
 
-```bash
-npx shadcn@latest add https://dotgrain.space/r/dither-image.json
-```
+<Install name="dither-image" />
 
 ## Usage
 
@@ -26,3 +27,7 @@ import { DitherImage } from "@/components/ui/dither-image";
 ## Accessibility
 
 The real `<img alt>` stays in the DOM, visually hidden, for screen readers and search engines; the canvas is decorative. If the image's pixels can't be read (a cross-origin image without CORS headers), the plain image is shown instead.
+
+## Props
+
+<PropsTable name="dither-image" />
