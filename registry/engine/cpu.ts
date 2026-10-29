@@ -21,10 +21,14 @@ function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number
 
 /** Deterministic CPU dither render of a frame: RGBA bytes, width × height marks. */
 export function render(frame: Frame): Uint8ClampedArray<ArrayBuffer> {
-  const { tokens, width, height } = frame;
+  const { tokens, width, height, indices } = frame;
   const palette = resolvePalette(tokens.palette);
-  const { size, data: thresholds } = thresholdMap(tokens.pattern);
   const out = new Uint8ClampedArray(width * height * 4);
+  if (indices) {
+    indices.forEach((i, p) => out.set([...palette[i], 255], p * 4));
+    return out;
+  }
+  const { size, data: thresholds } = thresholdMap(tokens.pattern);
   eachValue(frame, width / height, (x, y, v) => {
     const t = thresholds[(y % size) * size + (x % size)];
     const [r, g, b] = palette[level(v, tokens.contrast, tokens.threshold, t, palette.length)];

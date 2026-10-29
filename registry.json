@@ -20,6 +20,11 @@
           "target": "lib/dotgrain/cpu.ts"
         },
         {
+          "path": "registry/engine/diffusion.ts",
+          "type": "registry:lib",
+          "target": "lib/dotgrain/diffusion.ts"
+        },
+        {
           "path": "registry/engine/fields.ts",
           "type": "registry:lib",
           "target": "lib/dotgrain/fields.ts"

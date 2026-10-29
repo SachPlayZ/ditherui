@@ -71,7 +71,8 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   if (!ctx) return;
   const g = getGL();
   if (source.kind === "video" || (source.kind === "image" && !frame.values)) return;
-  if (!g || g.isContextLost()) {
+  // Diffused frames are already quantized on the CPU, so they skip the GPU.
+  if (!g || g.isContextLost() || frame.indices) {
     if (ascii) drawGlyphs(ctx, frame, cellW, cellH);
     else ctx.putImageData(new ImageData(render(frame), cols, rows), 0, 0);
     return;

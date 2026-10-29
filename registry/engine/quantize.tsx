@@ -2,6 +2,7 @@
 
 import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } from "react";
 import { draw } from "./context";
+import { diffused, isDiffusion } from "./diffusion";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
 import { imageValues, watchImage } from "./images";
@@ -84,13 +85,19 @@ export function Quantize({
         const cursor = spot && ([...spot, cursorRadius / height] as [number, number, number, number]);
         if (w <= 0 || h <= 0) return;
         let values: Float32Array | undefined;
+        let indices: Uint8Array | undefined;
         if (source.kind === "image") {
           const result = imageValues(source.src, source.crossOrigin, w, h, width / height);
           if (result === "error") onError?.();
           if (typeof result === "string") return;
           values = result;
+          if (tokens.mode === "dither" && isDiffusion(tokens.pattern)) {
+            const { pattern, contrast, threshold, palette } = tokens;
+            indices = diffused(values, w, h, pattern, contrast, threshold, palette.length, () => view.current?.invalidate());
+            if (!indices) return;
+          }
         }
-        draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font, values });
+        draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font, values, indices });
       },
     });
     view.current = handle;

@@ -33,6 +33,8 @@ export interface Frame {
   time: number;
   /** Image sources: luminance 0–1 per mark, row-major, already fitted to width × height. */
   values?: Float32Array;
+  /** Palette index per mark, already quantized (error diffusion); drawn as-is. */
+  indices?: Uint8Array;
   /** Device pixel ratio (ASCII glyphs render at device resolution). */
   dpr?: number;
   /** Font family for ASCII glyphs. */

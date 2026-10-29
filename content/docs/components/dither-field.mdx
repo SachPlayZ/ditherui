@@ -70,7 +70,7 @@ import { DitherProvider } from "@/lib/dotgrain/provider";
 
 ## Patterns
 
-Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used.
+Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used. The error-diffusion patterns `atkinson` and `floyd` only apply to images; on a field they fall back to `bayer4` with a warning in development.
 
 <DitherFieldPatternsDemo />
 
