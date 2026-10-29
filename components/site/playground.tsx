@@ -10,9 +10,10 @@ import { components } from "@/registry/meta";
 import type { ComponentMeta, KnobMeta } from "@/registry/meta/types";
 import { DitherField } from "@/registry/ui/dither-field";
 import { DitherImage } from "@/registry/ui/dither-image";
+import { DitherProgress } from "@/registry/ui/dither-progress";
 
 // Each preview gets its meta example props plus knob values, so props are only known at runtime.
-const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage } as unknown as Record<
+const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress } as unknown as Record<
   string,
   ComponentType<Record<string, unknown> & { children?: ReactNode }>
 >;

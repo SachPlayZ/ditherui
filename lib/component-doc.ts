@@ -58,7 +58,7 @@ function attr(name: string, v: ExampleValue): string {
 /** Import plus JSX for the example with the tuned knob values. */
 export function snippet(meta: ComponentMeta, values: KnobValues): string {
   const Name = pascal(meta.name);
-  const attrs = Object.entries({ ...tuned(meta, values), ...meta.example.props }).map(([k, v]) => attr(k, v));
+  const attrs = Object.entries({ ...meta.example.props, ...tuned(meta, values) }).map(([k, v]) => attr(k, v));
   const multiline = attrs.length > 2;
   const open = multiline ? `<${Name}\n${attrs.map((a) => `  ${a}`).join("\n")}\n` : `<${Name}${attrs.map((a) => ` ${a}`).join("")}`;
   const children = meta.example.children;
