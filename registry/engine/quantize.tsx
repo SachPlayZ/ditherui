@@ -7,6 +7,7 @@ import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
 import { imageValues, videoValues, watchImage } from "./images";
+import { textValues } from "./text";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
@@ -78,6 +79,14 @@ export function Quantize({
     return () => events.forEach((e) => video.removeEventListener(e, wake));
   }, [video]);
 
+  const text = source.kind === "text" ? source.element : undefined;
+  useEffect(() => {
+    if (!text) return;
+    const observer = new MutationObserver(() => view.current?.invalidate());
+    observer.observe(text, { characterData: true, childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [text]);
+
   useEffect(() => {
     if (!interactive) return;
     const tracker = (pointer.current = trackPointer(canvas.current!, () => view.current?.invalidate()));
@@ -119,7 +128,9 @@ export function Quantize({
           const result =
             source.kind === "image"
               ? imageValues(source.src, source.crossOrigin, w, h, width / height)
-              : videoValues(source.element, w, h, width / height);
+              : source.kind === "video"
+                ? videoValues(source.element, w, h, width / height)
+                : textValues(source.element, w, h);
           if (result === "error") onError?.();
           if (typeof result === "string") return;
           values = result;

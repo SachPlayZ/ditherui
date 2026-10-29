@@ -82,7 +82,7 @@ export function videoValues(video: HTMLVideoElement, cols: number, rows: number,
 const scratches = new Map<boolean, CanvasRenderingContext2D | null>();
 
 /** Cover-fit a drawable into cols × rows: crop its longer side to the element's aspect. Throws if pixels can't be read. */
-function sample(source: CanvasImageSource, iw: number, ih: number, cols: number, rows: number, aspect: number, frequent: boolean): Float32Array {
+export function sample(source: CanvasImageSource, iw: number, ih: number, cols: number, rows: number, aspect: number, frequent: boolean): Float32Array {
   if (!scratches.has(frequent)) scratches.set(frequent, document.createElement("canvas").getContext("2d", { willReadFrequently: frequent }));
   const scratch = scratches.get(frequent);
   if (!scratch) throw new Error("no 2D context");

@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+// The first frame waits on a cold dev-server compile, slow when the whole suite runs in parallel.
+const LOAD = { timeout: 20_000 };
 const canvas = (page: Page) => page.locator("#visual canvas");
 const snapshot = (page: Page) => canvas(page).evaluate((c: HTMLCanvasElement) => c.toDataURL());
 const colors = (page: Page) =>
@@ -16,7 +18,7 @@ for (const mode of ["dither", "ascii"]) {
     test(`video source · ${mode}${cpu ? " · cpu" : ""}: still frame, plays, pauses`, async ({ page }) => {
       await page.goto(`/visual/video?mode=${mode}${cpu ? "&cpu=1" : ""}`);
       // The paused first frame draws once loaded.
-      await expect.poll(() => colors(page)).toBeGreaterThan(1);
+      await expect.poll(() => colors(page), LOAD).toBeGreaterThan(1);
 
       await video(page, "play");
       const playing = await snapshot(page);
@@ -34,7 +36,7 @@ for (const mode of ["dither", "ascii"]) {
 test("video source under reduced motion shows a static frame while playing", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/visual/video");
-  await expect.poll(() => colors(page)).toBeGreaterThan(1);
+  await expect.poll(() => colors(page), LOAD).toBeGreaterThan(1);
   await video(page, "play");
   await page.waitForTimeout(300);
   const first = await snapshot(page);

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { draw, drawGlyphs } from "@/lib/dotgrain/context";
 import { GLYPH_ASPECT } from "@/lib/dotgrain/glyphs";
+import { textValues } from "@/lib/dotgrain/text";
 import { render } from "@/lib/dotgrain/cpu";
 import { paletteColors } from "@/lib/dotgrain/palettes";
 import { DEFAULT_TOKENS } from "@/lib/dotgrain/provider";
@@ -80,6 +81,17 @@ export function Parity() {
         out.push({ fixture: `video/${mode}/t${time}`, mismatch: compare({ source: { kind: "video", element }, tokens, width, height, time: 0, values }) });
       }
     }
+    // Text masks are values too: rasterise a real laid-out paragraph.
+    const p = Object.assign(document.createElement("p"), { textContent: "Parity of laid-out text" });
+    p.style.cssText = "position:absolute;left:-9999px;width:300px;margin:0;font:700 40px/1.2 sans-serif";
+    document.body.append(p);
+    for (const mode of ["dither", "ascii"] as const) {
+      const [width, height] = mode === "ascii" ? [40, 20] : [150, 48];
+      const values = textValues(p, width, height);
+      const tokens = { ...DEFAULT_TOKENS, mode, cell: mode === "ascii" ? 12 : DEFAULT_TOKENS.cell, palette: paletteColors("ink") };
+      if (values !== "loading") out.push({ fixture: `text/${mode}`, mismatch: compare({ source: { kind: "text", element: p }, tokens, width, height, time: 0, values }) });
+    }
+    p.remove();
     pre.current!.textContent = JSON.stringify(out, null, 2);
   }, []);
   return (
