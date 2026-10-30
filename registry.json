@@ -345,6 +345,30 @@
           "ascii"
         ]
       }
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "A dithered shimmer placeholder block, sized with className or style.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither"
+        ]
+      }
     }
   ]
 }

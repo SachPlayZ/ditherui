@@ -106,9 +106,9 @@ export function Quantize({
         if (source.kind === "text" && source.scramble && tokens.speed > 0) return true;
         if (source.kind === "text" && source.reveal && performance.now() < source.reveal.start + source.reveal.duration) return true;
         if (source.kind !== "field") return !!pointer.current?.settling();
-        // Only noise, rain and spin change with time; other fields redraw on change, pointer movement or easing.
+        // radial, linear and progress ignore time: they redraw only on change, pointer movement or easing.
         return (
-          (tokens.speed > 0 && (source.field === "noise" || source.field === "rain" || source.field === "spin")) ||
+          (tokens.speed > 0 && source.field !== "radial" && source.field !== "linear" && source.field !== "progress") ||
           !!pointer.current?.settling() ||
           (ease && !!source.params && !!easer.current?.settling(source.params))
         );

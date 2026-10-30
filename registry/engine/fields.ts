@@ -14,10 +14,12 @@ const FIELD_PARAMS: Record<FieldName, Record<string, number>> = {
   rain: { density: 0.7, length: 0.4, columns: 1024 },
   // Ring radius and thickness in heights; turns once per second at speed 1.
   spin: { radius: 0.32, thickness: 0.16 },
+  // Resting level; band half-width as a share of the width. One sweep every ~1.7 s at speed 1.
+  shimmer: { base: 0.3, width: 0.25 },
 };
 
 /** Index the shader switches on. */
-export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3, rain: 4, spin: 5 };
+export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3, rain: 4, spin: 5, shimmer: 6 };
 
 /** Field params packed into the vec4 the shader reads, defaults filled in. */
 export function fieldParams(field: FieldName, params: Record<string, number> = {}): number[] {
@@ -64,6 +66,11 @@ float field(int kind, vec2 uv, float aspect, float t, vec4 params) {
     vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
     if (abs(length(p) - params.x) > params.y * 0.5) return 0.0;
     return fract(atan(p.y, p.x) / 6.2831853 + 0.5 - t);
+  }
+  if (kind == 6) {
+    // A slightly slanted bright band sweeping left to right over a flat base, off-screen between sweeps.
+    float d = abs(uv.x + uv.y * 0.15 - (fract(t * 0.6) * 1.8 - 0.4));
+    return params.x + (1.0 - params.x) * clamp(1.0 - d / max(params.y, 1e-4), 0.0, 1.0);
   }
   vec2 p = vec2(uv.x * aspect, uv.y) * params.x;
   float z = t * 0.25;
@@ -118,6 +125,10 @@ export function field(name: FieldName, u: number, v: number, aspect: number, t: 
     const px = (u - 0.5) * aspect, py = v - 0.5;
     if (Math.abs(Math.hypot(px, py) - params[0]) > params[1] * 0.5) return 0;
     return fract(Math.atan2(py, px) / 6.2831853 + 0.5 - t);
+  }
+  if (name === "shimmer") {
+    const d = Math.abs(u + v * 0.15 - (fract(t * 0.6) * 1.8 - 0.4));
+    return params[0] + (1 - params[0]) * clamp01(1 - d / Math.max(params[1], 1e-4));
   }
   const px = u * aspect * params[0], py = v * params[0], z = t * 0.25;
   return 0.65 * vnoise(px, py, z) + 0.35 * vnoise(px * 2 + 17, py * 2 + 17, z * 2);
