@@ -9,7 +9,7 @@ const at = (name: FieldName, u: number, v: number, params: Record<string, number
 
 describe("fields", () => {
   it("every field stays within 0–1", () => {
-    for (const name of ["noise", "radial", "linear", "progress", "rain"] as FieldName[]) {
+    for (const name of ["noise", "radial", "linear", "progress", "rain", "spin"] as FieldName[]) {
       for (let i = 0; i <= 20; i++) {
         const v = at(name, i / 20, (i * 7 % 21) / 20, {}, 1.7);
         expect(v, name).toBeGreaterThanOrEqual(0);
@@ -53,6 +53,15 @@ describe("fields", () => {
     const head = (t: number) => { const col = column(wet, t); return col.indexOf(Math.max(...col)); };
     expect(head(0.1)).not.toBe(head(0));
     expect(fieldParams("rain", {})).toEqual([0.7, 0.4, 1024, 0]);
+  });
+
+  it("spin draws a ring whose bright head turns with time", () => {
+    expect(at("spin", 0.5, 0.5)).toBe(0);
+    expect(at("spin", 0.95, 0.5)).toBe(0);
+    const ring = (t: number) => [0.18, 0.82].map((v) => field("spin", 0.5, v, 1, t, fieldParams("spin")));
+    expect(ring(0).some((v) => v > 0)).toBe(true);
+    expect(ring(0.25)).not.toEqual(ring(0));
+    expect(field("spin", 0.5, 0.18, 1, 1, fieldParams("spin"))).toBeCloseTo(ring(0)[0]);
   });
 
   it("packs params into vec4 slots with defaults", () => {

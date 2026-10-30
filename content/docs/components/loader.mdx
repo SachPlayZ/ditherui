@@ -1,0 +1,35 @@
+---
+title: Loader
+description: An indeterminate dither or ASCII spinner that announces its label as a status.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="loader" />
+
+<Playground name="loader" />
+
+## Installation
+
+<Install name="loader" />
+
+## Usage
+
+```tsx
+import { Loader } from "@/components/ui/loader";
+
+<Loader label="Loading results" size={64} />
+```
+
+A ring whose brightness sweeps round it, drawn by the engine's `spin` field. In ASCII mode give it room (about 100px or more at the default cell) so the ring has enough glyphs to read.
+
+## Accessibility and performance
+
+- The wrapper is `role="status"` with the label as visually hidden text, so screen readers announce it politely. The canvas is `aria-hidden`.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, the ring stops turning and shows a static frame.
+- It pauses offscreen and in hidden tabs; unmount it when loading finishes.
+
+## Props
+
+<PropsTable name="loader" />
