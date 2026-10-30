@@ -35,6 +35,7 @@ for p in "${paths[@]}"; do
 done
 if [ "$failed" = 1 ]; then cat "$LOG"; exit 1; fi
 
-# Search runs in the Worker too: a category query must find a component page.
-curl -s "localhost:$PORT/api/search?query=feedback" | grep -q '/docs/components/loader' || { echo "search API: no component hit"; cat "$LOG"; exit 1; }
+# The exported search index must include component pages and their categories.
+idx=$(curl -s "localhost:$PORT/api/search")
+grep -q '/docs/components/loader' <<<"$idx" && grep -q 'feedback' <<<"$idx" || { echo "search index: missing component or category"; cat "$LOG"; exit 1; }
 echo "search API OK"

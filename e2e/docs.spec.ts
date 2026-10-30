@@ -36,8 +36,8 @@ test("gallery links every component; landing shows the hero and a live tile per 
 
 test("⌘K opens a terminal search that finds components by category, keyboard only", async ({ page }) => {
   test.setTimeout(120_000);
-  // The dev server builds the search index on first request; warm it so the dialog's query isn't the one that waits.
-  expect((await page.request.get("/api/search?query=feedback", { timeout: 90_000 })).ok()).toBe(true);
+  // The dev server builds the search index on first request; warm it so the dialog's download isn't the one that waits.
+  expect((await page.request.get("/api/search", { timeout: 90_000 })).ok()).toBe(true);
   await page.goto("/docs");
   await expect(page.getByText("↑↓ move")).toBeHidden();
   const input = page.getByPlaceholder("grep components and docs…");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useDocsSearch } from "fumadocs-core/search/client";
-import { fetchClient } from "fumadocs-core/search/client/fetch";
+import { staticClient } from "fumadocs-core/search/client/orama-static";
 import {
   SearchDialog,
   SearchDialogClose,
@@ -14,7 +14,7 @@ import {
 } from "fumadocs-ui/components/dialog/search";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
 
-const client = fetchClient({ api: "/api/search" });
+const client = staticClient();
 
 /** ⌘K search styled as a terminal prompt; keyboard handling is fumadocs' own (arrows, Enter, Esc). */
 export function TerminalSearch(props: SharedProps) {
