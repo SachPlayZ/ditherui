@@ -31,10 +31,11 @@ export function TerminalSearch(props: SharedProps) {
           <SearchDialogClose />
         </SearchDialogHeader>
         <SearchDialogList />
+        {/* A plain div: it must sit inside the portalled content, or it renders on the page. */}
+        <SearchDialogFooter className="font-mono text-xs text-fd-muted-foreground">
+          ↑↓ move · ↵ open · esc exit — search by name, description or category
+        </SearchDialogFooter>
       </SearchDialogContent>
-      <SearchDialogFooter className="font-mono text-xs text-fd-muted-foreground">
-        ↑↓ move · ↵ open · esc exit — search by name, description or category
-      </SearchDialogFooter>
     </SearchDialog>
   );
 }

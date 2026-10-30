@@ -39,6 +39,7 @@ test("⌘K opens a terminal search that finds components by category, keyboard o
   // The dev server builds the search index on first request; warm it so the dialog's query isn't the one that waits.
   expect((await page.request.get("/api/search?query=feedback", { timeout: 90_000 })).ok()).toBe(true);
   await page.goto("/docs");
+  await expect(page.getByText("↑↓ move")).toBeHidden();
   const input = page.getByPlaceholder("grep components and docs…");
   // The hotkey only works once the page has hydrated, so retry it.
   await expect(async () => {
