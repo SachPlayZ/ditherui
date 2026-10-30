@@ -33,3 +33,20 @@ test("gallery links every component; landing shows the hero and a live tile per 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Grain for the web");
   await expect(page.locator("[inert]")).toHaveCount(components.length);
 });
+
+test("⌘K opens a terminal search that finds components by category, keyboard only", async ({ page }) => {
+  test.setTimeout(120_000);
+  // The dev server builds the search index on first request; warm it so the dialog's query isn't the one that waits.
+  expect((await page.request.get("/api/search?query=feedback", { timeout: 90_000 })).ok()).toBe(true);
+  await page.goto("/docs");
+  const input = page.getByPlaceholder("grep components and docs…");
+  // The hotkey only works once the page has hydrated, so retry it.
+  await expect(async () => {
+    if (!(await input.isVisible())) await page.keyboard.press("ControlOrMeta+k");
+    await expect(input).toBeFocused({ timeout: 1000 });
+  }).toPass({ timeout: 30_000 });
+  await input.fill("feedback");
+  await expect(page.getByRole("option").first()).toBeVisible({ timeout: 15_000 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/docs\/components\/(loader|skeleton|dither-progress)/);
+});
