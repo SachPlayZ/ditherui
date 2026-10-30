@@ -4,7 +4,7 @@ export type Mode = "dither" | "ascii";
 export type Pattern = "bayer2" | "bayer4" | "bayer8" | "blueNoise" | "atkinson" | "floyd";
 export type PaletteName = "ink" | "gameboy" | "amber" | "phosphor" | "cga" | "riso";
 export type GlyphRampName = "standard" | "blocks" | "binary" | "katakana";
-export type FieldName = "noise" | "radial" | "linear" | "progress" | "rain";
+export type FieldName = "noise" | "radial" | "linear" | "progress" | "rain" | "spin";
 
 export interface DitherTokens {
   mode: Mode;
