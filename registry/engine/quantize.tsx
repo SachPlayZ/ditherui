@@ -7,6 +7,7 @@ import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
 import { imageValues, videoValues, watchImage } from "./images";
+import { plotValues } from "./plot";
 import { revealAmount, revealed, scrambled, textValues } from "./text";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
@@ -132,7 +133,9 @@ export function Quantize({
               ? imageValues(source.src, source.crossOrigin, w, h, width / height)
               : source.kind === "video"
                 ? videoValues(source.element, w, h, width / height)
-                : textValues(source.element, w, h);
+                : source.kind === "plot"
+                  ? plotValues(source.series, source.type, w, h)
+                  : textValues(source.element, w, h);
           if (result === "error") onError?.();
           if (typeof result === "string") return;
           // ~12 new scrambles a second at speed 1.

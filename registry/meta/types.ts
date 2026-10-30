@@ -13,7 +13,7 @@ export type KnobMeta =
   | { name: string; kind: "range"; min: number; max: number; step: number; default: number }
   | { name: string; kind: "boolean"; default: boolean };
 
-export type ExampleValue = string | number | boolean | string[] | Record<string, string | number>;
+export type ExampleValue = string | number | boolean | string[] | number[] | Record<string, string | number>;
 
 /** Single source of truth for a component: feeds registry.json and its docs page. */
 export interface ComponentMeta {
@@ -21,7 +21,7 @@ export interface ComponentMeta {
   title: string;
   /** One plain sentence; reused for search, llms.txt and the copy prompt. */
   description: string;
-  category: "background" | "media" | "feedback" | "text" | "control" | "surface";
+  category: "background" | "media" | "feedback" | "text" | "control" | "surface" | "data";
   modes: Mode[];
   tier: "free";
   files: string[];
