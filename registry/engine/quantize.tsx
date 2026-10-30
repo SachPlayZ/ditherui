@@ -106,9 +106,9 @@ export function Quantize({
         if (source.kind === "text" && source.scramble && tokens.speed > 0) return true;
         if (source.kind === "text" && source.reveal && performance.now() < source.reveal.start + source.reveal.duration) return true;
         if (source.kind !== "field") return !!pointer.current?.settling();
-        // radial, linear and progress ignore time: they redraw only on change, pointer movement or easing.
+        // radial, linear, progress and frame ignore time: they redraw only on change, pointer movement or easing.
         return (
-          (tokens.speed > 0 && source.field !== "radial" && source.field !== "linear" && source.field !== "progress") ||
+          (tokens.speed > 0 && !["radial", "linear", "progress", "frame"].includes(source.field)) ||
           !!pointer.current?.settling() ||
           (ease && !!source.params && !!easer.current?.settling(source.params))
         );

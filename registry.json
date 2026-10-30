@@ -369,6 +369,55 @@
           "dither"
         ]
       }
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "A surface with a dither or ASCII border and optional fill around normal DOM children.",
+      "categories": [
+        "surface"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither",
+          "ascii"
+        ]
+      }
+    },
+    {
+      "name": "backdrop",
+      "type": "registry:ui",
+      "title": "Backdrop",
+      "description": "A dither texture behind a section or fixed behind the whole viewport, without affecting layout.",
+      "categories": [
+        "surface"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/backdrop.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither"
+        ]
+      }
     }
   ]
 }

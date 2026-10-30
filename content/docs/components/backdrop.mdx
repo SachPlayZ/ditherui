@@ -1,0 +1,43 @@
+---
+title: Backdrop
+description: A dither texture behind a section or fixed behind the whole viewport, without affecting layout.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="backdrop" />
+
+<Playground name="backdrop" />
+
+## Installation
+
+<Install name="backdrop" />
+
+## Usage
+
+```tsx
+import { Backdrop } from "@/components/ui/backdrop";
+
+// Behind one section
+<Backdrop contrast={0.6}>
+  <section>…</section>
+</Backdrop>
+
+// Behind the whole page
+<Backdrop fixed field="radial" contrast={0.4}>
+  {children}
+</Backdrop>
+```
+
+By default the texture fills the Backdrop's own box. With `fixed` it covers the viewport behind everything (`z-index: -1`), so give the page a transparent background. Lower `contrast` keeps it quiet behind content.
+
+## Accessibility and performance
+
+- The canvas is absolutely or fixed positioned, so it never shifts layout, and it ignores the pointer when fixed. It is `aria-hidden` unless you pass `label`.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, animated fields stop on a static frame. Static fields (`radial`, `linear`) draw only on resize.
+- A section backdrop pauses when scrolled offscreen.
+
+## Props
+
+<PropsTable name="backdrop" />

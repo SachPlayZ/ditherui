@@ -16,10 +16,12 @@ const FIELD_PARAMS: Record<FieldName, Record<string, number>> = {
   spin: { radius: 0.32, thickness: 0.16 },
   // Resting level; band half-width as a share of the width. One sweep every ~1.7 s at speed 1.
   shimmer: { base: 0.3, width: 0.25 },
+  // Border width in marks (whole cells in ASCII), fading inward; the level inside it.
+  frame: { border: 2, fill: 0 },
 };
 
 /** Index the shader switches on. */
-export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3, rain: 4, spin: 5, shimmer: 6 };
+export const FIELD_IDS: Record<FieldName, number> = { noise: 0, radial: 1, linear: 2, progress: 3, rain: 4, spin: 5, shimmer: 6, frame: 7 };
 
 /** Field params packed into the vec4 the shader reads, defaults filled in. */
 export function fieldParams(field: FieldName, params: Record<string, number> = {}): number[] {
@@ -72,6 +74,13 @@ float field(int kind, vec2 uv, float aspect, float t, vec4 params) {
     float d = abs(uv.x + uv.y * 0.15 - (fract(t * 0.6) * 1.8 - 0.4));
     return params.x + (1.0 - params.x) * clamp(1.0 - d / max(params.y, 1e-4), 0.0, 1.0);
   }
+  if (kind == 7) {
+    // uSize is the mark grid of whichever program includes this, so the border is counted in marks.
+    // The border fades inward from full so dither shows in it.
+    vec2 m = uv * uSize;
+    float d = min(min(m.x, uSize.x - m.x), min(m.y, uSize.y - m.y));
+    return d < params.x ? 1.0 - 0.6 * d / params.x : params.y;
+  }
   vec2 p = vec2(uv.x * aspect, uv.y) * params.x;
   float z = t * 0.25;
   return 0.65 * vnoise(vec3(p, z)) + 0.35 * vnoise(vec3(p * 2.0 + 17.0, z * 2.0));
@@ -107,7 +116,7 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const fract = (x: number) => x - Math.floor(x);
 
 /** JS twin of the GLSL `field`: value 0–1 at uv for the given time. */
-export function field(name: FieldName, u: number, v: number, aspect: number, t: number, params: number[]): number {
+export function field(name: FieldName, u: number, v: number, aspect: number, t: number, params: number[], size: [number, number] = [1, 1]): number {
   if (name === "radial") return clamp01(1 - Math.hypot((u - params[0]) * aspect, v - params[1]) / params[2]);
   if (name === "linear") {
     const a = (params[0] * Math.PI) / 180;
@@ -129,6 +138,11 @@ export function field(name: FieldName, u: number, v: number, aspect: number, t: 
   if (name === "shimmer") {
     const d = Math.abs(u + v * 0.15 - (fract(t * 0.6) * 1.8 - 0.4));
     return params[0] + (1 - params[0]) * clamp01(1 - d / Math.max(params[1], 1e-4));
+  }
+  if (name === "frame") {
+    const [w, h] = size, x = u * w, y = v * h;
+    const d = Math.min(x, w - x, y, h - y);
+    return d < params[0] ? 1 - (0.6 * d) / params[0] : params[1];
   }
   const px = u * aspect * params[0], py = v * params[0], z = t * 0.25;
   return 0.65 * vnoise(px, py, z) + 0.35 * vnoise(px * 2 + 17, py * 2 + 17, z * 2);
