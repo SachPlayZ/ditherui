@@ -14,6 +14,7 @@ const ASCII_UNIFORMS = [...SHARED, "uCell", "uAspect", "uGlyphs", "uAtlas"];
 let gl: WebGL2RenderingContext | null | undefined;
 let glCanvas: HTMLCanvasElement;
 let textures = new WeakMap<object, WebGLTexture>();
+const LIVE = {};
 
 // One WebGL2 context per page, shared by every view (browsers cap live contexts at ~16).
 function getGL(): WebGL2RenderingContext | null {
@@ -70,8 +71,9 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const g = getGL();
-  if (source.kind === "video" || (source.kind === "image" && !frame.values)) return;
-  if (!g || g.isContextLost()) {
+  if (source.kind !== "field" && !frame.values) return;
+  // Diffused frames are already quantized on the CPU, so they skip the GPU.
+  if (!g || g.isContextLost() || frame.indices) {
     if (ascii) drawGlyphs(ctx, frame, cellW, cellH);
     else ctx.putImageData(new ImageData(render(frame), cols, rows), 0, 0);
     return;
@@ -90,9 +92,13 @@ export function draw(canvas: HTMLCanvasElement, frame: Frame): void {
     g.uniform4fv(u.uParams, fieldParams(source.field, source.params));
   } else {
     const values = frame.values!;
+    const upload = () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values);
     g.uniform1i(u.uField, -1);
     g.activeTexture(g.TEXTURE1);
-    g.bindTexture(g.TEXTURE_2D, texture(g, values, () => g.texImage2D(g.TEXTURE_2D, 0, g.R32F, cols, rows, 0, g.RED, g.FLOAT, values)));
+    // Image and text values are cached per size; video frames, scrambles and reveals change every draw, so they share one texture re-uploaded each time.
+    const live = source.kind === "video" || (source.kind === "text" && !!(source.scramble || source.reveal));
+    g.bindTexture(g.TEXTURE_2D, texture(g, live ? LIVE : values, upload));
+    if (live) upload();
   }
   g.uniform1i(u.uValues, 1);
   g.uniform4fv(u.uCursor, frame.cursor ?? [0, 0, 0, 0]);
@@ -142,7 +148,7 @@ function tinted(atlas: HTMLCanvasElement, [r, g, b]: RGB): HTMLCanvasElement {
 }
 
 /** Canvas2D twin of the ASCII shader: background fill, then one tinted glyph per cell. */
-function drawGlyphs(ctx: CanvasRenderingContext2D, frame: Frame, cellW: number, cellH: number): void {
+export function drawGlyphs(ctx: CanvasRenderingContext2D, frame: Frame, cellW: number, cellH: number): void {
   const { width: cols, height: rows, tokens } = frame;
   const palette = resolvePalette(tokens.palette);
   const atlas = glyphAtlas(rampGlyphs(tokens.glyphs), cellW, cellH, frame.font ?? DEFAULT_FONT);

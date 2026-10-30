@@ -1,0 +1,43 @@
+---
+title: Hero Terminal
+description: A hero block with a headline, description and CTA slot beside a typing Terminal over a dither Backdrop.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="hero-terminal" />
+
+<Playground name="hero-terminal" />
+
+## Installation
+
+<Install name="hero-terminal" />
+
+Installing the block also installs [Terminal](/docs/components/terminal), [Backdrop](/docs/components/backdrop) and the engine.
+
+## Usage
+
+```tsx
+import { HeroTerminal } from "@/components/ui/hero-terminal";
+import { Button } from "@/components/ui/button";
+
+<HeroTerminal
+  title="Grain for the web"
+  description="Dither and ASCII components for React."
+  actions={<Button size="lg">Get started</Button>}
+  lines={["$ npx shadcn@latest add @dotgrain/hero-terminal", "✔ Done."]}
+/>
+```
+
+Copy sits on a solid panel in the palette's background colour, beside the Terminal, over a low-contrast Backdrop. The two columns wrap to one on narrow screens without media queries.
+
+## Accessibility and performance
+
+- The headline is a real `h1`; the description, actions and terminal lines are normal DOM. Both canvases are `aria-hidden`.
+- Typing is skipped and the backdrop freezes under `prefers-reduced-motion: reduce`.
+- The backdrop and terminal frame share the page's single WebGL context and pause offscreen.
+
+## Props
+
+<PropsTable name="hero-terminal" />

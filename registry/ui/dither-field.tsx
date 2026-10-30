@@ -5,7 +5,7 @@ import { Quantize } from "@/lib/dotgrain/quantize";
 import type { DitherTokens, FieldName } from "@/lib/dotgrain/types";
 
 export type DitherFieldProps = Partial<DitherTokens> & {
-  field?: Exclude<FieldName, "progress">;
+  field?: Exclude<FieldName, "progress" | "rain" | "spin" | "shimmer" | "frame">;
   /** Field parameters, e.g. `{ scale: 3 }` for noise or `{ angle: 90 }` for linear. */
   params?: Record<string, number>;
   /** Brighten a soft spot under the pointer (mouse and touch). Off under reduced motion. */

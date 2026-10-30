@@ -15,4 +15,10 @@ export default {
     { name: "height", type: "number", description: "Intrinsic height; with `width` it reserves the aspect ratio." },
     { name: "crossOrigin", type: '"anonymous"', description: "Request the image with CORS so its pixels can be read." },
   ],
+  example: { props: { src: "/examples/landscape.svg", alt: "A sun setting behind mountains over the sea", width: 1200, height: 800 } },
+  knobs: [
+    "mode",
+    // Error diffusion is image-only, so only this component offers it.
+    { name: "pattern", kind: "select", options: ["bayer2", "bayer4", "bayer8", "blueNoise", "atkinson", "floyd"], default: "bayer4" },
+    "palette", "glyphs", "cell", "contrast", "threshold"],
 } satisfies ComponentMeta;

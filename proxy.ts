@@ -12,6 +12,11 @@ const { rewrite: rewriteSuffix } = rewritePath(
 );
 
 export default function proxy(request: NextRequest) {
+  // www.dotgrain.space is routed to this Worker only to send visitors to the apex.
+  if (request.headers.get('host') === 'www.dotgrain.space') {
+    return NextResponse.redirect(`https://dotgrain.space${request.nextUrl.pathname}${request.nextUrl.search}`, 301);
+  }
+
   const result = rewriteSuffix(request.nextUrl.pathname);
   if (result) {
     return NextResponse.rewrite(new URL(result, request.nextUrl));

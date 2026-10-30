@@ -1,0 +1,53 @@
+---
+title: Installation
+description: Add dotgrain components to a React project with the shadcn CLI.
+---
+
+dotgrain is a shadcn registry, not an npm package. You need a project set up for shadcn (a `components.json` and the `@/` import alias); run `npx shadcn@latest init` if you don't have one.
+
+## Namespaced (recommended)
+
+Add the registry to `components.json` once:
+
+```json title="components.json"
+{
+  "registries": {
+    "@dotgrain": "https://dotgrain.space/r/{name}.json"
+  }
+}
+```
+
+Then add components by name:
+
+```bash
+npx shadcn@latest add @dotgrain/dither-field
+```
+
+## Direct URL
+
+No configuration needed:
+
+```bash
+npx shadcn@latest add https://dotgrain.space/r/dither-field.json
+```
+
+## What gets installed
+
+- The component in `components/ui/`, e.g. `components/ui/dither-field.tsx`.
+- The engine in `lib/dotgrain/`, installed once and shared by every component.
+- No npm dependencies: the engine is plain WebGL2 and Canvas2D.
+
+Components are client components (`"use client"`). Render them from server components as usual; they hydrate on the client.
+
+## Font for ASCII
+
+ASCII glyphs are drawn with `"JetBrains Mono", ui-monospace, monospace` by default. The engine ships no font files, so load one yourself, e.g. with `next/font`, and pass its family to the provider:
+
+```tsx title="app/layout.tsx"
+import { JetBrains_Mono } from "next/font/google";
+import { DitherProvider } from "@/lib/dotgrain/provider";
+
+const mono = JetBrains_Mono({ subsets: ["latin"] });
+
+<DitherProvider font={mono.style.fontFamily}>{children}</DitherProvider>
+```

@@ -2,9 +2,13 @@
 
 import { useEffect, useImperativeHandle, useRef, type CSSProperties, type Ref } from "react";
 import { draw } from "./context";
+import { diffused, isDiffusion } from "./diffusion";
+import { createEaser, type Easer } from "./ease";
 import { INK_PALETTES, paletteColors } from "./palettes";
 import { GLYPH_ASPECT } from "./glyphs";
-import { imageValues, watchImage } from "./images";
+import { imageValues, videoValues, watchImage } from "./images";
+import { plotValues } from "./plot";
+import { revealAmount, revealed, scrambled, textValues } from "./text";
 import { trackPointer, type PointerTracker } from "./pointer";
 import { useColorScheme, useDitherFont, useDitherTokens } from "./provider";
 import { getScheduler, type ViewHandle } from "./scheduler";
@@ -18,7 +22,9 @@ export type QuantizeProps = Partial<DitherTokens> & {
   interactive?: boolean;
   /** Radius of the pointer spot in CSS pixels. */
   cursorRadius?: number;
-  /** Called when an image source can't be loaded or read (e.g. a cross-origin image without CORS). */
+  /** Ease changes to the field's numeric params (e.g. a progress value) instead of jumping; snaps under reduced motion. */
+  ease?: boolean;
+  /** Called when an image or video source can't be loaded or read (e.g. cross-origin media without CORS). */
   onError?: () => void;
   className?: string;
   style?: CSSProperties;
@@ -30,6 +36,7 @@ export function Quantize({
   label,
   interactive = false,
   cursorRadius = 120,
+  ease = false,
   onError,
   className,
   style,
@@ -48,12 +55,13 @@ export function Quantize({
     merged.palette === "ink" && preference === "system"
       ? `light-dark(${INK_PALETTES.light[0]}, ${INK_PALETTES.dark[0]})`
       : colors[0];
-  const latest = useRef({ source, tokens, cursorRadius, font, onError });
+  const latest = useRef({ source, tokens, cursorRadius, font, onError, ease });
+  const easer = useRef<Easer>(null);
   const view = useRef<ViewHandle>(null);
   const pointer = useRef<PointerTracker>(null);
   useImperativeHandle(ref, () => canvas.current!, []);
   useEffect(() => {
-    latest.current = { source, tokens, cursorRadius, font, onError };
+    latest.current = { source, tokens, cursorRadius, font, onError, ease };
     view.current?.invalidate();
   });
 
@@ -61,6 +69,24 @@ export function Quantize({
   useEffect(() => {
     if (image) return watchImage(image.src, image.crossOrigin, () => view.current?.invalidate());
   }, [image?.src, image?.crossOrigin]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const video = source.kind === "video" ? source.element : undefined;
+  useEffect(() => {
+    if (!video) return;
+    // Paused videos draw on demand: a new frame, seek, play (restarts the loop) or pause.
+    const events = ["loadeddata", "seeked", "play", "pause", "error"];
+    const wake = () => view.current?.invalidate();
+    events.forEach((e) => video.addEventListener(e, wake));
+    return () => events.forEach((e) => video.removeEventListener(e, wake));
+  }, [video]);
+
+  const text = source.kind === "text" ? source.element : undefined;
+  useEffect(() => {
+    if (!text) return;
+    const observer = new MutationObserver(() => view.current?.invalidate());
+    observer.observe(text, { characterData: true, childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [text]);
 
   useEffect(() => {
     if (!interactive) return;
@@ -75,22 +101,54 @@ export function Quantize({
     const element = canvas.current!;
     const handle = getScheduler().add({
       element,
-      animated: () => (latest.current.tokens.speed > 0 && latest.current.source.kind === "field") || !!pointer.current?.settling(),
+      animated: () => {
+        const { source, tokens, ease } = latest.current;
+        if (source.kind === "video" && !source.element.paused && !source.element.ended) return true;
+        if (source.kind === "text" && source.scramble && tokens.speed > 0) return true;
+        if (source.kind === "text" && source.reveal && performance.now() < source.reveal.start + source.reveal.duration) return true;
+        if (source.kind !== "field") return !!pointer.current?.settling();
+        // radial, linear, progress and frame ignore time: they redraw only on change, pointer movement or easing.
+        return (
+          (tokens.speed > 0 && !["radial", "linear", "progress", "frame"].includes(source.field)) ||
+          !!pointer.current?.settling() ||
+          (ease && !!source.params && !!easer.current?.settling(source.params))
+        );
+      },
       render({ seconds, width, height, dpr, still }) {
-        const { source, tokens, cursorRadius, font, onError } = latest.current;
+        const { tokens, cursorRadius, font, onError, ease } = latest.current;
+        let { source } = latest.current;
+        if (ease && source.kind === "field" && source.params) {
+          source = { ...source, params: (easer.current ??= createEaser()).step(source.params, seconds, still) };
+        }
         const w = Math.round(width / (tokens.mode === "ascii" ? tokens.cell * GLYPH_ASPECT : tokens.cell));
         const h = Math.round(height / tokens.cell);
         const spot = pointer.current && !still ? pointer.current.step(seconds) : undefined;
         const cursor = spot && ([...spot, cursorRadius / height] as [number, number, number, number]);
         if (w <= 0 || h <= 0) return;
         let values: Float32Array | undefined;
-        if (source.kind === "image") {
-          const result = imageValues(source.src, source.crossOrigin, w, h, width / height);
+        let indices: Uint8Array | undefined;
+        if (source.kind !== "field") {
+          const result =
+            source.kind === "image"
+              ? imageValues(source.src, source.crossOrigin, w, h, width / height)
+              : source.kind === "video"
+                ? videoValues(source.element, w, h, width / height)
+                : source.kind === "plot"
+                  ? plotValues(source.series, source.type, w, h)
+                  : textValues(source.element, w, h);
           if (result === "error") onError?.();
           if (typeof result === "string") return;
-          values = result;
+          // ~12 new scrambles a second at speed 1.
+          values = source.kind === "text" && source.scramble ? scrambled(result, source.scramble, Math.floor(seconds * tokens.speed * 12)) : result;
+          if (source.kind === "text" && source.reveal) values = revealed(values, revealAmount(source.reveal, seconds * 1000, still));
+          // Error diffusion is for still images; video falls back to an ordered pattern.
+          if (source.kind === "image" && tokens.mode === "dither" && isDiffusion(tokens.pattern)) {
+            const { pattern, contrast, threshold, palette } = tokens;
+            indices = diffused(values, w, h, pattern, contrast, threshold, palette.length, () => view.current?.invalidate());
+            if (!indices) return;
+          }
         }
-        draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font, values });
+        draw(element, { source, tokens, width: w, height: h, time: seconds * tokens.speed, cursor, dpr, font, values, indices });
       },
     });
     view.current = handle;

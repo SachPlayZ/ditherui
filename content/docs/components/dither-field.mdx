@@ -4,20 +4,21 @@ description: An animated dithered background field with real DOM content on top.
 ---
 
 import DitherFieldAsciiDemo from '@/registry/examples/dither-field-ascii-demo';
-import DitherFieldDemo from '@/registry/examples/dither-field-demo';
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
 import DitherFieldFieldsDemo from '@/registry/examples/dither-field-fields-demo';
 import DitherFieldPatternsDemo from '@/registry/examples/dither-field-patterns-demo';
 import DitherFieldProviderDemo from '@/registry/examples/dither-field-provider-demo';
 
-<DitherFieldDemo />
+<ComponentHeader name="dither-field" />
+
+<Playground name="dither-field" />
 
 Move the pointer over it: a soft spot brightens under the cursor (and under a finger on touch screens). Turn it off with `interactive={false}`; it is always off under reduced motion.
 
 ## Installation
 
-```bash
-npx shadcn@latest add https://dotgrain.space/r/dither-field.json
-```
+<Install name="dither-field" />
 
 ## Usage
 
@@ -33,7 +34,9 @@ import { DitherField } from "@/components/ui/dither-field";
 
 `noise` (`scale`), `radial` (`x`, `y`, `radius`) and `linear` (`angle` in degrees), tuned with `params`.
 
-<DitherFieldFieldsDemo />
+<Preview>
+  <DitherFieldFieldsDemo />
+</Preview>
 
 ```tsx
 <DitherField field="noise" params={{ scale: 6 }} />
@@ -45,7 +48,9 @@ import { DitherField } from "@/components/ui/dither-field";
 
 Set `mode="ascii"` to draw glyphs instead of pixels. `glyphs` takes a ramp name (`standard`, `blocks`, `binary`, `katakana`) or your own string, ordered background → foreground. With 3–4 colours, glyphs are tinted by brightness band.
 
-<DitherFieldAsciiDemo />
+<Preview>
+  <DitherFieldAsciiDemo />
+</Preview>
 
 ```tsx
 <DitherField mode="ascii" />
@@ -56,7 +61,9 @@ Set `mode="ascii"` to draw glyphs instead of pixels. `glyphs` takes a ramp name 
 
 Set tokens once with `DitherProvider`; any prop overrides them for one component. Here the provider sets `gameboy`, and the right field overrides it with `amber` and `bayer8`.
 
-<DitherFieldProviderDemo />
+<Preview>
+  <DitherFieldProviderDemo />
+</Preview>
 
 ```tsx
 import { DitherProvider } from "@/lib/dotgrain/provider";
@@ -69,12 +76,24 @@ import { DitherProvider } from "@/lib/dotgrain/provider";
 
 ## Patterns
 
-Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used.
+Ordered patterns run on the GPU. `blueNoise` is generated the first time it is used. The error-diffusion patterns `atkinson` and `floyd` only apply to images; on a field they fall back to `bayer4` with a warning in development.
 
-<DitherFieldPatternsDemo />
+<Preview>
+  <DitherFieldPatternsDemo />
+</Preview>
 
 ## Fallbacks
 
 - **No WebGL2:** the field renders through a Canvas2D path in both modes, matching the GPU output. In development, add `?cpu=1` to any URL to force it.
 - **Context loss:** while the GPU context is lost, views draw on the CPU; once it is restored, programs and textures rebuild and every view redraws without remounting.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, the field draws one static frame with no animation and no cursor spot.
+
+## Accessibility and performance
+
+- The canvas is `aria-hidden`; children stay real DOM text. Pass `label` only when the field itself conveys meaning, which announces it as one image.
+- Animation runs on one shared requestAnimationFrame loop, pauses offscreen and in hidden tabs, and freezes to a still frame under reduced motion. `radial` and `linear` fields only redraw when something changes.
+- The field renders at quantized resolution (size ÷ `cell`) and is upscaled with crisp pixels; device pixel ratio is capped at 2.
+
+## Props
+
+<PropsTable name="dither-field" />

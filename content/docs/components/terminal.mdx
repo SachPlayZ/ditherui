@@ -1,0 +1,35 @@
+---
+title: Terminal
+description: Command lines as real DOM text inside an ASCII frame, with an optional typing effect.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="terminal" />
+
+<Playground name="terminal" />
+
+## Installation
+
+<Install name="terminal" />
+
+## Usage
+
+```tsx
+import { Terminal } from "@/components/ui/terminal";
+
+<Terminal typing lines={["$ pnpm build", "✔ Compiled in 1.2s"]} />
+```
+
+Lines render in a monospace font (the provider's `font`, else the system monospace) inside a one-glyph ASCII frame. `typing` reveals the existing text character by character at `rate` × `speed` characters per second.
+
+## Accessibility and performance
+
+- Every line is real DOM text from the first render. Typing only makes untyped characters transparent, so screen readers, copy and layout always get the full text, and the server HTML shows it all.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, typing is skipped.
+- The frame is a static `aria-hidden` canvas that redraws only on resize; typing is plain React state, not canvas work.
+
+## Props
+
+<PropsTable name="terminal" />

@@ -7,13 +7,12 @@ import type { Frame } from "./types";
 /** Calls back with the source value (0–1 plus cursor) at every mark's centre. */
 function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number, v: number) => void): void {
   const { source, width, height, time, cursor = [0, 0, 0, 0], values } = frame;
-  if (source.kind === "video") throw new Error('dotgrain: "video" sources are not supported yet');
-  if (source.kind === "image" && !values) throw new Error("dotgrain: image frames need `values`");
+  if (source.kind !== "field" && !values) throw new Error(`dotgrain: ${source.kind} frames need \`values\``);
   const params = source.kind === "field" ? fieldParams(source.field, source.params) : [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const u = (x + 0.5) / width, w = (y + 0.5) / height;
-      const v = source.kind === "field" ? field(source.field, u, w, aspect, time, params) : values![y * width + x];
+      const v = source.kind === "field" ? field(source.field, u, w, aspect, time, params, [width, height]) : values![y * width + x];
       callback(x, y, v + cursorBump(u, w, aspect, cursor));
     }
   }
@@ -21,10 +20,14 @@ function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number
 
 /** Deterministic CPU dither render of a frame: RGBA bytes, width × height marks. */
 export function render(frame: Frame): Uint8ClampedArray<ArrayBuffer> {
-  const { tokens, width, height } = frame;
+  const { tokens, width, height, indices } = frame;
   const palette = resolvePalette(tokens.palette);
-  const { size, data: thresholds } = thresholdMap(tokens.pattern);
   const out = new Uint8ClampedArray(width * height * 4);
+  if (indices) {
+    indices.forEach((i, p) => out.set([...palette[i], 255], p * 4));
+    return out;
+  }
+  const { size, data: thresholds } = thresholdMap(tokens.pattern);
   eachValue(frame, width / height, (x, y, v) => {
     const t = thresholds[(y % size) * size + (x % size)];
     const [r, g, b] = palette[level(v, tokens.contrast, tokens.threshold, t, palette.length)];

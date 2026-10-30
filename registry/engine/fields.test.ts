@@ -9,7 +9,7 @@ const at = (name: FieldName, u: number, v: number, params: Record<string, number
 
 describe("fields", () => {
   it("every field stays within 0–1", () => {
-    for (const name of ["noise", "radial", "linear", "progress"] as FieldName[]) {
+    for (const name of ["noise", "radial", "linear", "progress", "rain", "spin", "shimmer", "frame"] as FieldName[]) {
       for (let i = 0; i <= 20; i++) {
         const v = at(name, i / 20, (i * 7 % 21) / 20, {}, 1.7);
         expect(v, name).toBeGreaterThanOrEqual(0);
@@ -40,6 +40,43 @@ describe("fields", () => {
     expect(at("progress", 0.6, 0.5, { value: 0.6 })).toBe(0.5);
     expect(at("progress", 0.62, 0.5, { value: 0.6, softness: 0.1 })).toBeGreaterThan(0);
     expect(at("progress", 0.61, 0.5, { value: 0.6, softness: 0 })).toBe(0);
+  });
+
+  it("rain falls over time and leaves some columns dry", () => {
+    const params = fieldParams("rain", { columns: 10, density: 0.5 });
+    const column = (c: number, t: number) => Array.from({ length: 40 }, (_, i) => field("rain", (c + 0.5) / 10, i / 40, 1, t, params));
+    const dry = Array.from({ length: 10 }, (_, c) => column(c, 0).every((v) => v === 0));
+    expect(dry.some(Boolean)).toBe(true);
+    expect(dry.every(Boolean)).toBe(false);
+    const wet = dry.indexOf(false);
+    // The brightest mark (the head) moves down as time advances.
+    const head = (t: number) => { const col = column(wet, t); return col.indexOf(Math.max(...col)); };
+    expect(head(0.1)).not.toBe(head(0));
+    expect(fieldParams("rain", {})).toEqual([0.7, 0.4, 1024, 0]);
+  });
+
+  it("spin draws a ring whose bright head turns with time", () => {
+    expect(at("spin", 0.5, 0.5)).toBe(0);
+    expect(at("spin", 0.95, 0.5)).toBe(0);
+    const ring = (t: number) => [0.18, 0.82].map((v) => field("spin", 0.5, v, 1, t, fieldParams("spin")));
+    expect(ring(0).some((v) => v > 0)).toBe(true);
+    expect(ring(0.25)).not.toEqual(ring(0));
+    expect(field("spin", 0.5, 0.18, 1, 1, fieldParams("spin"))).toBeCloseTo(ring(0)[0]);
+  });
+
+  it("shimmer sweeps a bright band over a flat base", () => {
+    const row = (t: number) => Array.from({ length: 21 }, (_, i) => field("shimmer", i / 20, 0.5, 1, t, fieldParams("shimmer")));
+    expect(Math.min(...row(0.8))).toBeCloseTo(0.3);
+    expect(Math.max(...row(0.8))).toBeGreaterThan(0.9);
+    const peak = (t: number) => row(t).indexOf(Math.max(...row(t)));
+    expect(peak(1)).toBeGreaterThan(peak(0.8));
+  });
+
+  it("frame lights a border counted in marks around a fill level", () => {
+    const at = (x: number, y: number) => field("frame", (x + 0.5) / 40, (y + 0.5) / 20, 2, 0, fieldParams("frame", { border: 2, fill: 0.2 }), [40, 20]);
+    expect([at(0, 10), at(39, 10), at(20, 19)]).toEqual([0.85, 0.85, 0.85]);
+    expect(at(1, 10)).toBeCloseTo(0.55);
+    expect([at(2, 10), at(20, 2), at(20, 10)]).toEqual([0.2, 0.2, 0.2]);
   });
 
   it("packs params into vec4 slots with defaults", () => {

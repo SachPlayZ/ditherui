@@ -84,3 +84,14 @@ export function useColorScheme(): { preference: ColorScheme; scheme: Scheme } {
   const system = useSyncExternalStore(subscribeScheme, systemScheme, () => "light" as Scheme);
   return { preference: colorScheme, scheme: colorScheme === "system" ? system : colorScheme };
 }
+
+const motion = () => matchMedia("(prefers-reduced-motion: reduce)");
+const subscribeMotion = (cb: () => void) => {
+  motion().addEventListener("change", cb);
+  return () => motion().removeEventListener("change", cb);
+};
+
+/** Live `prefers-reduced-motion: reduce`; false during SSR. */
+export function useReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeMotion, () => motion().matches, () => false);
+}

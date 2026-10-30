@@ -1,0 +1,38 @@
+---
+title: Skeleton
+description: A dithered shimmer placeholder block, sized with className or style.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="skeleton" />
+
+<Playground name="skeleton" />
+
+## Installation
+
+<Install name="skeleton" />
+
+## Usage
+
+```tsx
+import { Skeleton } from "@/components/ui/skeleton";
+
+<div aria-busy="true" aria-label="Loading profile">
+  <Skeleton style={{ width: 56, height: 56 }} />
+  <Skeleton className="h-4 w-48" />
+</div>
+```
+
+A bright dithered band sweeps across a dim base. Size each block with `className` or `style`; height defaults to 16px.
+
+## Accessibility and performance
+
+- Every Skeleton is `aria-hidden`: placeholders carry no content. Mark the region that is loading with `aria-busy="true"` and a label (as above), then swap in the real content and drop `aria-busy` when it arrives. For a spoken announcement use a [Loader](/docs/components/loader) instead.
+- Under `prefers-reduced-motion: reduce`, or with `speed={0}`, the shimmer stops on a static frame.
+- Many skeletons share one WebGL context and one animation loop, and pause offscreen.
+
+## Props
+
+<PropsTable name="skeleton" />
