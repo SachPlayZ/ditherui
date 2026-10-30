@@ -471,6 +471,33 @@
           "ascii"
         ]
       }
+    },
+    {
+      "name": "hero-terminal",
+      "type": "registry:ui",
+      "title": "Hero Terminal",
+      "description": "A hero block with a headline, description and CTA slot beside a typing Terminal over a dither Backdrop.",
+      "categories": [
+        "block"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json",
+        "https://dotgrain.space/r/terminal.json",
+        "https://dotgrain.space/r/backdrop.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/hero-terminal.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither",
+          "ascii"
+        ]
+      }
     }
   ]
 }

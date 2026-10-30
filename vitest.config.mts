@@ -6,6 +6,7 @@ export default defineConfig({
     // First match wins: the engine's install-path alias before the root alias.
     alias: [
       { find: '@/lib/dotgrain', replacement: fileURLToPath(new URL('./registry/engine', import.meta.url)) },
+      { find: '@/components/ui', replacement: fileURLToPath(new URL('./registry/ui', import.meta.url)) },
       { find: '@', replacement: fileURLToPath(new URL('.', import.meta.url)) },
     ],
   },

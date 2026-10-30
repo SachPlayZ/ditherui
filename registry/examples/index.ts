@@ -8,6 +8,7 @@ import BackdropDemo from "./backdrop-demo";
 import CardDemo from "./card-demo";
 import TerminalDemo from "./terminal-demo";
 import AsciiChartDemo from "./ascii-chart-demo";
+import HeroTerminalDemo from "./hero-terminal-demo";
 import AsciiVideoDemo from "./ascii-video-demo";
 import AsciiVideoWebcamDemo from "./ascii-video-webcam-demo";
 import DitherFieldAsciiDemo from "./dither-field-ascii-demo";
@@ -44,4 +45,5 @@ export const examples: Record<string, ComponentType> = {
   "backdrop-demo": BackdropDemo,
   "terminal-demo": TerminalDemo,
   "ascii-chart-demo": AsciiChartDemo,
+  "hero-terminal-demo": HeroTerminalDemo,
 };

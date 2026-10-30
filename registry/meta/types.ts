@@ -21,10 +21,12 @@ export interface ComponentMeta {
   title: string;
   /** One plain sentence; reused for search, llms.txt and the copy prompt. */
   description: string;
-  category: "background" | "media" | "feedback" | "text" | "control" | "surface" | "data";
+  category: "background" | "media" | "feedback" | "text" | "control" | "surface" | "data" | "block";
   modes: Mode[];
   tier: "free";
   files: string[];
+  /** Other dotgrain items this one imports, by name; installed alongside it. */
+  registryDependencies?: string[];
   props: PropMeta[];
   /** Props the docs preview starts from; the code tab and copy prompt print them. */
   example: { props: Record<string, ExampleValue>; children?: string };
