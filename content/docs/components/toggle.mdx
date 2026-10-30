@@ -1,0 +1,39 @@
+---
+title: Toggle
+description: A native checkbox switch with a dithered track that eases between off and on.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="toggle" />
+
+<Playground name="toggle" />
+
+## Installation
+
+<Install name="toggle" />
+
+## Usage
+
+```tsx
+import { Toggle } from "@/components/ui/toggle";
+
+<label>
+  <Toggle name="notifications" defaultChecked /> Notifications
+</label>
+
+<Toggle aria-label="Dark mode" checked={dark} onChange={(e) => setDark(e.target.checked)} />
+```
+
+Switching on dithers the track full from the left while the thumb slides across. It works controlled (`checked` + `onChange`) or uncontrolled (`defaultChecked`), and every native checkbox attribute (`name`, `value`, `required`, `disabled`, …) passes through.
+
+## Accessibility and performance
+
+- The control is a real `<input type="checkbox" role="switch">`, invisible but covering the track: clicks, Space, labels and form submission are all native. Name it with a wrapping `<label>` or `aria-label`.
+- A focus ring is drawn on the track when the input is focused from the keyboard.
+- The track canvas is `aria-hidden` and draws only while the fill eases. Under `prefers-reduced-motion: reduce` the fill and thumb snap.
+
+## Props
+
+<PropsTable name="toggle" />
