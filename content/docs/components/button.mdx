@@ -1,0 +1,36 @@
+---
+title: Button
+description: A native button with a dither or ASCII fill that eases fuller on hover and press.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="button" />
+
+<Playground name="button" />
+
+## Installation
+
+<Install name="button" />
+
+## Usage
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+<Button onClick={save}>Save</Button>
+<Button variant="outline" size="sm" type="submit">Send</Button>
+```
+
+The face fills from the left with a dithered (or glyph) edge. Hovering eases the fill further across and pressing pulls it back, so the button feels like it gives. The label sits on a solid chip in the palette's colours, so it stays legible over any fill. `pattern`, `palette`, `glyphs`, `cell`, `contrast` and `threshold` style it like any other component.
+
+## Accessibility and performance
+
+- It is a real `<button>`: keyboard focus, the browser's focus-visible ring, `disabled`, `type="submit"` and form behaviour are all native. It defaults to `type="button"`.
+- The label is real DOM text and the button's accessible name; the canvas is `aria-hidden` and ignores the pointer.
+- The fill eases only while it changes, then stops drawing. Under `prefers-reduced-motion: reduce` it snaps between states.
+
+## Props
+
+<PropsTable name="button" />

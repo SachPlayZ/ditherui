@@ -17,10 +17,11 @@ import { DitherImage } from "@/registry/ui/dither-image";
 import { DitherProgress } from "@/registry/ui/dither-progress";
 import { DitherReveal } from "@/registry/ui/dither-reveal";
 import { AsciiRain } from "@/registry/ui/ascii-rain";
+import { Button } from "@/registry/ui/button";
 import { ScrambleText } from "@/registry/ui/scramble-text";
 
 // Each preview gets its meta example props plus knob values, so props are only known at runtime.
-const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress, "ascii-video": AsciiVideo, "scramble-text": ScrambleText, "dither-reveal": DitherReveal, "ascii-rain": AsciiRain } as unknown as Record<
+const COMPONENTS = { "dither-field": DitherField, "dither-image": DitherImage, "dither-progress": DitherProgress, "ascii-video": AsciiVideo, "scramble-text": ScrambleText, "dither-reveal": DitherReveal, "ascii-rain": AsciiRain, button: Button } as unknown as Record<
   string,
   ComponentType<Record<string, unknown> & { children?: ReactNode }>
 >;
