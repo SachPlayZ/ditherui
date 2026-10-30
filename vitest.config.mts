@@ -11,7 +11,7 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ['registry/**/*.test.{ts,tsx}', 'lib/**/*.test.{ts,tsx}'],
+    include: ['registry/**/*.test.{ts,tsx}', 'lib/**/*.test.{ts,tsx}', 'worker/**/*.test.ts'],
     setupFiles: ['test/setup.ts'],
   },
 });

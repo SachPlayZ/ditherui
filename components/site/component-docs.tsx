@@ -23,7 +23,17 @@ export function ComponentHeader({ name }: { name: string }) {
           </span>
         ))}
       </div>
-      <CopyPrompt name={name} />
+      <div className="flex gap-2">
+        <a
+          href={`https://v0.dev/chat/api/open?url=${encodeURIComponent(`${REGISTRY_URL}/${name}.json`)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-fd-accent"
+        >
+          Open in v0
+        </a>
+        <CopyPrompt name={name} />
+      </div>
     </div>
   );
 }

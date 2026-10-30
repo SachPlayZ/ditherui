@@ -1,0 +1,23 @@
+---
+title: Agent skill
+description: An installable skill that teaches AI coding agents how to use dotgrain correctly.
+---
+
+The dotgrain skill is one Markdown file with the tokens, every component and the rules that keep pages accessible and fast. Agents that support skills (Claude Code, and others that read `SKILL.md`) load it when you work with dotgrain.
+
+## Install
+
+For Claude Code, in your project:
+
+```bash
+mkdir -p .claude/skills/dotgrain && curl -fsSL https://dotgrain.space/skills/dotgrain/SKILL.md -o .claude/skills/dotgrain/SKILL.md
+```
+
+Use `~/.claude/skills/dotgrain/` instead to make it available in every project. Other agents: save the [file](/skills/dotgrain/SKILL.md) wherever they read skills or rules from.
+
+## What it covers
+
+- Installing with the shadcn CLI or [MCP](/docs/mcp), and the `@dotgrain` registry entry.
+- `DitherProvider` tokens: `mode`, `pattern`, `palette`, `glyphs`, `cell`, `speed`, `contrast`, `threshold`.
+- Every component, with when to use it.
+- Rules: real text stays in the DOM, canvases are decorative, reduced motion is respected, no extra graphics or animation libraries.
