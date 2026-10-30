@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import AsciiRainDemo from "./ascii-rain-demo";
 import ButtonDemo from "./button-demo";
+import ToggleDemo from "./toggle-demo";
 import AsciiVideoDemo from "./ascii-video-demo";
 import AsciiVideoWebcamDemo from "./ascii-video-webcam-demo";
 import DitherFieldAsciiDemo from "./dither-field-ascii-demo";
@@ -30,4 +31,5 @@ export const examples: Record<string, ComponentType> = {
   "dither-reveal-demo": DitherRevealDemo,
   "ascii-rain-demo": AsciiRainDemo,
   "button-demo": ButtonDemo,
+  "toggle-demo": ToggleDemo,
 };
