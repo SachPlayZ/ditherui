@@ -25,3 +25,11 @@ for (const meta of components) {
     await expect(page.getByRole("button", { name: /^\w+\?$/ })).toHaveText(meta.props.map((p) => `${p.name}?${p.type}`));
   });
 }
+
+test("gallery links every component; landing shows the hero and a live tile per component", async ({ page }) => {
+  await page.goto("/gallery");
+  for (const meta of components) await expect(page.locator(`main a[href="/docs/components/${meta.name}"]`)).toContainText(meta.title);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Grain for the web");
+  await expect(page.locator("[inert]")).toHaveCount(components.length);
+});
