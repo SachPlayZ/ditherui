@@ -9,7 +9,7 @@ const at = (name: FieldName, u: number, v: number, params: Record<string, number
 
 describe("fields", () => {
   it("every field stays within 0–1", () => {
-    for (const name of ["noise", "radial", "linear", "progress", "rain", "spin"] as FieldName[]) {
+    for (const name of ["noise", "radial", "linear", "progress", "rain", "spin", "shimmer"] as FieldName[]) {
       for (let i = 0; i <= 20; i++) {
         const v = at(name, i / 20, (i * 7 % 21) / 20, {}, 1.7);
         expect(v, name).toBeGreaterThanOrEqual(0);
@@ -62,6 +62,14 @@ describe("fields", () => {
     expect(ring(0).some((v) => v > 0)).toBe(true);
     expect(ring(0.25)).not.toEqual(ring(0));
     expect(field("spin", 0.5, 0.18, 1, 1, fieldParams("spin"))).toBeCloseTo(ring(0)[0]);
+  });
+
+  it("shimmer sweeps a bright band over a flat base", () => {
+    const row = (t: number) => Array.from({ length: 21 }, (_, i) => field("shimmer", i / 20, 0.5, 1, t, fieldParams("shimmer")));
+    expect(Math.min(...row(0.8))).toBeCloseTo(0.3);
+    expect(Math.max(...row(0.8))).toBeGreaterThan(0.9);
+    const peak = (t: number) => row(t).indexOf(Math.max(...row(t)));
+    expect(peak(1)).toBeGreaterThan(peak(0.8));
   });
 
   it("packs params into vec4 slots with defaults", () => {
