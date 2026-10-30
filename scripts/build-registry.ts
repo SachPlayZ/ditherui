@@ -29,7 +29,7 @@ const registry = {
       title: c.title,
       description: c.description,
       categories: [c.category],
-      registryDependencies: [`${base}/engine.json`],
+      registryDependencies: [`${base}/engine.json`, ...(c.registryDependencies ?? []).map((d) => `${base}/${d}.json`)],
       dependencies: [],
       files: c.files.map((path) => ({ path, type: "registry:ui" })),
       meta: { modes: c.modes },

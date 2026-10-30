@@ -14,7 +14,8 @@ for (const meta of components) {
       });
     });
     await page.goto(`/docs/components/${meta.name}`);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(meta.title);
+    // Blocks render their own h1 in the preview; the page title comes first.
+    await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(meta.title);
 
     await page.getByRole("button", { name: "Copy prompt" }).click();
     const copied = () => page.evaluate(() => (window as unknown as { copied?: string }).copied);

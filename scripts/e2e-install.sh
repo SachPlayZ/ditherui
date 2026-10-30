@@ -35,6 +35,7 @@ cat > app/page.tsx <<'EOF'
 import { DitherField } from "@/components/ui/dither-field";
 import { DitherImage } from "@/components/ui/dither-image";
 import { DitherProgress } from "@/components/ui/dither-progress";
+import { HeroTerminal } from "@/components/ui/hero-terminal";
 
 export default function Page() {
   return (
@@ -44,6 +45,7 @@ export default function Page() {
       </DitherField>
       <DitherImage src="/next.svg" alt="Next.js logo" width={394} height={80} mode="ascii" />
       <DitherProgress value={40} label="Loading" />
+      <HeroTerminal title="dotgrain" lines={["$ pnpm build"]} />
     </>
   );
 }
