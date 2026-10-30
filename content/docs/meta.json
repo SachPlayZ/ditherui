@@ -1,3 +1,11 @@
 {
-  "pages": ["index", "installation", "theming", "---Components---", "...components"]
+  "pages": [
+    "index",
+    "installation",
+    "theming",
+    "mcp",
+    "agent-skill",
+    "---Components---",
+    "...components"
+  ]
 }
