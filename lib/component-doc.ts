@@ -51,6 +51,7 @@ const pascal = (name: string) => name.replace(/(^|-)(\w)/g, (_, __, c: string) =
 function attr(name: string, v: ExampleValue): string {
   if (v === true) return name;
   if (typeof v === "string") return `${name}="${v}"`;
+  if (Array.isArray(v)) return `${name}={${JSON.stringify(v)}}`;
   if (typeof v === "object") return `${name}={{ ${Object.entries(v).map(([k, x]) => `${k}: ${JSON.stringify(x)}`).join(", ")} }}`;
   return `${name}={${v}}`;
 }

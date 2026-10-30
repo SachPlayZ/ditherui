@@ -418,6 +418,30 @@
           "dither"
         ]
       }
+    },
+    {
+      "name": "terminal",
+      "type": "registry:ui",
+      "title": "Terminal",
+      "description": "Command lines as real DOM text inside an ASCII frame, with an optional typing effect.",
+      "categories": [
+        "surface"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/terminal.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "ascii"
+        ]
+      }
     }
   ]
 }
