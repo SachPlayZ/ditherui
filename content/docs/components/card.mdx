@@ -1,0 +1,37 @@
+---
+title: Card
+description: A surface with a dither or ASCII border and optional fill around normal DOM children.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="card" />
+
+<Playground name="card" />
+
+## Installation
+
+<Install name="card" />
+
+## Usage
+
+```tsx
+import { Card } from "@/components/ui/card";
+
+<Card border={3} fill={0.1}>
+  <h3>Starter</h3>
+  <p>Every component, one engine.</p>
+</Card>
+```
+
+The border is counted in marks, so it stays crisp at any size: dots in dither mode, whole glyph cells (the ramp's densest glyph) in ASCII. `fill` adds a faint texture inside; keep it low under text.
+
+## Accessibility and performance
+
+- Children are normal DOM above an `aria-hidden` canvas; the card adds no roles.
+- The frame never animates, so it draws once per resize or token change.
+
+## Props
+
+<PropsTable name="card" />

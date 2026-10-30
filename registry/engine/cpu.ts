@@ -12,7 +12,7 @@ function eachValue(frame: Frame, aspect: number, callback: (x: number, y: number
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const u = (x + 0.5) / width, w = (y + 0.5) / height;
-      const v = source.kind === "field" ? field(source.field, u, w, aspect, time, params) : values![y * width + x];
+      const v = source.kind === "field" ? field(source.field, u, w, aspect, time, params, [width, height]) : values![y * width + x];
       callback(x, y, v + cursorBump(u, w, aspect, cursor));
     }
   }

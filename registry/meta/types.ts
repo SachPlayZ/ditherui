@@ -21,7 +21,7 @@ export interface ComponentMeta {
   title: string;
   /** One plain sentence; reused for search, llms.txt and the copy prompt. */
   description: string;
-  category: "background" | "media" | "feedback" | "text" | "control";
+  category: "background" | "media" | "feedback" | "text" | "control" | "surface";
   modes: Mode[];
   tier: "free";
   files: string[];
