@@ -1,0 +1,36 @@
+---
+title: ASCII Chart
+description: Line, bar and sparkline charts drawn in glyphs, with a hidden data table for screen readers.
+---
+
+import { ComponentHeader, Install, PropsTable } from '@/components/site/component-docs';
+import { Playground } from '@/components/site/playground';
+
+<ComponentHeader name="ascii-chart" />
+
+<Playground name="ascii-chart" />
+
+## Installation
+
+<Install name="ascii-chart" />
+
+## Usage
+
+```tsx
+import { AsciiChart } from "@/components/ui/ascii-chart";
+
+<AsciiChart label="Weekly visits" data={[12, 18, 15, 26, 22, 31]} />
+<AsciiChart type="bar" label="Weekly visits" data={visits} labels={weeks} />
+<div>Signups <AsciiChart type="sparkline" label="Daily signups" data={signups} /></div>
+```
+
+`line` and `bar` fill their box (160px tall by default; size it with `className` or `style`). Values scale from zero (or the series minimum, if lower) to the series maximum. Bars draw partial heights with lighter glyphs at the top. `sparkline` is an inline, one-row chart with one glyph per point, using the `blocks` ramp unless you pass `glyphs`. It renders a `div` (it carries a table), so place it in a `div` or flex row rather than a `<p>`.
+
+## Accessibility and performance
+
+- The glyphs are an `aria-hidden` canvas. The data is in a visually hidden `<table>` captioned by `label`, with `labels` (or 1, 2, 3…) as row headers, so screen readers can read every value.
+- Charts are static: they redraw only when the data, size or tokens change. Plot values are cached per series and size.
+
+## Props
+
+<PropsTable name="ascii-chart" />

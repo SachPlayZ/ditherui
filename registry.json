@@ -60,6 +60,11 @@
           "target": "lib/dotgrain/patterns.ts"
         },
         {
+          "path": "registry/engine/plot.ts",
+          "type": "registry:lib",
+          "target": "lib/dotgrain/plot.ts"
+        },
+        {
           "path": "registry/engine/pointer.ts",
           "type": "registry:lib",
           "target": "lib/dotgrain/pointer.ts"
@@ -434,6 +439,30 @@
       "files": [
         {
           "path": "registry/ui/terminal.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "ascii"
+        ]
+      }
+    },
+    {
+      "name": "ascii-chart",
+      "type": "registry:ui",
+      "title": "ASCII Chart",
+      "description": "Line, bar and sparkline charts drawn in glyphs, with a hidden data table for screen readers.",
+      "categories": [
+        "data"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/ascii-chart.tsx",
           "type": "registry:ui"
         }
       ],
