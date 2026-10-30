@@ -271,6 +271,31 @@
           "ascii"
         ]
       }
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "A native button with a dither or ASCII fill that eases fuller on hover and press.",
+      "categories": [
+        "control"
+      ],
+      "registryDependencies": [
+        "https://dotgrain.space/r/engine.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "modes": [
+          "dither",
+          "ascii"
+        ]
+      }
     }
   ]
 }
