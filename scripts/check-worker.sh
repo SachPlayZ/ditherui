@@ -34,3 +34,7 @@ for p in "${paths[@]}"; do
   [ "$code" = 200 ] || failed=1
 done
 if [ "$failed" = 1 ]; then cat "$LOG"; exit 1; fi
+
+# Search runs in the Worker too: a category query must find a component page.
+curl -s "localhost:$PORT/api/search?query=feedback" | grep -q '/docs/components/loader' || { echo "search API: no component hit"; cat "$LOG"; exit 1; }
+echo "search API OK"
